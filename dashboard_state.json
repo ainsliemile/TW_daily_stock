@@ -1,11 +1,9 @@
 {
-  "date": "2026-05-30",
+  "date": "2026-05-31",
   "sox_pass": true,
   "sox_msg": "<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 (12829.38 >= 12688.03) - 今日允許進場</div>",
-  "morning_update_time": "",
-  "morning_top20": [],
-  "afternoon_update_time": "2026-05-30 23:51:55",
-  "afternoon_top20": [
+  "morning_update_time": "2026-05-31 00:00:09",
+  "morning_top30": [
     {
       "rank": 1,
       "ticker": "2353",
@@ -185,6 +183,98 @@
       "curr_price": 1190.0,
       "momentum": 8.67579908675799,
       "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 21,
+      "ticker": "2409",
+      "name": "友達",
+      "yest_close": 21.200000762939453,
+      "curr_price": 23.0,
+      "momentum": 8.490562133408956,
+      "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 22,
+      "ticker": "1303",
+      "name": "南亞",
+      "yest_close": 90.5,
+      "curr_price": 98.0999984741211,
+      "momentum": 8.397788369194577,
+      "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 23,
+      "ticker": "6446",
+      "name": "藥華藥",
+      "yest_close": 862.0,
+      "curr_price": 930.0,
+      "momentum": 7.888631090487238,
+      "status": "觀察中"
+    },
+    {
+      "rank": 24,
+      "ticker": "2059",
+      "name": "川湖",
+      "yest_close": 4700.0,
+      "curr_price": 5065.0,
+      "momentum": 7.76595744680851,
+      "status": "觀察中"
+    },
+    {
+      "rank": 25,
+      "ticker": "8021",
+      "name": "尖點",
+      "yest_close": 418.0,
+      "curr_price": 450.0,
+      "momentum": 7.655502392344498,
+      "status": "觀察中"
+    },
+    {
+      "rank": 26,
+      "ticker": "1605",
+      "name": "華新",
+      "yest_close": 36.0,
+      "curr_price": 38.75,
+      "momentum": 7.638888888888889,
+      "status": "觀察中"
+    },
+    {
+      "rank": 27,
+      "ticker": "7769",
+      "name": "鴻勁",
+      "yest_close": 7700.0,
+      "curr_price": 8260.0,
+      "momentum": 7.2727272727272725,
+      "status": "觀察中"
+    },
+    {
+      "rank": 28,
+      "ticker": "00631L",
+      "name": "元大台灣50正2",
+      "yest_close": 34.470001220703125,
+      "curr_price": 36.939998626708984,
+      "momentum": 7.1656435118497965,
+      "status": "觀察中"
+    },
+    {
+      "rank": 29,
+      "ticker": "2408",
+      "name": "南亞科",
+      "yest_close": 324.0,
+      "curr_price": 347.0,
+      "momentum": 7.098765432098765,
+      "status": "觀察中"
+    },
+    {
+      "rank": 30,
+      "ticker": "3189",
+      "name": "景碩",
+      "yest_close": 681.0,
+      "curr_price": 729.0,
+      "momentum": 7.048458149779736,
+      "status": "觀察中"
     }
-  ]
+  ],
+  "afternoon_update_time": "",
+  "afternoon_top30": []
 }
