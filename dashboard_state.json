@@ -1,0 +1,190 @@
+{
+  "date": "2026-05-30",
+  "sox_pass": true,
+  "sox_msg": "<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 (12829.38 >= 12688.03) - 今日允許進場</div>",
+  "morning_update_time": "",
+  "morning_top20": [],
+  "afternoon_update_time": "2026-05-30 23:44:57",
+  "afternoon_top20": [
+    {
+      "rank": 1,
+      "ticker": "2353",
+      "name": "宏碁",
+      "yest_close": 32.0,
+      "curr_price": 35.20000076293945,
+      "momentum": 10.000002384185791,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 2,
+      "ticker": "6669",
+      "name": "緯穎",
+      "yest_close": 4950.0,
+      "curr_price": 5445.0,
+      "momentum": 10.0,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 3,
+      "ticker": "8454",
+      "name": "富邦媒",
+      "yest_close": 210.0,
+      "curr_price": 231.0,
+      "momentum": 10.0,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 4,
+      "ticker": "2357",
+      "name": "華碩",
+      "yest_close": 692.0,
+      "curr_price": 761.0,
+      "momentum": 9.971098265895954,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 5,
+      "ticker": "1319",
+      "name": "東陽",
+      "yest_close": 86.5,
+      "curr_price": 95.0999984741211,
+      "momentum": 9.94219476777005,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 6,
+      "ticker": "3481",
+      "name": "群創",
+      "yest_close": 46.400001525878906,
+      "curr_price": 51.0,
+      "momentum": 9.913789488897997,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 7,
+      "ticker": "6770",
+      "name": "力積電",
+      "yest_close": 80.69999694824219,
+      "curr_price": 88.69999694824219,
+      "momentum": 9.913259358771583,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 8,
+      "ticker": "1326",
+      "name": "台化",
+      "yest_close": 45.400001525878906,
+      "curr_price": 49.900001525878906,
+      "momentum": 9.911893939992293,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 9,
+      "ticker": "2356",
+      "name": "英業達",
+      "yest_close": 63.900001525878906,
+      "curr_price": 70.19999694824219,
+      "momentum": 9.859147530398479,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 10,
+      "ticker": "2313",
+      "name": "華通",
+      "yest_close": 259.0,
+      "curr_price": 284.5,
+      "momentum": 9.845559845559846,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 11,
+      "ticker": "3090",
+      "name": "日電貿",
+      "yest_close": 208.5,
+      "curr_price": 229.0,
+      "momentum": 9.832134292565947,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 12,
+      "ticker": "4916",
+      "name": "事欣科",
+      "yest_close": 102.5,
+      "curr_price": 112.5,
+      "momentum": 9.75609756097561,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 13,
+      "ticker": "2344",
+      "name": "華邦電",
+      "yest_close": 144.0,
+      "curr_price": 158.0,
+      "momentum": 9.722222222222223,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 14,
+      "ticker": "3231",
+      "name": "緯創",
+      "yest_close": 144.5,
+      "curr_price": 158.5,
+      "momentum": 9.688581314878892,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 15,
+      "ticker": "2324",
+      "name": "仁寶",
+      "yest_close": 33.5,
+      "curr_price": 36.70000076293945,
+      "momentum": 9.552241083401352,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 16,
+      "ticker": "6805",
+      "name": "富世達",
+      "yest_close": 1765.0,
+      "curr_price": 1930.0,
+      "momentum": 9.34844192634561,
+      "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 17,
+      "ticker": "2495",
+      "name": "普安",
+      "yest_close": 47.349998474121094,
+      "curr_price": 51.5,
+      "momentum": 8.764523040369408,
+      "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 18,
+      "ticker": "6531",
+      "name": "愛普*",
+      "yest_close": 1095.0,
+      "curr_price": 1190.0,
+      "momentum": 8.67579908675799,
+      "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 19,
+      "ticker": "4912",
+      "name": "聯德控股-KY",
+      "yest_close": 106.0,
+      "curr_price": 115.0,
+      "momentum": 8.49056603773585,
+      "status": "⭐️ 買進標的"
+    },
+    {
+      "rank": 20,
+      "ticker": "2409",
+      "name": "友達",
+      "yest_close": 21.200000762939453,
+      "curr_price": 23.0,
+      "momentum": 8.490562133408956,
+      "status": "⭐️ 買進標的"
+    }
+  ]
+}
