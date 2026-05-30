@@ -2,13 +2,13 @@ name: 每日自動更新股票面板
 
 on:
   schedule:
-    # 台灣時間 08:30 = UTC 00:30 (開盤前算 SOX 濾網，如果沒過你就能準備賣股)
+    # 台灣時間 08:30 = UTC 00:30 (開盤前算 SOX 濾網)
     - cron: '30 0 * * 1-5'
-    # 台灣時間 09:05 = UTC 01:05 (捕捉早盤前 20 強)
+    # 台灣時間 09:05 = UTC 01:05 (早盤前 30 強快照 + 存入歷史庫)
     - cron: '5 1 * * 1-5'
-    # 台灣時間 13:20 = UTC 05:20 (捕捉尾盤前 20 強)
+    # 台灣時間 13:20 = UTC 05:20 (尾盤前 30 強快照 + 存入歷史庫)
     - cron: '20 5 * * 1-5'
-  workflow_dispatch: # 允許你隨時手動點擊更新
+  workflow_dispatch: # 允許手動觸發
 
 jobs:
   build:
@@ -32,10 +32,11 @@ jobs:
       - name: 執行資料抓取與網頁生成
         run: python generate_dashboard.py
 
-      - name: 將生成的網頁與 JSON 狀態存回 GitHub
+      - name: 將生成的網頁與歷史大數據庫同步回傳 GitHub
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add index.html dashboard_state.json
-          git commit -m "Auto update dashboard" || exit 0
+          # 🌟 核心修改：將歷史 CSV 檔案一起納入版本控制備份
+          git add index.html dashboard_state.json historical_momentum_data.csv
+          git commit -m "Auto update dashboard and save history data" || exit 0
           git push
