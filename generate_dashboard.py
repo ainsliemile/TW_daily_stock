@@ -27,7 +27,7 @@ else:
 
 # 每天換日時清空當日網頁顯示紀錄
 if state.get('date') != today_str:
-    state = {'date': today_str, 'sox_pass': False, 'sox_msg': '', 
+    state = {'date': today_str, 'sox_pass': False, 'sox_msg': '', 'sox_csv_val': '未知',
              'morning_update_time': '', 'morning_top30': [],
              'afternoon_update_time': '', 'afternoon_top30': []}
 
@@ -44,12 +44,17 @@ try:
         if latest_sox >= ma5_sox:
             state['sox_pass'] = True
             state['sox_msg'] = f"<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 ({latest_sox:.2f} >= {ma5_sox:.2f}) - 今日允許進場</div>"
+            # 🌟 格式化存入 Excel 的文字：例如 "通過(5120.5/5080.2)"
+            state['sox_csv_val'] = f"通過({latest_sox:.2f}/{ma5_sox:.2f})"
         else:
             state['sox_pass'] = False
             state['sox_msg'] = f"<div class='status fail'>❌ 【濾網未通過】SOX小於5日均線 ({latest_sox:.2f} < {ma5_sox:.2f}) - 今日策略全數出清</div>"
+            # 🌟 格式化存入 Excel 的文字：例如 "未通過(4950.1/5010.4)"
+            state['sox_csv_val'] = f"未通過({latest_sox:.2f}/{ma5_sox:.2f})"
 except Exception as e:
     if not state['sox_msg']:
         state['sox_msg'] = f"<div class='status fail'>⚠️ SOX 數據抓取失敗: {e}</div>"
+        state['sox_csv_val'] = "抓取失敗"
 
 # 3. 讀取 Excel 中的 股票 與 ETF (雙頁合併)
 try:
@@ -63,7 +68,8 @@ except Exception as e:
     print(f"Excel 讀取失敗: {e}")
     tickers, names = [], []
 
-if state['sox_pass'] and tickers:
+# 🌟 為了對照實驗：即便 SOX 沒通過，我們依然下載資料並記錄，讓大數據不中斷！
+if tickers:
     tw_tickers = [f"{t}.TW" for t in tickers]
     two_tickers = [f"{t}.TWO" for t in tickers]
     all_tickers = tw_tickers + two_tickers
@@ -87,7 +93,7 @@ if state['sox_pass'] and tickers:
                     momentum = ((c_price - y_close) / y_close) * 100
                     results.append({'rank': 0, 'ticker': t, 'name': n, 'yest_close': y_close, 'curr_price': c_price, 'momentum': momentum, 'status': ''})
                     
-        # 🚀 升級：排序並取前 30 名
+        # 排序並取前 30 名
         results.sort(key=lambda x: x['momentum'], reverse=True)
         top30 = results[:30]
         
@@ -112,12 +118,13 @@ if state['sox_pass'] and tickers:
             state['afternoon_top30'] = top30
             state['afternoon_update_time'] = current_time_str
             
-        # 🌟 核心新功能：將數據永久累加寫入 CSV 檔案 (歷史大數據庫)
+        # 🌟 寫入歷史 CSV 檔案 (新增 SOX濾網 欄位)
         history_rows = []
         for r in top30:
             history_rows.append({
                 '日期': today_str,
                 '時段': current_snapshot,
+                'SOX濾網': state['sox_csv_val'], # 👈 新增此欄位記錄 SOX 狀況
                 '排名': r['rank'],
                 '代號': r['ticker'],
                 '名稱': r['name'],
@@ -129,7 +136,7 @@ if state['sox_pass'] and tickers:
         df_new_history = pd.DataFrame(history_rows)
         # 使用 utf-8-sig 確保 Excel 開啟中文不會亂碼
         df_new_history.to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
-        print(f"📊 成功將 30 筆 {current_snapshot} 數據累積寫入歷史資料庫！")
+        print(f"📊 成功將 30 筆 {current_snapshot} 數據與 SOX 狀態累積寫入歷史資料庫！")
 
     except Exception as e:
         print(f"股價下載失敗: {e}")
