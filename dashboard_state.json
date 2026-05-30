@@ -4,7 +4,7 @@
   "sox_msg": "<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 (12829.38 >= 12688.03) - 今日允許進場</div>",
   "morning_update_time": "",
   "morning_top20": [],
-  "afternoon_update_time": "2026-05-30 23:44:57",
+  "afternoon_update_time": "2026-05-30 23:51:55",
   "afternoon_top20": [
     {
       "rank": 1,
@@ -80,6 +80,15 @@
     },
     {
       "rank": 9,
+      "ticker": "2382",
+      "name": "廣達",
+      "yest_close": 308.5,
+      "curr_price": 339.0,
+      "momentum": 9.886547811993516,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 10,
       "ticker": "2356",
       "name": "英業達",
       "yest_close": 63.900001525878906,
@@ -88,7 +97,7 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 10,
+      "rank": 11,
       "ticker": "2313",
       "name": "華通",
       "yest_close": 259.0,
@@ -97,7 +106,7 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 11,
+      "rank": 12,
       "ticker": "3090",
       "name": "日電貿",
       "yest_close": 208.5,
@@ -106,7 +115,7 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 12,
+      "rank": 13,
       "ticker": "4916",
       "name": "事欣科",
       "yest_close": 102.5,
@@ -115,7 +124,7 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 13,
+      "rank": 14,
       "ticker": "2344",
       "name": "華邦電",
       "yest_close": 144.0,
@@ -124,7 +133,7 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 14,
+      "rank": 15,
       "ticker": "3231",
       "name": "緯創",
       "yest_close": 144.5,
@@ -133,7 +142,16 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 15,
+      "rank": 16,
+      "ticker": "2376",
+      "name": "技嘉",
+      "yest_close": 337.5,
+      "curr_price": 370.0,
+      "momentum": 9.62962962962963,
+      "status": "⚠️ 漲停跳過"
+    },
+    {
+      "rank": 17,
       "ticker": "2324",
       "name": "仁寶",
       "yest_close": 33.5,
@@ -142,7 +160,7 @@
       "status": "⚠️ 漲停跳過"
     },
     {
-      "rank": 16,
+      "rank": 18,
       "ticker": "6805",
       "name": "富世達",
       "yest_close": 1765.0,
@@ -151,7 +169,7 @@
       "status": "⭐️ 買進標的"
     },
     {
-      "rank": 17,
+      "rank": 19,
       "ticker": "2495",
       "name": "普安",
       "yest_close": 47.349998474121094,
@@ -160,30 +178,12 @@
       "status": "⭐️ 買進標的"
     },
     {
-      "rank": 18,
+      "rank": 20,
       "ticker": "6531",
       "name": "愛普*",
       "yest_close": 1095.0,
       "curr_price": 1190.0,
       "momentum": 8.67579908675799,
-      "status": "⭐️ 買進標的"
-    },
-    {
-      "rank": 19,
-      "ticker": "4912",
-      "name": "聯德控股-KY",
-      "yest_close": 106.0,
-      "curr_price": 115.0,
-      "momentum": 8.49056603773585,
-      "status": "⭐️ 買進標的"
-    },
-    {
-      "rank": 20,
-      "ticker": "2409",
-      "name": "友達",
-      "yest_close": 21.200000762939453,
-      "curr_price": 23.0,
-      "momentum": 8.490562133408956,
       "status": "⭐️ 買進標的"
     }
   ]
