@@ -1,0 +1,41 @@
+name: 每日自動更新動能面板
+
+on:
+  schedule:
+    # 這是 UTC 時間。台灣時間(UTC+8)減去 8 小時
+    # 台灣 08:30 = UTC 00:30。台灣 13:15 = UTC 05:15 (週一到週五)
+    - cron: '30 0 * * 1-5'
+    - cron: '15 5 * * 1-5'
+  workflow_dispatch: # 允許你隨時手動點擊更新
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允許機器人把網頁檔推回 GitHub
+
+    steps:
+      - name: 取得程式碼
+        uses: actions/checkout@v3
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 安裝套件
+        run: |
+          pip install -r requirements.txt
+          pip install pytz
+
+      - name: 執行資料抓取與網頁生成
+        run: python generate_dashboard.py
+
+      - name: 將生成的網頁儲存到 GitHub
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          # 如果沒有變化就不 commit，避免報錯
+          git commit -m "Auto update dashboard" || exit 0
+          git push
