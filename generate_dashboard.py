@@ -2,8 +2,24 @@ import pandas as pd
 import yfinance as yf
 import json
 import os
+import requests
+import warnings
 from datetime import datetime
 import pytz
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+warnings.filterwarnings('ignore')
+
+# 🌟 導入你提供的「超穩定安全連線引擎」
+session = requests.Session()
+retry = Retry(connect=3, backoff_factor=0.5)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
+session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+})
 
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
@@ -25,13 +41,12 @@ if os.path.exists(state_file):
 else:
     state = {}
 
-# 每天換日時清空當日網頁顯示紀錄
 if state.get('date') != today_str:
     state = {'date': today_str, 'sox_pass': False, 'sox_msg': '', 'sox_csv_val': '未知',
              'morning_update_time': '', 'morning_top30': [],
              'afternoon_update_time': '', 'afternoon_top30': []}
 
-# 2. 計算 SOX 濾網 (費城半導體 5日均線)
+# 2. 計算 SOX 濾網
 try:
     sox_data = yf.download('^SOX', period='10d', progress=False)
     if not sox_data.empty:
@@ -54,13 +69,12 @@ except Exception as e:
         state['sox_msg'] = f"<div class='status fail'>⚠️ SOX 數據抓取失敗: {e}</div>"
         state['sox_csv_val'] = "抓取失敗"
 
-# 3. 讀取 Excel 中的 股票 與 ETF (雙頁合併)
+# 3. 讀取 Excel
 try:
     df_stocks = pd.read_excel('TrackingList-TW.xlsx', sheet_name=0, header=None, dtype=str)
     df_etfs = pd.read_excel('TrackingList-TW.xlsx', sheet_name=1, header=None, dtype=str)
     df_excel = pd.concat([df_stocks, df_etfs], ignore_index=True)
     
-    # 🌟 終極防呆 1：保證代號與名稱 100% 數量對齊，避免後續處理錯位與截斷
     df_valid = df_excel.iloc[:, 0:2].dropna()
     
     tickers = []
@@ -74,92 +88,84 @@ try:
 except Exception as e:
     print(f"Excel 讀取失敗: {e}")
     tickers, names = [], []
-    
-# 🌟 開始下載與計算動能
+
+# 4. 🌟 使用你提供的「逐筆穩健下載引擎」抓取資料
 if tickers:
-    tw_tickers = [f"{t}.TW" for t in tickers]
-    two_tickers = [f"{t}.TWO" for t in tickers]
-    all_tickers = tw_tickers + two_tickers
+    print(f"準備使用超穩定引擎逐筆下載 {len(tickers)} 檔標的資料...")
+    results = []
     
-    try:
-        # 🌟 下載改為 3d，確保就算遇到長假第一天也有足夠兩根 K 線可算
-        data = yf.download(all_tickers, period='3d', progress=False)
-        prices = data['Close']
-        if isinstance(prices, pd.Series): prices = prices.to_frame()
+    for t, n in zip(tickers, names):
+        try:
+            actual_ticker = f"{t}.TW"
+            tkr = yf.Ticker(actual_ticker, session=session)
+            hist = tkr.history(period="5d", auto_adjust=True)
             
-        results = []
-        for t, n in zip(tickers, names):
-            tw_t, two_t = f"{t}.TW", f"{t}.TWO"
-            valid_t = None
-            
-            # 🌟 終極防呆 2：找出有資料的代碼 (只要該直欄不全是空值就成立)
-            if tw_t in prices.columns and not prices[tw_t].isna().all(): 
-                valid_t = tw_t
-            elif two_t in prices.columns and not prices[two_t].isna().all(): 
-                valid_t = two_t
+            # 如果 .TW 抓不到，智能切換到 .TWO (上櫃)
+            if hist.empty or 'Close' not in hist.columns:
+                actual_ticker = f"{t}.TWO"
+                tkr = yf.Ticker(actual_ticker, session=session)
+                hist = tkr.history(period="5d", auto_adjust=True)
                 
-            if valid_t:
-                # 🌟 終極防呆 3：解決早盤(09:05)股票還沒成交的空值陷阱！
-                # 用 ffill() 往前補足昨日收盤價。若今天沒成交，漲幅就是 0%，不會再被剔除！
-                s_filled = prices[valid_t].ffill().dropna()
-                
+            if not hist.empty and 'Close' in hist.columns:
+                # 去除空值，抓取最後兩筆有效收盤價
+                s_filled = hist['Close'].dropna()
                 if len(s_filled) >= 2:
                     y_close, c_price = float(s_filled.iloc[-2]), float(s_filled.iloc[-1])
-                    momentum = ((c_price - y_close) / y_close) * 100
-                    results.append({'rank': 0, 'ticker': t, 'name': n, 'yest_close': y_close, 'curr_price': c_price, 'momentum': momentum, 'status': ''})
+                    if y_close > 0:
+                        momentum = ((c_price - y_close) / y_close) * 100
+                        results.append({'rank': 0, 'ticker': t, 'name': n, 'yest_close': y_close, 'curr_price': c_price, 'momentum': momentum, 'status': ''})
+        except Exception:
+            pass # 發生錯誤直接跳過，不影響其他股票
                     
-        # 排序並取前 30 名
-        results.sort(key=lambda x: x['momentum'], reverse=True)
-        top30 = results[:30]
-        
-        # 標記狀態
-        buy_count = 0
-        for i, r in enumerate(top30):
-            r['rank'] = i + 1
-            if r['momentum'] >= 9.5:
-                r['status'] = "⚠️ 漲停跳過"
-            elif buy_count < 5:
-                r['status'] = "⭐️ 買進標的"
-                buy_count += 1
-            else:
-                r['status'] = "觀察中"
-                
-        # 紀錄當前時間戳記並寫入網格狀態
-        current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
-        if current_hour < 11:
-            state['morning_top30'] = top30
-            state['morning_update_time'] = current_time_str
+    # 排序並取前 30 名
+    results.sort(key=lambda x: x['momentum'], reverse=True)
+    top30 = results[:30]
+    
+    buy_count = 0
+    for i, r in enumerate(top30):
+        r['rank'] = i + 1
+        if r['momentum'] >= 9.5:
+            r['status'] = "⚠️ 漲停跳過"
+        elif buy_count < 5:
+            r['status'] = "⭐️ 買進標的"
+            buy_count += 1
         else:
-            state['afternoon_top30'] = top30
-            state['afternoon_update_time'] = current_time_str
+            r['status'] = "觀察中"
             
-        history_rows = []
-        for r in top30:
-            history_rows.append({
-                '日期': today_str,
-                '時段': current_snapshot,
-                'SOX濾網': state['sox_csv_val'], 
-                '排名': r['rank'],
-                '代號': r['ticker'],
-                '名稱': r['name'],
-                '昨收': round(r['yest_close'], 2),
-                '即時價': round(r['curr_price'], 2),
-                '漲幅(%)': round(r['momentum'], 2),
-                '狀態': r['status']
-            })
+    # 紀錄當前時間
+    current_time_str = now.strftime('%Y-%m-%d %H:%M:%S')
+    if current_hour < 11:
+        state['morning_top30'] = top30
+        state['morning_update_time'] = current_time_str
+    else:
+        state['afternoon_top30'] = top30
+        state['afternoon_update_time'] = current_time_str
+        
+    # 寫入歷史 CSV
+    history_rows = []
+    for r in top30:
+        history_rows.append({
+            '日期': today_str,
+            '時段': current_snapshot,
+            'SOX濾網': state['sox_csv_val'], 
+            '排名': r['rank'],
+            '代號': r['ticker'],
+            '名稱': r['name'],
+            '昨收': round(r['yest_close'], 2),
+            '即時價': round(r['curr_price'], 2),
+            '漲幅(%)': round(r['momentum'], 2),
+            '狀態': r['status']
+        })
+    if history_rows:
         df_new_history = pd.DataFrame(history_rows)
-        # 使用 utf-8-sig 確保 Excel 開啟中文不會亂碼
         df_new_history.to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
-        print(f"📊 成功將 30 筆 {current_snapshot} 數據與 SOX 狀態累積寫入歷史資料庫！")
-
-    except Exception as e:
-        print(f"股價下載失敗: {e}")
+        print(f"📊 成功將 {len(top30)} 筆 {current_snapshot} 數據累積寫入歷史資料庫！")
 
 # 儲存狀態進 JSON
 with open(state_file, 'w', encoding='utf-8') as f:
     json.dump(state, f, ensure_ascii=False, indent=2)
 
-# 4. 產生網頁 HTML
+# 產生網頁 HTML
 def generate_table_html(top30_data, update_time, title, subtitle):
     if not top30_data:
         return f"<div class='box'><h3>{title} <br><span style='font-size: 13px; color: #aaa;'>{subtitle}</span></h3><p style='padding: 20px; text-align: center; color: #888;'>尚未到達擷取時間，或資料等待中...</p></div>"
@@ -211,9 +217,6 @@ html_content = f"""
 </body>
 </html>
 """
-
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
