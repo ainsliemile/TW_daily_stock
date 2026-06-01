@@ -1,9 +1,9 @@
 {
   "date": "2026-06-02",
   "sox_pass": true,
-  "sox_msg": "<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 (12949.10 >= 12837.34) - 今日允許進場</div>",
-  "sox_csv_val": "通過(12949.10/12837.34)",
-  "morning_update_time": "2026-06-02 03:58:09",
+  "sox_msg": "<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 (12965.65 >= 12840.65) - 今日允許進場</div>",
+  "sox_csv_val": "通過(12965.65/12840.65)",
+  "morning_update_time": "2026-06-02 04:48:21",
   "morning_top30": [
     {
       "rank": 1,
