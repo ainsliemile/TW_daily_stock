@@ -63,8 +63,14 @@ try:
     df_excel = pd.concat([df_stocks, df_etfs], ignore_index=True)
     
     # 🌟 核心防呆：強制轉字串，並清除 Pandas 自動加上的 '.0' 尾巴
-    raw_tickers = df_excel.iloc[:, 0].dropna().astype(str).str.strip()
-    tickers = raw_tickers.str.replace(r'\.0$', '', regex=True).tolist()
+    # 暴力強制轉整數再轉字串 (解決 .0 問題)
+    raw_tickers = df_excel.iloc[:, 0].dropna()
+    tickers = []
+    for t in raw_tickers:
+        t_str = str(t).strip()
+        if t_str.endswith('.0'):
+            t_str = t_str[:-2] # 直接把最後兩個字元 '.0' 砍掉
+        tickers.append(t_str)
     
     names = df_excel.iloc[:, 1].dropna().astype(str).str.strip().tolist()
 except Exception as e:
