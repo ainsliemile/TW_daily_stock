@@ -44,12 +44,10 @@ try:
         if latest_sox >= ma5_sox:
             state['sox_pass'] = True
             state['sox_msg'] = f"<div class='status pass'>✅ 【濾網通過】SOX大於5日均線 ({latest_sox:.2f} >= {ma5_sox:.2f}) - 今日允許進場</div>"
-            # 🌟 格式化存入 Excel 的文字：例如 "通過(5120.5/5080.2)"
             state['sox_csv_val'] = f"通過({latest_sox:.2f}/{ma5_sox:.2f})"
         else:
             state['sox_pass'] = False
             state['sox_msg'] = f"<div class='status fail'>❌ 【濾網未通過】SOX小於5日均線 ({latest_sox:.2f} < {ma5_sox:.2f}) - 今日策略全數出清</div>"
-            # 🌟 格式化存入 Excel 的文字：例如 "未通過(4950.1/5010.4)"
             state['sox_csv_val'] = f"未通過({latest_sox:.2f}/{ma5_sox:.2f})"
 except Exception as e:
     if not state['sox_msg']:
@@ -62,30 +60,30 @@ try:
     df_etfs = pd.read_excel('TrackingList-TW.xlsx', sheet_name=1, header=None, dtype=str)
     df_excel = pd.concat([df_stocks, df_etfs], ignore_index=True)
     
-    # 🌟 核心防呆：強制轉字串，並清除 Pandas 自動加上的 '.0' 尾巴
-    # 暴力強制轉整數再轉字串 (解決 .0 問題)
-    raw_tickers = df_excel.iloc[:, 0].dropna()
+    # 🌟 終極防呆 1：保證代號與名稱 100% 數量對齊，避免後續處理錯位與截斷
+    df_valid = df_excel.iloc[:, 0:2].dropna()
+    
     tickers = []
-    for t in raw_tickers:
+    for t in df_valid.iloc[:, 0]:
         t_str = str(t).strip()
         if t_str.endswith('.0'):
-            t_str = t_str[:-2] # 直接把最後兩個字元 '.0' 砍掉
+            t_str = t_str[:-2]
         tickers.append(t_str)
     
-    names = df_excel.iloc[:, 1].dropna().astype(str).str.strip().tolist()
+    names = df_valid.iloc[:, 1].astype(str).str.strip().tolist()
 except Exception as e:
     print(f"Excel 讀取失敗: {e}")
     tickers, names = [], []
     
-
-# 🌟 為了對照實驗：即便 SOX 沒通過，我們依然下載資料並記錄，讓大數據不中斷！
+# 🌟 開始下載與計算動能
 if tickers:
     tw_tickers = [f"{t}.TW" for t in tickers]
     two_tickers = [f"{t}.TWO" for t in tickers]
     all_tickers = tw_tickers + two_tickers
     
     try:
-        data = yf.download(all_tickers, period='2d', progress=False)
+        # 🌟 下載改為 3d，確保就算遇到長假第一天也有足夠兩根 K 線可算
+        data = yf.download(all_tickers, period='3d', progress=False)
         prices = data['Close']
         if isinstance(prices, pd.Series): prices = prices.to_frame()
             
@@ -93,13 +91,20 @@ if tickers:
         for t, n in zip(tickers, names):
             tw_t, two_t = f"{t}.TW", f"{t}.TWO"
             valid_t = None
-            if tw_t in prices.columns and not pd.isna(prices[tw_t].iloc[-1]): valid_t = tw_t
-            elif two_t in prices.columns and not pd.isna(prices[two_t].iloc[-1]): valid_t = two_t
+            
+            # 🌟 終極防呆 2：找出有資料的代碼 (只要該直欄不全是空值就成立)
+            if tw_t in prices.columns and not prices[tw_t].isna().all(): 
+                valid_t = tw_t
+            elif two_t in prices.columns and not prices[two_t].isna().all(): 
+                valid_t = two_t
                 
             if valid_t:
-                s = prices[valid_t].dropna()
-                if len(s) >= 2:
-                    y_close, c_price = float(s.iloc[-2]), float(s.iloc[-1])
+                # 🌟 終極防呆 3：解決早盤(09:05)股票還沒成交的空值陷阱！
+                # 用 ffill() 往前補足昨日收盤價。若今天沒成交，漲幅就是 0%，不會再被剔除！
+                s_filled = prices[valid_t].ffill().dropna()
+                
+                if len(s_filled) >= 2:
+                    y_close, c_price = float(s_filled.iloc[-2]), float(s_filled.iloc[-1])
                     momentum = ((c_price - y_close) / y_close) * 100
                     results.append({'rank': 0, 'ticker': t, 'name': n, 'yest_close': y_close, 'curr_price': c_price, 'momentum': momentum, 'status': ''})
                     
@@ -107,7 +112,7 @@ if tickers:
         results.sort(key=lambda x: x['momentum'], reverse=True)
         top30 = results[:30]
         
-        # 標記狀態 (前5名未漲停的標記為⭐️買進，其餘保留原樣供對照實驗)
+        # 標記狀態
         buy_count = 0
         for i, r in enumerate(top30):
             r['rank'] = i + 1
@@ -128,13 +133,12 @@ if tickers:
             state['afternoon_top30'] = top30
             state['afternoon_update_time'] = current_time_str
             
-        # 🌟 寫入歷史 CSV 檔案 (新增 SOX濾網 欄位)
         history_rows = []
         for r in top30:
             history_rows.append({
                 '日期': today_str,
                 '時段': current_snapshot,
-                'SOX濾網': state['sox_csv_val'], # 👈 新增此欄位記錄 SOX 狀況
+                'SOX濾網': state['sox_csv_val'], 
                 '排名': r['rank'],
                 '代號': r['ticker'],
                 '名稱': r['name'],
@@ -207,6 +211,9 @@ html_content = f"""
 </body>
 </html>
 """
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
