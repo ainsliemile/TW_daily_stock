@@ -62,11 +62,15 @@ try:
     df_etfs = pd.read_excel('TrackingList-TW.xlsx', sheet_name=1, header=None, dtype=str)
     df_excel = pd.concat([df_stocks, df_etfs], ignore_index=True)
     
-    tickers = df_excel.iloc[:, 0].dropna().str.strip().tolist()
-    names = df_excel.iloc[:, 1].dropna().str.strip().tolist()
+    # 🌟 核心防呆：強制轉字串，並清除 Pandas 自動加上的 '.0' 尾巴
+    raw_tickers = df_excel.iloc[:, 0].dropna().astype(str).str.strip()
+    tickers = raw_tickers.str.replace(r'\.0$', '', regex=True).tolist()
+    
+    names = df_excel.iloc[:, 1].dropna().astype(str).str.strip().tolist()
 except Exception as e:
     print(f"Excel 讀取失敗: {e}")
     tickers, names = [], []
+    
 
 # 🌟 為了對照實驗：即便 SOX 沒通過，我們依然下載資料並記錄，讓大數據不中斷！
 if tickers:
