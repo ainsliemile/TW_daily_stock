@@ -3,6 +3,9 @@ import yfinance as yf
 import os
 import requests
 import warnings
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import pytz
 from requests.adapters import HTTPAdapter
@@ -24,24 +27,35 @@ tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
 today_str = now.strftime('%Y-%m-%d %H:%M:%S')
 
-# ----------------- 通知功能設定 -----------------
-def send_line_notify(msg):
-    token = os.environ.get("LINE_TOKEN")
-    if not token:
-        print("未設定 LINE_TOKEN，無法發送通知。請至 GitHub Secrets 設定。")
+# ----------------- 寄信通知功能設定 -----------------
+def send_email_notify(msg_body):
+    gmail_user = os.environ.get("GMAIL_USER")
+    gmail_password = os.environ.get("GMAIL_APP_PASSWORD")
+    
+    if not gmail_user or not gmail_password:
+        print("未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD，無法發送 Email 通知。")
         return
-    url = "https://notify-api.line.me/api/notify"
-    headers = {"Authorization": f"Bearer {token}"}
+        
+    msg = MIMEMultipart()
+    msg['From'] = gmail_user
+    msg['To'] = gmail_user  # 預設寄給自己
+    msg['Subject'] = f"📊 量化面板通知 ({now.strftime('%m/%d')})"
+    
+    msg.attach(MIMEText(msg_body, 'plain', 'utf-8'))
+    
     try:
-        requests.post(url, headers=headers, data={"message": msg})
-        print("LINE 通知發送成功！")
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(gmail_user, gmail_password)
+        server.send_message(msg)
+        server.quit()
+        print("Email 通知發送成功！")
     except Exception as e:
-        print(f"LINE 通知發送失敗: {e}")
+        print(f"Email 通知發送失敗: {e}")
 
 # ----------------- 濾網與固定標的 -----------------
 # 1. 銅價 (HG=F) 濾網
 cu_msg_html = ""
-line_msg_cu = ""
+email_msg_cu = ""
 try:
     cu_data = yf.download('HG=F', period='20d', progress=False)
     if not cu_data.empty:
@@ -53,16 +67,16 @@ try:
         
         if latest_cu > ma10_cu:
             cu_msg_html = f"<div class='status pass'>✅ 【銅價濾網】現價 > 10日均線 ({latest_cu:.4f} > {ma10_cu:.4f}) - 買入前5名標的</div>"
-            line_msg_cu = f"\n✅【銅價濾網】買入前5名標的 (現價:{latest_cu:.4f} > MA10:{ma10_cu:.4f})"
+            email_msg_cu = f"\n✅【銅價濾網】買入前5名標的 (現價:{latest_cu:.4f} > MA10:{ma10_cu:.4f})"
         else:
             cu_msg_html = f"<div class='status fail'>❌ 【銅價濾網】現價 < 10日均線 ({latest_cu:.4f} < {ma10_cu:.4f}) - 賣出前5名標的，保持現金</div>"
-            line_msg_cu = f"\n❌【銅價濾網】賣出前5名標的，保持現金 (現價:{latest_cu:.4f} < MA10:{ma10_cu:.4f})"
+            email_msg_cu = f"\n❌【銅價濾網】賣出前5名標的，保持現金 (現價:{latest_cu:.4f} < MA10:{ma10_cu:.4f})"
 except Exception as e:
     cu_msg_html = f"<div class='status fail'>⚠️ 銅(HG=F) 數據抓取失敗: {e}</div>"
 
 # 2. 標普500 (^GSPC) 濾網
 sp_msg_html = ""
-line_msg_sp = ""
+email_msg_sp = ""
 try:
     sp_data = yf.download('^GSPC', period='10d', progress=False)
     if not sp_data.empty:
@@ -74,10 +88,10 @@ try:
         
         if latest_sp > ma5_sp:
             sp_msg_html = f"<span style='color:#4caf50;'>✅ 買入正2</span> (現價: {latest_sp:.2f} > MA5: {ma5_sp:.2f})"
-            line_msg_sp = f"\n✅【標普500】買入正2 (現價:{latest_sp:.2f} > MA5:{ma5_sp:.2f})"
+            email_msg_sp = f"\n✅【標普500】買入正2 (現價:{latest_sp:.2f} > MA5:{ma5_sp:.2f})"
         else:
             sp_msg_html = f"<span style='color:#f44336;'>❌ 賣出正2</span> (現價: {latest_sp:.2f} < MA5: {ma5_sp:.2f})"
-            line_msg_sp = f"\n❌【標普500】賣出正2 (現價:{latest_sp:.2f} < MA5:{ma5_sp:.2f})"
+            email_msg_sp = f"\n❌【標普500】賣出正2 (現價:{latest_sp:.2f} < MA5:{ma5_sp:.2f})"
 except Exception as e:
     sp_msg_html = "標普500數據抓取失敗"
 
@@ -107,7 +121,7 @@ if tickers:
     for t, n in zip(tickers, names):
         try:
             tkr = yf.Ticker(f"{t}.TW", session=session)
-            hist = tkr.history(period="100d", auto_adjust=True) # 取 100 天歷史確保包含3個月
+            hist = tkr.history(period="100d", auto_adjust=True)
             
             if hist.empty or 'Close' not in hist.columns:
                 tkr = yf.Ticker(f"{t}.TWO", session=session)
@@ -118,7 +132,6 @@ if tickers:
                 if len(hist_clean) >= 2:
                     c_price = float(hist_clean.iloc[-1])
                     
-                    # 1個月約 21 個交易日，3個月約 63 個交易日
                     p_1m = float(hist_clean.iloc[-21]) if len(hist_clean) >= 21 else float(hist_clean.iloc[0])
                     p_3m = float(hist_clean.iloc[-63]) if len(hist_clean) >= 63 else float(hist_clean.iloc[0])
                     
@@ -131,24 +144,23 @@ if tickers:
                         'ret_1m': ret_1m, 'ret_3m': ret_3m, 'avg_ret': avg_ret, 'status': ''
                     })
         except Exception:
-            pass # 發生錯誤直接跳過
+            pass
 
-# 排序並取前 15 名
 results.sort(key=lambda x: x['avg_ret'], reverse=True)
 top15 = results[:15]
 
-line_msg_top5 = "\n\n📋【前5名買進標的】:"
+email_msg_top5 = "\n\n📋【前5名買進標的】:"
 for i, r in enumerate(top15):
     r['rank'] = i + 1
     if i < 5:
         r['status'] = "⭐️ 買進標的"
-        line_msg_top5 += f"\n{r['name']}({r['ticker']}): 均報酬 {r['avg_ret']:.1f}%, 現價 {r['curr_price']:.2f}"
+        email_msg_top5 += f"\n{r['name']}({r['ticker']}): 均報酬 {r['avg_ret']:.1f}%, 現價 {r['curr_price']:.2f}"
     else:
         r['status'] = "觀察中"
 
-# 發送 LINE 通知
-final_line_msg = f"📊 量化面板 ({now.strftime('%m/%d %H:%M')})" + line_msg_cu + line_msg_sp + line_msg_top5
-send_line_notify(final_line_msg)
+# 發送 Email 通知
+final_email_msg = f"這是一封由量化腳本自動發送的通知\n\n📊 量化面板 ({now.strftime('%m/%d %H:%M')})" + email_msg_cu + email_msg_sp + email_msg_top5
+send_email_notify(final_email_msg)
 
 # 將今日 Top15 寫入歷史 CSV
 history_file = 'historical_momentum_data.csv'
