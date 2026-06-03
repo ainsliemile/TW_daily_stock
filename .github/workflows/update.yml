@@ -3,9 +3,8 @@ name: 每日自動更新股票面板
 on:
   schedule:
     # 台灣時間早上 07:00 = UTC 23:00 (前一天) 
-    # 這裡設定 0-4 代表 UTC 的週日到週四，對應台灣的週一到週五早上 07:00
     - cron: '0 23 * * 0-4'
-  workflow_dispatch: # 允許手動觸發
+  workflow_dispatch:
 
 jobs:
   build:
@@ -28,8 +27,9 @@ jobs:
 
       - name: 執行資料抓取與網頁生成
         env:
-          # 🌟 核心修改：讀取 GitHub Secrets 中的 LINE Token
-          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          # 🌟 讀取 GitHub Secrets 中的 Gmail 帳號與應用程式密碼
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python generate_dashboard.py
 
       - name: 將生成的網頁與歷史大數據庫同步回傳 GitHub
