@@ -2,8 +2,8 @@ name: 每日自動更新股票面板
 
 on:
   schedule:
-    # 台灣時間早上 07:00 = UTC 23:00 (前一天) 
-    - cron: '0 23 * * 0-4'
+    # 台灣時間早上 06:45 = UTC 22:45 (前一天) 
+    - cron: '45 22 * * 0-4'
   workflow_dispatch:
 
 jobs:
