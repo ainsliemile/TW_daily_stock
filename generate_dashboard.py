@@ -216,7 +216,7 @@ html_content = f"""
     </style>
 </head>
 <body>
-    <h1>🔬 動能量化實驗室 (雙週期平均報酬率)</h1>
+    <h1>🔬 動能量化實驗室 (每月1號加碼、換股)</h1>
     <div class="header-info">網頁最後擷取時間：{today_str}</div>
     
     {cu_msg_html}
