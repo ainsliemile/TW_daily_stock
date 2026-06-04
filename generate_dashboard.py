@@ -74,26 +74,26 @@ try:
 except Exception as e:
     cu_msg_html = f"<div class='status fail'>⚠️ 銅(HG=F) 數據抓取失敗: {e}</div>"
 
-# 2. 標普500 (^GSPC) 濾網
-sp_msg_html = ""
-email_msg_sp = ""
+# 2. 費城半導體 (^SOX) 濾網 (替換掉原本的標普500)
+sox_msg_html = ""
+email_msg_sox = ""
 try:
-    sp_data = yf.download('^GSPC', period='10d', progress=False)
-    if not sp_data.empty:
-        sp_close = sp_data['Close']
-        if isinstance(sp_close, pd.DataFrame): sp_close = sp_close.squeeze()
+    sox_data = yf.download('^SOX', period='10d', progress=False)
+    if not sox_data.empty:
+        sox_close = sox_data['Close']
+        if isinstance(sox_close, pd.DataFrame): sox_close = sox_close.squeeze()
         
-        latest_sp = float(sp_close.iloc[-1])
-        ma5_sp = float(sp_close.rolling(window=5).mean().iloc[-1])
+        latest_sox = float(sox_close.iloc[-1])
+        ma5_sox = float(sox_close.rolling(window=5).mean().iloc[-1])
         
-        if latest_sp > ma5_sp:
-            sp_msg_html = f"<span style='color:#4caf50;'>✅ 買入正2</span> (現價: {latest_sp:.2f} > MA5: {ma5_sp:.2f})"
-            email_msg_sp = f"\n✅【標普500】買入正2 (現價:{latest_sp:.2f} > MA5:{ma5_sp:.2f})"
+        if latest_sox > ma5_sox:
+            sox_msg_html = f"<span style='color:#4caf50;'>✅ 買入正2</span> (現價: {latest_sox:.2f} > MA5: {ma5_sox:.2f})"
+            email_msg_sox = f"\n✅【費半(SOX)】買入正2 (現價:{latest_sox:.2f} > MA5:{ma5_sox:.2f})"
         else:
-            sp_msg_html = f"<span style='color:#f44336;'>❌ 賣出正2</span> (現價: {latest_sp:.2f} < MA5: {ma5_sp:.2f})"
-            email_msg_sp = f"\n❌【標普500】賣出正2 (現價:{latest_sp:.2f} < MA5:{ma5_sp:.2f})"
+            sox_msg_html = f"<span style='color:#f44336;'>❌ 賣出正2</span> (現價: {latest_sox:.2f} < MA5: {ma5_sox:.2f})"
+            email_msg_sox = f"\n❌【費半(SOX)】賣出正2 (現價:{latest_sox:.2f} < MA5:{ma5_sox:.2f})"
 except Exception as e:
-    sp_msg_html = "標普500數據抓取失敗"
+    sox_msg_html = "費城半導體數據抓取失敗"
 
 # 3. 固定標的現價
 p_631L, p_675L = 0.0, 0.0
@@ -159,7 +159,7 @@ for i, r in enumerate(top15):
         r['status'] = "觀察中"
 
 # 發送 Email 通知
-final_email_msg = f"這是一封由量化腳本自動發送的通知\n\n📊 量化面板 ({now.strftime('%m/%d %H:%M')})" + email_msg_cu + email_msg_sp + email_msg_top5
+final_email_msg = f"這是一封由量化腳本自動發送的通知\n\n📊 量化面板 ({now.strftime('%m/%d %H:%M')})" + email_msg_cu + email_msg_sox + email_msg_top5
 send_email_notify(final_email_msg)
 
 # 將今日 Top15 寫入歷史 CSV
@@ -225,7 +225,7 @@ html_content = f"""
         <h3>📌 固定追蹤標的與大盤指示</h3>
         <div class="fixed-item">1. 元大台灣50正2 (00631L) 現價: <b>{p_631L:.2f}</b></div>
         <div class="fixed-item">2. 富邦臺灣加權正2 (00675L) 現價: <b>{p_675L:.2f}</b></div>
-        <div class="fixed-item">3. 標普500指數 (^GSPC) 指示: <b>{sp_msg_html}</b></div>
+        <div class="fixed-item">3. 費城半導體指數 (^SOX) 指示: <b>{sox_msg_html}</b></div>
     </div>
 
     <div class="container">
