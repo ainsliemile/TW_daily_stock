@@ -232,9 +232,9 @@ else:
                 is_fixed = t in us_fixed_tickers
                 
                 if t == 'SOXL':
-                    status = "⭐️ 買進標的 (持有)" if twii_pass else "❌ 跌破TWII濾網(強制賣出)"
+                    status = "⭐️ 買進標的 (釘住)" if twii_pass else "❌ 跌破TWII濾網(強制賣出)"
                 elif t == 'USD':
-                    status = "⭐️ 買進標的 (無濾網)"
+                    status = "⭐️ 買進標的 (無濾網釘住)"
                 else:
                     status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱(強制賣出)"
                 
@@ -245,3 +245,102 @@ else:
 
     fixed_us_data = [r for r in us_results if r['is_fixed']]
     dynamic_us_data = [r for r in us_results if not r['is_fixed']]
+    dynamic_us_data.sort(key=lambda x: x['momentum'], reverse=True)
+    top10_us = dynamic_us_data[:10]
+    
+    fixed_us_data.sort(key=lambda x: x['ticker'])
+    state['us_data'] = fixed_us_data + top10_us
+    state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
+
+# 儲存狀態檔案
+with open(state_file, 'w', encoding='utf-8') as f:
+    json.dump(state, f, ensure_ascii=False, indent=2)
+
+# ==========================================
+# 🌐 網頁 HTML 自動即時渲染
+# ==========================================
+def build_html_table(data_list):
+    if not data_list: return "<tr><td colspan='5' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
+    rows = ""
+    for idx, r in enumerate(data_list):
+        row_class = "buy-target" if "買進" in r['status'] else "sell-target" if "賣出" in r['status'] else ""
+        pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
+        rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
+    return rows
+
+ixic_txt = state.get('filters', {}).get('IXIC', '等待早上 7 點刷新...')
+twii_txt = state.get('filters', {}).get('TWII', '等待下午 2 點刷新...')
+sox_txt = state.get('filters', {}).get('SOX', '等待下午 2 點刷新...')
+
+html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 跨市場多因子動能實驗室</title>
+    <style>
+        body {{ font-family: 'Segoe UI', Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; padding: 20px; margin: 0; }}
+        h1 {{ text-align: center; color: #58a6ff; margin-bottom: 10px; }}
+        .header-panel {{ background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }}
+        .filter-tag {{ display: inline-block; background: #21262d; padding: 8px 15px; margin: 5px; border-radius: 20px; border: 1px solid #58a6ff; font-size: 14px; }}
+        .container {{ display: flex; flex-wrap: wrap; gap: 20px; max-width: 1600px; margin: 0 auto; }}
+        .box {{ flex: 1; min-width: 500px; background: #161b22; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }}
+        .box h3 {{ margin: 0; padding: 15px; background: #21262d; text-align: center; color: #fff; border-bottom: 1px solid #30363d; }}
+        .box h3 span {{ font-size: 13px; color: #8b949e; display: block; margin-top: 5px; }}
+        table {{ width: 100%; border-collapse: collapse; }}
+        th, td {{ padding: 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #21262d; }}
+        th {{ background-color: #1f242c; color: #8b949e; }}
+        .buy-target {{ background-color: rgba(35, 78, 156, 0.2); font-weight: bold; color: #79c0ff; border-left: 4px solid #58a6ff; }}
+        .sell-target {{ background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; text-decoration: line-through; opacity: 0.8; }}
+    </style>
+</head>
+<body>
+    <h1>🔬 跨市場多因子動能實驗室</h1>
+    
+    <div class="header-panel">
+        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（跨時段自動同步）</div>
+        <div class="filter-tag">🇺🇸 納斯達克 (控台股) | {ixic_txt}</div>
+        <div class="filter-tag">🇹🇼 加權指數 (控SOXL) | {twii_txt}</div>
+        <div class="filter-tag">💻 費城半導體 (控美股) | {sox_txt}</div>
+    </div>
+    
+    <div class="container">
+        <div class="box">
+            <h3>🇹🇼 台股避險動能池 (共12檔) 
+                <span>早上 07:00 刷新 | 動能算法: (1M+3M)/2 | 最後同步: {state.get('tw_time')}</span>
+            </h3>
+            <table>
+                <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>(1M+3M)動能</th><th>策略狀態</th></tr>
+                {build_html_table(state.get('tw_data', []))}
+            </table>
+        </div>
+
+        <div class="box">
+            <h3>🇺🇸 美股避險動能池 (共12檔)
+                <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: {state.get('us_time')}</span>
+            </h3>
+            <table>
+                <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
+                {build_html_table(state.get('us_data', []))}
+            </table>
+        </div>
+    </div>
+</body>
+</html>"""
+
+# 寫入 HTML 檔案
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+print("🌐 網頁發布引擎成功運作！最新數據已順利匯出至 index.html。")
+
+# ==========================================
+# 📧 觸發 Gmail 發送通知
+# ==========================================
+# 判斷信件主旨
+if is_morning_run:
+    mail_subject = f"🌅 晨間量化通知 (台股模組更新完畢) - {today_str}"
+else:
+    mail_subject = f"🌇 午後量化通知 (美股模組更新完畢) - {today_str}"
+
+# 將剛剛產生的網頁內容，直接寄到你的信箱
+send_email_notify(mail_subject, html_content)
