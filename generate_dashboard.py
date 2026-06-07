@@ -232,9 +232,9 @@ else:
                 is_fixed = t in us_fixed_tickers
                 
                 if t == 'SOXL':
-                    status = "⭐️ 買進標的 (釘住)" if twii_pass else "❌ 跌破TWII濾網(強制賣出)"
+                    status = "⭐️ 買進標的 (持有)" if twii_pass else "❌ 跌破TWII濾網(強制賣出)"
                 elif t == 'USD':
-                    status = "⭐️ 買進標的 (無濾網釘住)"
+                    status = "⭐️ 買進標的 (無濾網)"
                 else:
                     status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱(強制賣出)"
                 
