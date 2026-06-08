@@ -164,7 +164,7 @@
       "ticker": "STX",
       "name": "Seagate Technology",
       "price": 847.469970703125,
-      "momentum": 125.81770259995382,
+      "momentum": 125.8176896027301,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -172,7 +172,7 @@
       "ticker": "WDC",
       "name": "Western Digital",
       "price": 511.7200012207031,
-      "momentum": 114.68186029568447,
+      "momentum": 114.68184951098574,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -202,5 +202,5 @@
     }
   ],
   "tw_time": "2026-06-08 14:55:07",
-  "us_time": "2026-06-08 14:55:07"
+  "us_time": "2026-06-08 15:11:54"
 }
