@@ -201,21 +201,27 @@ if run_us:
     state['filters']['TWII'] = f"TWII 10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
     state['filters']['SOX'] = f"SOX (1M+3M) 動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
 
+    # 🌇 下午 2 點後：美股模組讀取段落
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
-        us_sheets = [s for s in xls.sheet_names if '美國' in s or '美股' in s]
-        for sheet in us_sheets:
-            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
-            for t in df.iloc[:, 0]:
-                t_str = str(t).strip().upper()
-                if t_str.endswith('.0'): t_str = t_str[:-2]
-                t_str = t_str.replace('.', '-')
-                us_pool.append(t_str)
-            us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+        # 🌟 直接鎖定這兩個分頁名稱，精確無誤！
+        target_sheets = ['美國ETF', '美國股票']
+        
+        for sheet in target_sheets:
+            if sheet in xls.sheet_names:
+                print(f"正在讀取美股分頁: {sheet}")
+                df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
+                for t in df.iloc[:, 0]:
+                    t_str = str(t).strip().upper().replace('.', '-') # 處理代號
+                    if t_str.endswith('-0'): t_str = t_str[:-2]
+                    us_pool.append(t_str)
+                us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+            else:
+                print(f"警告: 在 Excel 中找不到分頁 '{sheet}'")
     except Exception as e:
         print(f"美股 Excel 讀取失敗: {e}")
-
+        
     us_results = []
     us_fixed_tickers = ['SOXL', 'USD']
     
