@@ -148,7 +148,7 @@ if run_tw:
     tw_pool, tw_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
-        tw_sheets = [s for s in xls.sheet_names if '台灣' in s or '台股' in s]
+        tw_sheets = ['台灣ETF', '台灣股票']
         for sheet in tw_sheets:
             df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
             for t in df.iloc[:, 0]:
