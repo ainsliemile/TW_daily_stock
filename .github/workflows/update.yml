@@ -36,9 +36,8 @@ jobs:
 
       - name: 儲存全新狀態並發布網頁 🌐
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          # 這裡確保存檔的是最新的 Master 檔案！
-          git add index.html master_dashboard_state.json master_historical_data.csv
-          git commit -m "Auto update Master Dashboard & send email" || exit 0
-          git push
+       git config --global user.name 'github-actions[bot]'
+       git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+       git add .
+       git commit -m "Auto update Master Dashboard & send email" || exit 0
+       git push
