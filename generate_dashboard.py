@@ -255,7 +255,20 @@ else:
 # 儲存狀態檔案
 with open(state_file, 'w', encoding='utf-8') as f:
     json.dump(state, f, ensure_ascii=False, indent=2)
+# ==========================================
+# 💾 寫入 CSV 歷史大數據庫
+# ==========================================
+history_rows = []
+if is_morning_run:
+    for r in state.get('tw_data', []):
+        history_rows.append({'日期': today_str, '時段': '台股早盤(07:00)', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
+else:
+    for r in state.get('us_data', []):
+        history_rows.append({'日期': today_str, '時段': '美股午後(14:00)', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
 
+if history_rows:
+    df_history = pd.DataFrame(history_rows)
+    df_history.to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
 # ==========================================
 # 🌐 網頁 HTML 自動即時渲染
 # ==========================================
