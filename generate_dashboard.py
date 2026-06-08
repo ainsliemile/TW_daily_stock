@@ -20,8 +20,6 @@ warnings.filterwarnings('ignore')
 def send_email_notify(subject, html_body):
     gmail_user = os.environ.get("GMAIL_USER")
     gmail_password = os.environ.get("GMAIL_APP_PASSWORD")
-    
-    # 預設寄給自己，也可以設定另一個收件人環境變數
     recipient = os.environ.get("GMAIL_RECIPIENT", gmail_user) 
     
     if not gmail_user or not gmail_password:
@@ -34,11 +32,9 @@ def send_email_notify(subject, html_body):
         msg['From'] = gmail_user
         msg['To'] = recipient
         
-        # 將網頁 HTML 直接作為信件內容
         part = MIMEText(html_body, 'html', 'utf-8')
         msg.attach(part)
         
-        # 連線至 Gmail SMTP 伺服器
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
@@ -59,7 +55,6 @@ session.headers.update({
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 })
 
-# 時間與狀態設定
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
 today_str = now.strftime('%Y-%m-%d')
@@ -67,8 +62,8 @@ current_hour = now.hour
 
 state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
+excel_file = 'TrackingList.xlsx'  # 🌟 統一改為讀取單一檔案
 
-# 1. 讀取歷史狀態機（跨時段保留記憶的核心機制）
 if os.path.exists(state_file):
     try:
         with open(state_file, 'r', encoding='utf-8') as f:
@@ -78,7 +73,6 @@ if os.path.exists(state_file):
 else:
     state = {}
 
-# 🌟 換日防呆修正：保留歷史數據，只更新日期標記
 if state.get('date') != today_str:
     state['date'] = today_str
     if 'filters' not in state: state['filters'] = {}
@@ -148,18 +142,20 @@ if is_morning_run:
     ixic_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
     state['filters']['IXIC'] = f"IXIC 20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
     
+    tw_pool, tw_names = [], []
     try:
-        df_tw1 = pd.read_excel('TrackingList-TW.xlsx', sheet_name=0, header=None, dtype=str)
-        df_tw2 = pd.read_excel('TrackingList-TW.xlsx', sheet_name=1, header=None, dtype=str)
-        df_tw = pd.concat([df_tw1, df_tw2], ignore_index=True).dropna(subset=[0, 1])
-        tw_pool = []
-        for t in df_tw.iloc[:, 0]:
-            t_str = str(t).strip()
-            if t_str.endswith('.0'): t_str = t_str[:-2]
-            tw_pool.append(t_str)
-        tw_names = df_tw.iloc[:, 1].astype(str).str.strip().tolist()
-    except:
-        tw_pool, tw_names = [], []
+        xls = pd.ExcelFile(excel_file)
+        # 🌟 自動尋找包含「台灣」或「台股」的分頁
+        tw_sheets = [s for s in xls.sheet_names if '台灣' in s or '台股' in s]
+        for sheet in tw_sheets:
+            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
+            for t in df.iloc[:, 0]:
+                t_str = str(t).strip()
+                if t_str.endswith('.0'): t_str = t_str[:-2]
+                tw_pool.append(t_str)
+            tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+    except Exception as e:
+        print(f"台股 Excel 讀取失敗: {e}")
 
     tw_results = []
     tw_fixed_tickers = ['00631L', '00675L']
@@ -187,7 +183,7 @@ if is_morning_run:
     fixed_tw_data = [r for r in tw_results if r['is_fixed']]
     dynamic_tw_data = [r for r in tw_results if not r['is_fixed']]
     dynamic_tw_data.sort(key=lambda x: x['momentum'], reverse=True)
-    top10_tw = dynamic_tw_data[:10]
+    top10_tw = dynamic_tw_data[:10]  # 台股取前 10
     
     state['tw_data'] = fixed_tw_data + top10_tw
     state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -203,18 +199,22 @@ else:
     state['filters']['TWII'] = f"TWII 10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
     state['filters']['SOX'] = f"SOX (1M+3M) 動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
 
+    us_pool, us_names = [], []
     try:
-        df_us1 = pd.read_excel('TrackingList-US.xlsx', sheet_name=0, header=None, dtype=str)
-        df_us2 = pd.read_excel('TrackingList-US.xlsx', sheet_name=1, header=None, dtype=str)
-        df_us = pd.concat([df_us1, df_us2], ignore_index=True).dropna(subset=[0, 1])
-        us_pool = []
-        for t in df_us.iloc[:, 0]:
-            t_str = str(t).strip().upper().replace('.', '-')
-            if t_str.endswith('.0'): t_str = t_str[:-2]
-            us_pool.append(t_str)
-        us_names = df_us.iloc[:, 1].astype(str).str.strip().tolist()
-    except:
-        us_pool, us_names = [], []
+        xls = pd.ExcelFile(excel_file)
+        # 🌟 自動尋找包含「美國」或「美股」的分頁
+        us_sheets = [s for s in xls.sheet_names if '美國' in s or '美股' in s]
+        for sheet in us_sheets:
+            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
+            for t in df.iloc[:, 0]:
+                t_str = str(t).strip().upper()
+                if t_str.endswith('.0'): t_str = t_str[:-2]
+                # 🌟 防呆：將 BRK.B 轉換成 Yahoo 格式的 BRK-B
+                t_str = t_str.replace('.', '-')
+                us_pool.append(t_str)
+            us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+    except Exception as e:
+        print(f"美股 Excel 讀取失敗: {e}")
 
     us_results = []
     us_fixed_tickers = ['SOXL', 'USD']
@@ -246,15 +246,15 @@ else:
     fixed_us_data = [r for r in us_results if r['is_fixed']]
     dynamic_us_data = [r for r in us_results if not r['is_fixed']]
     dynamic_us_data.sort(key=lambda x: x['momentum'], reverse=True)
-    top10_us = dynamic_us_data[:10]
+    top5_us = dynamic_us_data[:5] # 🌟 美股動能精準擷取 TOP 5
     
     fixed_us_data.sort(key=lambda x: x['ticker'])
-    state['us_data'] = fixed_us_data + top10_us
+    state['us_data'] = fixed_us_data + top5_us
     state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
-# 儲存狀態檔案
 with open(state_file, 'w', encoding='utf-8') as f:
     json.dump(state, f, ensure_ascii=False, indent=2)
+
 # ==========================================
 # 💾 寫入 CSV 歷史大數據庫
 # ==========================================
@@ -269,6 +269,7 @@ else:
 if history_rows:
     df_history = pd.DataFrame(history_rows)
     df_history.to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
+
 # ==========================================
 # 🌐 網頁 HTML 自動即時渲染
 # ==========================================
@@ -277,6 +278,11 @@ def build_html_table(data_list):
     rows = ""
     for idx, r in enumerate(data_list):
         row_class = "buy-target" if "買進" in r['status'] else "sell-target" if "賣出" in r['status'] else ""
+        
+        # 🌟 如果是釘住標的，強制移除 sell-target 樣式 (移除紅色背景警告)
+        if r.get('is_fixed'):
+            row_class = "buy-target" if "買進" in r['status'] else ""
+            
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
         rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
@@ -304,7 +310,7 @@ html_content = f"""<!DOCTYPE html>
         th, td {{ padding: 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #21262d; }}
         th {{ background-color: #1f242c; color: #8b949e; }}
         .buy-target {{ background-color: rgba(35, 78, 156, 0.2); font-weight: bold; color: #79c0ff; border-left: 4px solid #58a6ff; }}
-        .sell-target {{ background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; text-decoration: line-through; opacity: 0.8; }}
+        .sell-target {{ background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; }}
     </style>
 </head>
 <body>
@@ -329,7 +335,7 @@ html_content = f"""<!DOCTYPE html>
         </div>
 
         <div class="box">
-            <h3>🇺🇸 美股避險動能池 (共12檔)
+            <h3>🇺🇸 美股避險動能池 (共7檔)
                 <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: {state.get('us_time')}</span>
             </h3>
             <table>
@@ -341,19 +347,13 @@ html_content = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-# 寫入 HTML 檔案
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
 print("🌐 網頁發布引擎成功運作！最新數據已順利匯出至 index.html。")
 
-# ==========================================
-# 📧 觸發 Gmail 發送通知
-# ==========================================
-# 判斷信件主旨
 if is_morning_run:
     mail_subject = f"🌅 晨間量化通知 (台股模組更新完畢) - {today_str}"
 else:
-    mail_subject = f"🌇 午後量化通知 (美股模組更新完畢) - {today_str}"
+    mail_subject = f"🌇 午後量化通知 (美股 TOP5 更新完畢) - {today_str}"
 
-# 將剛剛產生的網頁內容，直接寄到你的信箱
 send_email_notify(mail_subject, html_content)
