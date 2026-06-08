@@ -1,0 +1,28 @@
+{
+  "date": "2026-06-08",
+  "filters": {
+    "TWII": "TWII 10MA: 43502.08 小於 44775.64",
+    "SOX": "SOX (1M+3M) 動能: 34.57% (多頭)"
+  },
+  "tw_data": [],
+  "us_data": [
+    {
+      "ticker": "SOXL",
+      "name": "SOXL",
+      "price": 182.5399932861328,
+      "momentum": 194.37112082573816,
+      "status": "❌ 跌破TWII濾網(強制賣出)",
+      "is_fixed": true
+    },
+    {
+      "ticker": "USD",
+      "name": "USD",
+      "price": 88.68000030517578,
+      "momentum": 47.708042927044566,
+      "status": "⭐️ 買進標的 (無濾網釘住)",
+      "is_fixed": true
+    }
+  ],
+  "tw_time": "等待今日計算...",
+  "us_time": "2026-06-08 11:47:13"
+}
