@@ -1,11 +1,11 @@
 name: 🌐 跨市場多因子動能面板更新
 
 on:
-  #schedule:
+  schedule:
     # 台灣時間 07:00 (UTC 23:00 前一天) -> 執行台股更新並匯出
-    #- cron: '0 23 * * 0-4'
+    - cron: '0 23 * * 0-4'
     # 台灣時間 14:00 (UTC 06:00 當天) -> 執行美股更新並匯出
-    #- cron: '0 6 * * 1-5'
+    - cron: '0 6 * * 1-5'
   workflow_dispatch: # 允許手動測試
 
 jobs:
@@ -29,15 +29,14 @@ jobs:
 
       - name: 執行量化面板計算與發送 Email 🚀
         env:
-          # 這裡非常重要：把 GitHub Secrets 的密碼正式交給 Python 程式
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python generate_dashboard.py
 
       - name: 儲存全新狀態並發布網頁 🌐
         run: |
-         git config --global user.name 'github-actions[bot]'
-         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-         git add .
-         git commit -m "Auto update Master Dashboard & send email" || exit 0
-         git push
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "Auto update Master Dashboard & send email" || exit 0
+          git push
