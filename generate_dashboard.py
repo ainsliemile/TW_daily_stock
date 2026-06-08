@@ -150,7 +150,10 @@ if run_tw:
         xls = pd.ExcelFile(excel_file)
         tw_sheets = ['台灣ETF', '台灣股票']
         for sheet in tw_sheets:
-            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
+            # 🌟 修正：只要求 subset=[0] (只要有代碼就保留)
+            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
+            # 🌟 修正：如果 B 欄(名稱)是空的，自動補上空白字串，避免報錯
+            df[1] = df[1].fillna("") 
             for t in df.iloc[:, 0]:
                 t_str = str(t).strip()
                 if t_str.endswith('.0'): t_str = t_str[:-2]
@@ -205,15 +208,17 @@ if run_us:
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
-        # 🌟 直接鎖定這兩個分頁名稱，精確無誤！
         target_sheets = ['美國ETF', '美國股票']
         
         for sheet in target_sheets:
             if sheet in xls.sheet_names:
                 print(f"正在讀取美股分頁: {sheet}")
-                df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
+                # 🌟 修正：只要求 subset=[0]
+                df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
+                # 🌟 修正：名稱補空值
+                df[1] = df[1].fillna("")
                 for t in df.iloc[:, 0]:
-                    t_str = str(t).strip().upper().replace('.', '-') # 處理代號
+                    t_str = str(t).strip().upper().replace('.', '-') 
                     if t_str.endswith('-0'): t_str = t_str[:-2]
                     us_pool.append(t_str)
                 us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
