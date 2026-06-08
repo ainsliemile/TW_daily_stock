@@ -121,6 +121,14 @@
       "is_fixed": true
     },
     {
+      "ticker": "BWET",
+      "name": "",
+      "price": 200.73899841308594,
+      "momentum": 349.85818195730866,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
       "ticker": "SNDK",
       "name": "Sandisk",
       "price": 1559.3199462890625,
@@ -191,16 +199,8 @@
       "momentum": 89.1230255542794,
       "status": "⭐️ 買進標的",
       "is_fixed": false
-    },
-    {
-      "ticker": "BE",
-      "name": "能源",
-      "price": 263.6099853515625,
-      "momentum": 81.50504652705659,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
     }
   ],
   "tw_time": "2026-06-08 15:38:56",
-  "us_time": "2026-06-08 15:38:56"
+  "us_time": "2026-06-08 16:55:12"
 }
