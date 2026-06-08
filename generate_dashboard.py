@@ -277,11 +277,14 @@ def build_html_table(data_list):
     if not data_list: return "<tr><td colspan='5' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
-        row_class = "buy-target" if "買進" in r['status'] else "sell-target" if "賣出" in r['status'] else ""
-        
-        # 🌟 如果是釘住標的，強制移除 sell-target 樣式 (移除紅色背景警告)
-        if r.get('is_fixed'):
-            row_class = "buy-target" if "買進" in r['status'] else ""
+        # 🌟 智能狀態判定：買進 / 淘汰 / 釘住警告
+        if "買進" in r['status']:
+            row_class = "buy-target"
+        elif "賣出" in r['status']:
+            # 如果是釘住的標的，使用無刪除線的 sell-pinned 樣式
+            row_class = "sell-pinned" if r.get('is_fixed') else "sell-target"
+        else:
+            row_class = ""
             
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
         rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
@@ -309,8 +312,12 @@ html_content = f"""<!DOCTYPE html>
         table {{ width: 100%; border-collapse: collapse; }}
         th, td {{ padding: 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #21262d; }}
         th {{ background-color: #1f242c; color: #8b949e; }}
+        /* 🔵 買進樣式 */
         .buy-target {{ background-color: rgba(35, 78, 156, 0.2); font-weight: bold; color: #79c0ff; border-left: 4px solid #58a6ff; }}
-        .sell-target {{ background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; }}
+        /* 🔴 淘汰樣式 (有刪除線) */
+        .sell-target {{ background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; text-decoration: line-through; opacity: 0.7; }}
+        /* 🚨 釘住警告樣式 (沒有刪除線，字體加粗) */
+        .sell-pinned {{ background-color: rgba(248, 81, 73, 0.15); color: #ff7b72; border-left: 4px solid #f85149; font-weight: bold; }}
     </style>
 </head>
 <body>
