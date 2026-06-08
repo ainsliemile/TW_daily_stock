@@ -1,14 +1,14 @@
 {
   "date": "2026-06-08",
   "filters": {
-    "TWII": "TWII 10MA: 43502.08 小於 44775.64",
+    "TWII": "TWII 10MA: 43528.84 小於 44778.32",
     "SOX": "SOX (1M+3M) 動能: 34.57% (多頭)"
   },
   "tw_data": [],
   "us_data": [
     {
       "ticker": "SOXL",
-      "name": "SOXL",
+      "name": "每日三倍做多半導體 ETF",
       "price": 182.5399932861328,
       "momentum": 194.37112082573816,
       "status": "❌ 跌破TWII濾網(強制賣出)",
@@ -16,13 +16,53 @@
     },
     {
       "ticker": "USD",
-      "name": "USD",
+      "name": "2X 半導體",
       "price": 88.68000030517578,
       "momentum": 47.708042927044566,
       "status": "⭐️ 買進標的 (無濾網釘住)",
       "is_fixed": true
+    },
+    {
+      "ticker": "SNDK",
+      "name": "Sandisk",
+      "price": 1559.3199462890625,
+      "momentum": 302.83147553087076,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "AXTI",
+      "name": "光通訊",
+      "price": 89.04000091552734,
+      "momentum": 278.53894432833266,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "DELL",
+      "name": "Dell Technologies",
+      "price": 394.3900146484375,
+      "momentum": 144.1923890041173,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "price": 864.010009765625,
+      "momentum": 144.10944234244383,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "LNVGY",
+      "name": "中國聯想",
+      "price": 60.029998779296875,
+      "momentum": 126.87809213110441,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
     }
   ],
   "tw_time": "等待今日計算...",
-  "us_time": "2026-06-08 11:47:13"
+  "us_time": "2026-06-08 12:13:12"
 }

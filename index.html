@@ -16,8 +16,12 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #21262d; }
         th { background-color: #1f242c; color: #8b949e; }
+        /* 🔵 買進樣式 */
         .buy-target { background-color: rgba(35, 78, 156, 0.2); font-weight: bold; color: #79c0ff; border-left: 4px solid #58a6ff; }
-        .sell-target { background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; text-decoration: line-through; opacity: 0.8; }
+        /* 🔴 淘汰樣式 (有刪除線) */
+        .sell-target { background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; text-decoration: line-through; opacity: 0.7; }
+        /* 🚨 釘住警告樣式 (沒有刪除線，字體加粗) */
+        .sell-pinned { background-color: rgba(248, 81, 73, 0.15); color: #ff7b72; border-left: 4px solid #f85149; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -26,7 +30,7 @@
     <div class="header-panel">
         <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（跨時段自動同步）</div>
         <div class="filter-tag">🇺🇸 納斯達克 (控台股) | 等待早上 7 點刷新...</div>
-        <div class="filter-tag">🇹🇼 加權指數 (控SOXL) | TWII 10MA: 43502.08 小於 44775.64</div>
+        <div class="filter-tag">🇹🇼 加權指數 (控SOXL) | TWII 10MA: 43528.84 小於 44778.32</div>
         <div class="filter-tag">💻 費城半導體 (控美股) | SOX (1M+3M) 動能: 34.57% (多頭)</div>
     </div>
     
@@ -42,12 +46,12 @@
         </div>
 
         <div class="box">
-            <h3>🇺🇸 美股避險動能池 (共12檔)
-                <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: 2026-06-08 11:47:13</span>
+            <h3>🇺🇸 美股避險動能池 (共7檔)
+                <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: 2026-06-08 12:13:12</span>
             </h3>
             <table>
                 <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
-                <tr class='sell-target'><td>📌 釘住</td><td><strong>SOXL</strong></td><td>SOXL</td><td>194.37%</td><td>❌ 跌破TWII濾網(強制賣出)</td></tr><tr class='buy-target'><td>📌 釘住</td><td><strong>USD</strong></td><td>USD</td><td>47.71%</td><td>⭐️ 買進標的 (無濾網釘住)</td></tr>
+                <tr class='sell-pinned'><td>📌 釘住</td><td><strong>SOXL</strong></td><td>每日三倍做多半導體 ETF</td><td>194.37%</td><td>❌ 跌破TWII濾網(強制賣出)</td></tr><tr class='buy-target'><td>📌 釘住</td><td><strong>USD</strong></td><td>2X 半導體</td><td>47.71%</td><td>⭐️ 買進標的 (無濾網釘住)</td></tr><tr class='buy-target'><td>1</td><td><strong>SNDK</strong></td><td>Sandisk</td><td>302.83%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>2</td><td><strong>AXTI</strong></td><td>光通訊</td><td>278.54%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>3</td><td><strong>DELL</strong></td><td>Dell Technologies</td><td>144.19%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>4</td><td><strong>MU</strong></td><td>Micron Technology</td><td>144.11%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>5</td><td><strong>LNVGY</strong></td><td>中國聯想</td><td>126.88%</td><td>⭐️ 買進標的</td></tr>
             </table>
         </div>
     </div>
