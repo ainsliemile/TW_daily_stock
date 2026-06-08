@@ -62,7 +62,7 @@ current_hour = now.hour
 
 state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
-excel_file = 'TrackingList.xlsx'  # 🌟 統一改為讀取單一檔案
+excel_file = 'TrackingList.xlsx'
 
 if os.path.exists(state_file):
     try:
@@ -132,20 +132,22 @@ def calc_mom_us(s):
     m6 = (s.iloc[-1] / s.iloc[-127]) - 1
     return ((m1 + m3 + m6) / 3) * 100
 
-# ==========================================
-# 🌞 早上 7 點前：執行台股模組
-# ==========================================
-is_morning_run = current_hour < 11
+# 🌟 智能判斷：如果是早班，或者台股沒資料，就執行台股！
+run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
+# 🌟 智能判斷：如果是下午班，或者美股沒資料，就執行美股！
+run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 
-if is_morning_run:
-    print("🌅 觸發早上時段：正在更新 IXIC 濾網與台股動能池...")
+# ==========================================
+# 🌞 台股模組 (早盤 07:00 或 自動補齊)
+# ==========================================
+if run_tw:
+    print("🌅 觸發台股模組：正在更新 IXIC 濾網與台股動能池...")
     ixic_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
     state['filters']['IXIC'] = f"IXIC 20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
     
     tw_pool, tw_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
-        # 🌟 自動尋找包含「台灣」或「台股」的分頁
         tw_sheets = [s for s in xls.sheet_names if '台灣' in s or '台股' in s]
         for sheet in tw_sheets:
             df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
@@ -183,16 +185,16 @@ if is_morning_run:
     fixed_tw_data = [r for r in tw_results if r['is_fixed']]
     dynamic_tw_data = [r for r in tw_results if not r['is_fixed']]
     dynamic_tw_data.sort(key=lambda x: x['momentum'], reverse=True)
-    top10_tw = dynamic_tw_data[:10]  # 台股取前 10
+    top10_tw = dynamic_tw_data[:10]
     
     state['tw_data'] = fixed_tw_data + top10_tw
     state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
-# 🌇 下午 2 點後：執行美股模組
+# 🌇 美股模組 (午後 14:00 或 自動補齊)
 # ==========================================
-else:
-    print("🌇 觸發下午時段：正在更新 TWII、SOX 濾網與美股動能池...")
+if run_us:
+    print("🌇 觸發美股模組：正在更新 TWII、SOX 濾網與美股動能池...")
     twii_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
     sox_pass, sox_mom_val = get_sox_momentum()
     
@@ -202,14 +204,12 @@ else:
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
-        # 🌟 自動尋找包含「美國」或「美股」的分頁
         us_sheets = [s for s in xls.sheet_names if '美國' in s or '美股' in s]
         for sheet in us_sheets:
             df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0, 1])
             for t in df.iloc[:, 0]:
                 t_str = str(t).strip().upper()
                 if t_str.endswith('.0'): t_str = t_str[:-2]
-                # 🌟 防呆：將 BRK.B 轉換成 Yahoo 格式的 BRK-B
                 t_str = t_str.replace('.', '-')
                 us_pool.append(t_str)
             us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
@@ -246,10 +246,12 @@ else:
     fixed_us_data = [r for r in us_results if r['is_fixed']]
     dynamic_us_data = [r for r in us_results if not r['is_fixed']]
     dynamic_us_data.sort(key=lambda x: x['momentum'], reverse=True)
-    top5_us = dynamic_us_data[:5] # 🌟 美股動能精準擷取 TOP 5
+    
+    # 🌟 修改回 TOP 10 檔動能！
+    top10_us = dynamic_us_data[:10]
     
     fixed_us_data.sort(key=lambda x: x['ticker'])
-    state['us_data'] = fixed_us_data + top5_us
+    state['us_data'] = fixed_us_data + top10_us
     state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 with open(state_file, 'w', encoding='utf-8') as f:
@@ -259,12 +261,12 @@ with open(state_file, 'w', encoding='utf-8') as f:
 # 💾 寫入 CSV 歷史大數據庫
 # ==========================================
 history_rows = []
-if is_morning_run:
+if run_tw:
     for r in state.get('tw_data', []):
-        history_rows.append({'日期': today_str, '時段': '台股早盤(07:00)', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
-else:
+        history_rows.append({'日期': today_str, '時段': '台股模組', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
+if run_us:
     for r in state.get('us_data', []):
-        history_rows.append({'日期': today_str, '時段': '美股午後(14:00)', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
+        history_rows.append({'日期': today_str, '時段': '美股模組', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
 
 if history_rows:
     df_history = pd.DataFrame(history_rows)
@@ -277,11 +279,9 @@ def build_html_table(data_list):
     if not data_list: return "<tr><td colspan='5' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
-        # 🌟 智能狀態判定：買進 / 淘汰 / 釘住警告
         if "買進" in r['status']:
             row_class = "buy-target"
         elif "賣出" in r['status']:
-            # 如果是釘住的標的，使用無刪除線的 sell-pinned 樣式
             row_class = "sell-pinned" if r.get('is_fixed') else "sell-target"
         else:
             row_class = ""
@@ -312,11 +312,8 @@ html_content = f"""<!DOCTYPE html>
         table {{ width: 100%; border-collapse: collapse; }}
         th, td {{ padding: 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #21262d; }}
         th {{ background-color: #1f242c; color: #8b949e; }}
-        /* 🔵 買進樣式 */
         .buy-target {{ background-color: rgba(35, 78, 156, 0.2); font-weight: bold; color: #79c0ff; border-left: 4px solid #58a6ff; }}
-        /* 🔴 淘汰樣式 (有刪除線) */
         .sell-target {{ background-color: rgba(248, 81, 73, 0.1); color: #ff7b72; border-left: 4px solid #f85149; text-decoration: line-through; opacity: 0.7; }}
-        /* 🚨 釘住警告樣式 (沒有刪除線，字體加粗) */
         .sell-pinned {{ background-color: rgba(248, 81, 73, 0.15); color: #ff7b72; border-left: 4px solid #f85149; font-weight: bold; }}
     </style>
 </head>
@@ -342,7 +339,7 @@ html_content = f"""<!DOCTYPE html>
         </div>
 
         <div class="box">
-            <h3>🇺🇸 美股避險動能池 (共7檔)
+            <h3>🇺🇸 美股避險動能池 (共12檔)
                 <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: {state.get('us_time')}</span>
             </h3>
             <table>
@@ -358,9 +355,12 @@ with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
 print("🌐 網頁發布引擎成功運作！最新數據已順利匯出至 index.html。")
 
-if is_morning_run:
+# 判斷是早上還是下午，給予不同的信件標題
+if run_tw and run_us:
+    mail_subject = f"🌍 雙市場合併通知 (台美股皆已更新) - {today_str}"
+elif run_tw:
     mail_subject = f"🌅 晨間量化通知 (台股模組更新完畢) - {today_str}"
 else:
-    mail_subject = f"🌇 午後量化通知 (美股 TOP5 更新完畢) - {today_str}"
+    mail_subject = f"🌇 午後量化通知 (美股模組更新完畢) - {today_str}"
 
 send_email_notify(mail_subject, html_content)
