@@ -84,31 +84,39 @@ if state.get('date') != today_str:
 # ==========================================
 # 📊 濾網與數據計算引擎
 # ==========================================
+# ==========================================
+# 📊 濾網與數據計算引擎
+# ==========================================
 def get_ma_filter(ticker, window, period="50d"):
     try:
-        df = yf.download(ticker, period=period, progress=False)
-        if not df.empty:
-            s = df['Close']
-            if isinstance(s, pd.DataFrame): s = s.squeeze()
-            curr = float(s.iloc[-1])
-            ma = float(s.rolling(window).mean().iloc[-1])
-            return curr > ma, curr, ma
-    except:
-        pass
+        # 🌟 升級：使用超穩定 session 引擎抓取大盤
+        tkr = yf.Ticker(ticker, session=session)
+        df = tkr.history(period=period, auto_adjust=True)
+        if not df.empty and 'Close' in df.columns:
+            s = df['Close'].dropna()
+            if len(s) >= window:
+                curr = float(s.iloc[-1])
+                ma = float(s.rolling(window).mean().iloc[-1])
+                # 確保數字不是 NaN 才回傳
+                if not pd.isna(ma) and not pd.isna(curr):
+                    return curr > ma, curr, ma
+    except Exception as e:
+        print(f"⚠️ 大盤濾網抓取失敗 ({ticker}): {e}")
     return False, 0, 0
 
 def get_sox_momentum():
     try:
-        df = yf.download("^SOX", period="100d", progress=False)
-        if not df.empty:
-            s = df['Close']
-            if isinstance(s, pd.DataFrame): s = s.squeeze()
-            m1 = (s.iloc[-1] / s.iloc[-22] - 1) if len(s) > 22 else 0
-            m3 = (s.iloc[-1] / s.iloc[-64] - 1) if len(s) > 64 else 0
+        # 🌟 升級：使用超穩定 session 引擎抓取 SOX
+        tkr = yf.Ticker("^SOX", session=session)
+        df = tkr.history(period="100d", auto_adjust=True)
+        if not df.empty and 'Close' in df.columns:
+            s = df['Close'].dropna()
+            m1 = (s.iloc[-1] / s.iloc[-22] - 1) if len(s) >= 22 else 0
+            m3 = (s.iloc[-1] / s.iloc[-64] - 1) if len(s) >= 64 else 0
             avg_mom = (m1 + m3) / 2
             return avg_mom > 0, avg_mom * 100
-    except:
-        pass
+    except Exception as e:
+        print(f"⚠️ SOX 動能抓取失敗: {e}")
     return False, 0
 
 def fetch_close_series(ticker):
