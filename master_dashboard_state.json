@@ -2,8 +2,8 @@
   "date": "2026-06-09",
   "filters": {
     "IXIC": "IXIC 20MA: 0.00 小於 0.00",
-    "TWII": "TWII 10MA: 43502.78 小於 44775.71",
-    "SOX": "SOX (1M+3M) 動能: 34.57% (多頭)"
+    "TWII": "TWII 10MA: 44704.44 小於 44893.62",
+    "SOX": "SOX (1M+3M) 動能: 40.45% (多頭)"
   },
   "tw_data": [
     {
@@ -107,100 +107,100 @@
     {
       "ticker": "SOXL",
       "name": "每日三倍做多半導體 ETF",
-      "price": 182.5399932861328,
-      "momentum": 194.37112082573816,
+      "price": 211.44000244140625,
+      "momentum": 234.5883008269345,
       "status": "❌ 跌破TWII濾網(強制賣出)",
       "is_fixed": true
     },
     {
       "ticker": "USD",
       "name": "2X 半導體",
-      "price": 88.68000030517578,
-      "momentum": 47.708042927044566,
+      "price": 95.25,
+      "momentum": 54.38752320307626,
       "status": "⭐️ 買進標的 (無濾網釘住)",
       "is_fixed": true
     },
     {
       "ticker": "BWET",
       "name": "",
-      "price": 200.73899841308594,
-      "momentum": 349.85818195730866,
+      "price": 196.5399932861328,
+      "momentum": 342.71093400926725,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "SNDK",
       "name": "Sandisk",
-      "price": 1559.3199462890625,
-      "momentum": 302.83147553087076,
+      "price": 1642.0,
+      "momentum": 290.4060424370572,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "AXTI",
       "name": "光通訊",
-      "price": 89.04000091552734,
-      "momentum": 278.53894432833266,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "DELL",
-      "name": "Dell Technologies",
-      "price": 394.3900146484375,
-      "momentum": 144.1923890041173,
+      "price": 90.77999877929688,
+      "momentum": 256.46771307002376,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "MU",
       "name": "Micron Technology",
-      "price": 864.010009765625,
-      "momentum": 144.10944234244383,
+      "price": 949.280029296875,
+      "momentum": 169.97098182460968,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "DELL",
+      "name": "Dell Technologies",
+      "price": 400.7699890136719,
+      "momentum": 146.31212135699408,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "LNVGY",
       "name": "中國聯想",
-      "price": 60.029998779296875,
-      "momentum": 126.87809213110441,
+      "price": 62.869998931884766,
+      "momentum": 136.54382866597328,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "STX",
       "name": "Seagate Technology",
-      "price": 847.469970703125,
-      "momentum": 125.8176896027301,
+      "price": 876.77001953125,
+      "momentum": 126.84756523794604,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "WDC",
       "name": "Western Digital",
-      "price": 511.7200012207031,
-      "momentum": 114.68186029568447,
+      "price": 526.9299926757812,
+      "momentum": 114.08885689938988,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
-      "price": 49.20000076293945,
-      "momentum": 106.71166239383767,
+      "price": 49.869998931884766,
+      "momentum": 106.1795834490731,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices",
-      "price": 466.3800048828125,
-      "momentum": 89.1230255542794,
+      "ticker": "INTC",
+      "name": "Intel",
+      "price": 110.2699966430664,
+      "momentum": 104.93027164343435,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
   ],
   "tw_time": "2026-06-09 07:00:45",
-  "us_time": "2026-06-08 16:55:12"
+  "us_time": "2026-06-09 14:00:51"
 }
