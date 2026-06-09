@@ -317,7 +317,8 @@ if history_rows:
 # 🌐 網頁 HTML 自動即時渲染
 # ==========================================
 def build_html_table(data_list):
-    if not data_list: return "<tr><td colspan='5' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
+    # 🌟 colspan 改成 6，因為多了一個股價欄位
+    if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
         if "買進" in r['status']:
@@ -328,7 +329,13 @@ def build_html_table(data_list):
             row_class = ""
             
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
-        rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
+        
+        # 🌟 把股價抓出來，並確保格式是小數點後兩位
+        price_val = r.get('price', 0)
+        price_str = f"{price_val:.2f}" if price_val > 0 else "N/A"
+        
+        # 🌟 在表格中插入 <td>{price_str}</td> 來顯示股價
+        rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{price_str}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
 
 ixic_txt = state.get('filters', {}).get('IXIC', '等待更新...')
@@ -374,7 +381,7 @@ html_content = f"""<!DOCTYPE html>
                 <span>早上 07:00 刷新 | 動能算法: (1M+3M)/2 | 最後同步: {state.get('tw_time')}</span>
             </h3>
             <table>
-                <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>(1M+3M)動能</th><th>策略狀態</th></tr>
+                <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1M+3M)動能</th><th>策略狀態</th></tr>
                 {build_html_table(state.get('tw_data', []))}
             </table>
         </div>
@@ -384,7 +391,7 @@ html_content = f"""<!DOCTYPE html>
                 <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: {state.get('us_time')}</span>
             </h3>
             <table>
-                <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
+                <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
                 {build_html_table(state.get('us_data', []))}
             </table>
         </div>
