@@ -131,9 +131,24 @@ def fetch_close_series(ticker):
     try:
         tkr = yf.Ticker(ticker, session=session)
         hist = tkr.history(period="1y", auto_adjust=True)
-        return hist['Close'].dropna() if not hist.empty else pd.Series()
-    except:
-        return pd.Series()
+        if not hist.empty and 'Close' in hist.columns:
+            s = hist['Close'].dropna()
+            if not s.empty:
+                # 🌟 幽靈股票防護：檢查最後一筆資料是否在 15 天內
+                last_date = s.index[-1]
+                now_utc = pd.Timestamp.utcnow()
+                if last_date.tz is None:
+                    last_date = last_date.tz_localize('UTC')
+                else:
+                    last_date = last_date.tz_convert('UTC')
+                
+                if (now_utc - last_date).days > 15:
+                    print(f"⚠️ {ticker} 抓到過期幽靈資料 (最後更新: {last_date.strftime('%Y-%m-%d')})，自動切換市場...")
+                    return pd.Series()
+                return s
+    except Exception as e:
+        pass
+    return pd.Series()
 
 def calc_mom_tw(s):
     if len(s) < 65: return -999
@@ -181,9 +196,7 @@ else:
     print("🛡️ SOX 啟動記憶防護：沿用上一次狀態")
     sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
 
-# 🌟 智能判斷：如果是早班，或者台股沒資料，就執行台股！
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
-# 🌟 智能判斷：如果是下午班，或者美股沒資料，就執行美股！
 run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 
 # ==========================================
@@ -200,8 +213,10 @@ if run_tw:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
                 df[1] = df[1].fillna("")
                 for t in df.iloc[:, 0]:
-                    t_str = str(t).strip()
+                    t_str = str(t).strip().upper()
                     if t_str.endswith('.0'): t_str = t_str[:-2]
+                    # 🌟 防呆：如果打成零(.TW0)，自動修復為英文O(.TWO)
+                    t_str = t_str.replace('.TW0', '.TWO')
                     tw_pool.append(t_str)
                 tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
     except Exception as e:
@@ -211,11 +226,17 @@ if run_tw:
     tw_fixed_tickers = ['00631L', '00675L']
     
     for t, n in zip(tw_pool, tw_names):
-        actual_t = f"{t}.TW"
-        s = fetch_close_series(actual_t)
-        if s.empty:
-            actual_t = f"{t}.TWO"
+        # 🌟 智能切換：如果使用者已經手動指定 .TW 或 .TWO，就直接採用
+        if t.endswith('.TW') or t.endswith('.TWO'):
+            actual_t = t
             s = fetch_close_series(actual_t)
+        else:
+            actual_t = f"{t}.TW"
+            s = fetch_close_series(actual_t)
+            # 🌟 當上市資料為空，或是被判定為「幽靈舊資料」時，無縫切換上櫃
+            if s.empty:
+                actual_t = f"{t}.TWO"
+                s = fetch_close_series(actual_t)
             
         if not s.empty:
             mom = calc_mom_tw(s)
@@ -252,8 +273,11 @@ if run_us:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
                 df[1] = df[1].fillna("")
                 for t in df.iloc[:, 0]:
-                    t_str = str(t).strip().upper().replace('.', '-')
-                    if t_str.endswith('-0'): t_str = t_str[:-2]
+                    t_str = str(t).strip().upper()
+                    if t_str.endswith('-0') or t_str.endswith('.0'): 
+                        t_str = t_str[:-2]
+                    # 🌟 美股防呆：把 BRK.B 轉成 Yahoo 認得的 BRK-B
+                    t_str = t_str.replace('.', '-')
                     us_pool.append(t_str)
                 us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
     except Exception as e:
@@ -304,10 +328,10 @@ with open(state_file, 'w', encoding='utf-8') as f:
 history_rows = []
 if run_tw:
     for r in state.get('tw_data', []):
-        history_rows.append({'日期': today_str, '時段': '台股模組', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
+        history_rows.append({'日期': today_str, '時段': '台股模組', '代號': r['ticker'], '名稱': r['name'], '當前股價': round(r.get('price', 0), 2), '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
 if run_us:
     for r in state.get('us_data', []):
-        history_rows.append({'日期': today_str, '時段': '美股模組', '代號': r['ticker'], '名稱': r['name'], '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
+        history_rows.append({'日期': today_str, '時段': '美股模組', '代號': r['ticker'], '名稱': r['name'], '當前股價': round(r.get('price', 0), 2), '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
 
 if history_rows:
     df_history = pd.DataFrame(history_rows)
@@ -317,7 +341,6 @@ if history_rows:
 # 🌐 網頁 HTML 自動即時渲染
 # ==========================================
 def build_html_table(data_list):
-    # 🌟 colspan 改成 6，因為多了一個股價欄位
     if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
@@ -329,12 +352,9 @@ def build_html_table(data_list):
             row_class = ""
             
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
-        
-        # 🌟 把股價抓出來，並確保格式是小數點後兩位
         price_val = r.get('price', 0)
         price_str = f"{price_val:.2f}" if price_val > 0 else "N/A"
         
-        # 🌟 在表格中插入 <td>{price_str}</td> 來顯示股價
         rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{price_str}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
 
