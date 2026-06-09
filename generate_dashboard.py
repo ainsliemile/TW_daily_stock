@@ -82,42 +82,50 @@ if state.get('date') != today_str:
     if 'us_time' not in state: state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 📊 濾網與數據計算引擎
-# ==========================================
-# ==========================================
-# 📊 濾網與數據計算引擎
+# 📊 濾網與數據計算引擎 (防呆升級版)
 # ==========================================
 def get_ma_filter(ticker, window, period="50d"):
     try:
-        # 🌟 升級：使用超穩定 session 引擎抓取大盤
-        tkr = yf.Ticker(ticker, session=session)
-        df = tkr.history(period=period, auto_adjust=True)
-        if not df.empty and 'Close' in df.columns:
-            s = df['Close'].dropna()
-            if len(s) >= window:
-                curr = float(s.iloc[-1])
-                ma = float(s.rolling(window).mean().iloc[-1])
-                # 確保數字不是 NaN 才回傳
-                if not pd.isna(ma) and not pd.isna(curr):
-                    return curr > ma, curr, ma
+        df = yf.download(ticker, period=period, session=session, progress=False)
+        if df.empty:
+            print(f"⚠️ {ticker} 抓取為空值！(Yahoo 可能阻擋連線)")
+            return False, False, 0, 0
+            
+        s = df['Close']
+        if isinstance(s, pd.DataFrame): s = s.squeeze()
+        s = s.dropna()
+        
+        if len(s) >= window:
+            curr = float(s.iloc[-1])
+            ma = float(s.rolling(window).mean().iloc[-1])
+            return True, curr > ma, curr, ma
+        else:
+            print(f"⚠️ {ticker} 歷史資料不足 ({len(s)} < {window}天)")
     except Exception as e:
-        print(f"⚠️ 大盤濾網抓取失敗 ({ticker}): {e}")
-    return False, 0, 0
+        print(f"⚠️ {ticker} 濾網抓取發生錯誤: {e}")
+    return False, False, 0, 0
 
 def get_sox_momentum():
     try:
-        # 🌟 升級：使用超穩定 session 引擎抓取 SOX
-        tkr = yf.Ticker("^SOX", session=session)
-        df = tkr.history(period="100d", auto_adjust=True)
-        if not df.empty and 'Close' in df.columns:
-            s = df['Close'].dropna()
-            m1 = (s.iloc[-1] / s.iloc[-22] - 1) if len(s) >= 22 else 0
-            m3 = (s.iloc[-1] / s.iloc[-64] - 1) if len(s) >= 64 else 0
+        df = yf.download("^SOX", period="100d", session=session, progress=False)
+        if df.empty:
+            print("⚠️ SOX 抓取為空值！(Yahoo 可能阻擋連線)")
+            return False, False, 0
+            
+        s = df['Close']
+        if isinstance(s, pd.DataFrame): s = s.squeeze()
+        s = s.dropna()
+        
+        if len(s) >= 64:
+            m1 = (s.iloc[-1] / s.iloc[-22] - 1) 
+            m3 = (s.iloc[-1] / s.iloc[-64] - 1) 
             avg_mom = (m1 + m3) / 2
-            return avg_mom > 0, avg_mom * 100
+            return True, avg_mom > 0, avg_mom * 100
+        else:
+            print(f"⚠️ SOX 歷史資料不足 ({len(s)} < 64天)")
     except Exception as e:
-        print(f"⚠️ SOX 動能抓取失敗: {e}")
-    return False, 0
+        print(f"⚠️ SOX 動能抓取發生錯誤: {e}")
+    return False, False, 0
 
 def fetch_close_series(ticker):
     try:
@@ -140,6 +148,39 @@ def calc_mom_us(s):
     m6 = (s.iloc[-1] / s.iloc[-127]) - 1
     return ((m1 + m3 + m6) / 3) * 100
 
+
+# ==========================================
+# 🌟 每次執行必定優先更新三大盤濾網 (確保跨時段最新)
+# ==========================================
+print("🔄 正在檢查並更新三大盤避險濾網...")
+
+# 1. IXIC 濾網
+success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
+if success_ixic:
+    ixic_pass = ix_pass
+    state['filters']['IXIC'] = f"IXIC 20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
+else:
+    print("🛡️ IXIC 啟動記憶防護：沿用上一次狀態")
+    ixic_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
+
+# 2. TWII 濾網
+success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
+if success_twii:
+    twii_pass = tw_pass
+    state['filters']['TWII'] = f"TWII 10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
+else:
+    print("🛡️ TWII 啟動記憶防護：沿用上一次狀態")
+    twii_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
+
+# 3. SOX 濾網
+success_sox, sx_pass, sox_mom_val = get_sox_momentum()
+if success_sox:
+    sox_pass = sx_pass
+    state['filters']['SOX'] = f"SOX (1M+3M) 動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
+else:
+    print("🛡️ SOX 啟動記憶防護：沿用上一次狀態")
+    sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
+
 # 🌟 智能判斷：如果是早班，或者台股沒資料，就執行台股！
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
 # 🌟 智能判斷：如果是下午班，或者美股沒資料，就執行美股！
@@ -149,24 +190,20 @@ run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 # 🌞 台股模組 (早盤 07:00 或 自動補齊)
 # ==========================================
 if run_tw:
-    print("🌅 觸發台股模組：正在更新 IXIC 濾網與台股動能池...")
-    ixic_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
-    state['filters']['IXIC'] = f"IXIC 20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
-    
+    print("🌅 觸發台股模組：正在更新台股動能池...")
     tw_pool, tw_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
         tw_sheets = ['台灣ETF', '台灣股票']
         for sheet in tw_sheets:
-            # 🌟 修正：只要求 subset=[0] (只要有代碼就保留)
-            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
-            # 🌟 修正：如果 B 欄(名稱)是空的，自動補上空白字串，避免報錯
-            df[1] = df[1].fillna("") 
-            for t in df.iloc[:, 0]:
-                t_str = str(t).strip()
-                if t_str.endswith('.0'): t_str = t_str[:-2]
-                tw_pool.append(t_str)
-            tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+            if sheet in xls.sheet_names:
+                df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
+                df[1] = df[1].fillna("")
+                for t in df.iloc[:, 0]:
+                    t_str = str(t).strip()
+                    if t_str.endswith('.0'): t_str = t_str[:-2]
+                    tw_pool.append(t_str)
+                tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
     except Exception as e:
         print(f"台股 Excel 讀取失敗: {e}")
 
@@ -205,36 +242,23 @@ if run_tw:
 # 🌇 美股模組 (午後 14:00 或 自動補齊)
 # ==========================================
 if run_us:
-    print("🌇 觸發美股模組：正在更新 TWII、SOX 濾網與美股動能池...")
-    twii_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
-    sox_pass, sox_mom_val = get_sox_momentum()
-    
-    state['filters']['TWII'] = f"TWII 10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
-    state['filters']['SOX'] = f"SOX (1M+3M) 動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
-
-    # 🌇 下午 2 點後：美股模組讀取段落
+    print("🌇 觸發美股模組：正在更新美股動能池...")
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
         target_sheets = ['美國ETF', '美國股票']
-        
         for sheet in target_sheets:
             if sheet in xls.sheet_names:
-                print(f"正在讀取美股分頁: {sheet}")
-                # 🌟 修正：只要求 subset=[0]
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
-                # 🌟 修正：名稱補空值
                 df[1] = df[1].fillna("")
                 for t in df.iloc[:, 0]:
-                    t_str = str(t).strip().upper().replace('.', '-') 
+                    t_str = str(t).strip().upper().replace('.', '-')
                     if t_str.endswith('-0'): t_str = t_str[:-2]
                     us_pool.append(t_str)
                 us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
-            else:
-                print(f"警告: 在 Excel 中找不到分頁 '{sheet}'")
     except Exception as e:
         print(f"美股 Excel 讀取失敗: {e}")
-        
+
     us_results = []
     us_fixed_tickers = ['SOXL', 'USD']
     
@@ -265,8 +289,6 @@ if run_us:
     fixed_us_data = [r for r in us_results if r['is_fixed']]
     dynamic_us_data = [r for r in us_results if not r['is_fixed']]
     dynamic_us_data.sort(key=lambda x: x['momentum'], reverse=True)
-    
-    # 🌟 修改回 TOP 10 檔動能！
     top10_us = dynamic_us_data[:10]
     
     fixed_us_data.sort(key=lambda x: x['ticker'])
@@ -309,9 +331,9 @@ def build_html_table(data_list):
         rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
 
-ixic_txt = state.get('filters', {}).get('IXIC', '等待早上 7 點刷新...')
-twii_txt = state.get('filters', {}).get('TWII', '等待下午 2 點刷新...')
-sox_txt = state.get('filters', {}).get('SOX', '等待下午 2 點刷新...')
+ixic_txt = state.get('filters', {}).get('IXIC', '等待更新...')
+twii_txt = state.get('filters', {}).get('TWII', '等待更新...')
+sox_txt = state.get('filters', {}).get('SOX', '等待更新...')
 
 html_content = f"""<!DOCTYPE html>
 <html>
@@ -340,7 +362,7 @@ html_content = f"""<!DOCTYPE html>
     <h1>🔬 跨市場多因子動能實驗室</h1>
     
     <div class="header-panel">
-        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（跨時段自動同步）</div>
+        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（全時段即時同步）</div>
         <div class="filter-tag">🇺🇸 納斯達克 (控台股) | {ixic_txt}</div>
         <div class="filter-tag">🇹🇼 加權指數 (控SOXL) | {twii_txt}</div>
         <div class="filter-tag">💻 費城半導體 (控美股) | {sox_txt}</div>
@@ -374,7 +396,6 @@ with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
 print("🌐 網頁發布引擎成功運作！最新數據已順利匯出至 index.html。")
 
-# 判斷是早上還是下午，給予不同的信件標題
 if run_tw and run_us:
     mail_subject = f"🌍 雙市場合併通知 (台美股皆已更新) - {today_str}"
 elif run_tw:
