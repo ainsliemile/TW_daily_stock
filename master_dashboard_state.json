@@ -1,104 +1,104 @@
 {
-  "date": "2026-06-10",
+  "date": "2026-06-11",
   "filters": {
-    "IXIC": "IXIC 20MA: 25929.66 小於 26460.98",
-    "TWII": "TWII 10MA: 43225.54 小於 44745.73",
-    "SOX": "SOX (1M+3M) 動能: 40.45% (多頭)"
+    "IXIC": "IXIC 20MA: 25169.50 小於 26385.28",
+    "TWII": "TWII 10MA: 44704.44 小於 44893.62",
+    "SOX": "SOX (1M+3M) 動能: 27.63% (多頭)"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 33.79999923706055,
-      "momentum": 29.82231670359837,
+      "price": 35.439998626708984,
+      "momentum": 44.874260451531,
       "status": "❌ 跌破IXIC濾網(強制賣出)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 295.45001220703125,
-      "momentum": 30.280213482343456,
+      "price": 312.54998779296875,
+      "momentum": 46.483190716787185,
       "status": "❌ 跌破IXIC濾網(強制賣出)",
       "is_fixed": true
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 28.670000076293945,
-      "momentum": 249.77719700449353,
+      "price": 28.510000228881836,
+      "momentum": 246.0864187327112,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2327.TW",
       "name": "國巨*",
-      "price": 826.0,
-      "momentum": 171.6888816937384,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3167.TW",
-      "name": "大量",
-      "price": 951.0,
-      "momentum": 136.35909953355997,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "4958.TW",
-      "name": "臻鼎-KY",
-      "price": 545.0,
-      "momentum": 135.4314504979981,
+      "price": 819.0,
+      "momentum": 156.0301362725728,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "8454.TW",
       "name": "富邦媒",
-      "price": 426.5,
-      "momentum": 130.06352548279366,
+      "price": 439.5,
+      "momentum": 145.17939893780593,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "4958.TW",
+      "name": "臻鼎-KY",
+      "price": 502.0,
+      "momentum": 112.51832579100507,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3090.TW",
       "name": "日電貿",
-      "price": 230.0,
-      "momentum": 129.2459332892559,
+      "price": 212.0,
+      "momentum": 104.45032146276961,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "3167.TW",
+      "name": "大量",
+      "price": 858.0,
+      "momentum": 102.36573576799142,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3189.TW",
       "name": "景碩",
-      "price": 714.0,
-      "momentum": 105.94579968205889,
+      "price": 660.0,
+      "momentum": 87.23957563757794,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "4916.TW",
-      "name": "事欣科",
-      "price": 119.5,
-      "momentum": 95.68534623368373,
+      "ticker": "8021.TW",
+      "name": "尖點",
+      "price": 556.0,
+      "momentum": 81.15856571848089,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2454.TW",
       "name": "聯發科",
-      "price": 4475.0,
-      "momentum": 92.05191015758025,
+      "price": 4155.0,
+      "momentum": 77.99615598002696,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "3037.TW",
-      "name": "欣興",
-      "price": 969.0,
-      "momentum": 80.8219055381887,
+      "ticker": "4916.TW",
+      "name": "事欣科",
+      "price": 111.5,
+      "momentum": 77.95913460535095,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -201,6 +201,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-10 07:00:45",
+  "tw_time": "2026-06-11 07:00:47",
   "us_time": "2026-06-10 14:00:45"
 }
