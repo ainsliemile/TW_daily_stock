@@ -134,7 +134,6 @@ def fetch_close_series(ticker):
         if not hist.empty and 'Close' in hist.columns:
             s = hist['Close'].dropna()
             if not s.empty:
-                # 🌟 幽靈股票防護：檢查最後一筆資料是否在 15 天內
                 last_date = s.index[-1]
                 now_utc = pd.Timestamp.utcnow()
                 if last_date.tz is None:
@@ -146,7 +145,7 @@ def fetch_close_series(ticker):
                     print(f"⚠️ {ticker} 抓到過期幽靈資料 (最後更新: {last_date.strftime('%Y-%m-%d')})，自動切換市場...")
                     return pd.Series()
                 return s
-    except Exception as e:
+    except:
         pass
     return pd.Series()
 
@@ -164,18 +163,13 @@ def calc_mom_us(s):
     return ((m1 + m3 + m6) / 3) * 100
 
 
-# ==========================================
-# 🌟 每次執行必定優先更新三大盤濾網 (確保跨時段最新)
-# ==========================================
 print("🔄 正在檢查並更新三大盤避險濾網...")
-
 # 1. IXIC 濾網
 success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
 if success_ixic:
     ixic_pass = ix_pass
     state['filters']['IXIC'] = f"IXIC 20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
 else:
-    print("🛡️ IXIC 啟動記憶防護：沿用上一次狀態")
     ixic_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
 
 # 2. TWII 濾網
@@ -184,7 +178,6 @@ if success_twii:
     twii_pass = tw_pass
     state['filters']['TWII'] = f"TWII 10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
 else:
-    print("🛡️ TWII 啟動記憶防護：沿用上一次狀態")
     twii_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
 
 # 3. SOX 濾網
@@ -193,14 +186,13 @@ if success_sox:
     sox_pass = sx_pass
     state['filters']['SOX'] = f"SOX (1M+3M) 動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
 else:
-    print("🛡️ SOX 啟動記憶防護：沿用上一次狀態")
     sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
 
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
 run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 
 # ==========================================
-# 🌞 台股模組 (早盤 07:00 或 自動補齊)
+# 🌞 台股模組
 # ==========================================
 if run_tw:
     print("🌅 觸發台股模組：正在更新台股動能池...")
@@ -215,7 +207,6 @@ if run_tw:
                 for t in df.iloc[:, 0]:
                     t_str = str(t).strip().upper()
                     if t_str.endswith('.0'): t_str = t_str[:-2]
-                    # 🌟 防呆：如果打成零(.TW0)，自動修復為英文O(.TWO)
                     t_str = t_str.replace('.TW0', '.TWO')
                     tw_pool.append(t_str)
                 tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
@@ -226,14 +217,12 @@ if run_tw:
     tw_fixed_tickers = ['00631L', '00675L']
     
     for t, n in zip(tw_pool, tw_names):
-        # 🌟 智能切換：如果使用者已經手動指定 .TW 或 .TWO，就直接採用
         if t.endswith('.TW') or t.endswith('.TWO'):
             actual_t = t
             s = fetch_close_series(actual_t)
         else:
             actual_t = f"{t}.TW"
             s = fetch_close_series(actual_t)
-            # 🌟 當上市資料為空，或是被判定為「幽靈舊資料」時，無縫切換上櫃
             if s.empty:
                 actual_t = f"{t}.TWO"
                 s = fetch_close_series(actual_t)
@@ -260,7 +249,7 @@ if run_tw:
     state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
-# 🌇 美股模組 (午後 14:00 或 自動補齊)
+# 🌇 美股模組
 # ==========================================
 if run_us:
     print("🌇 觸發美股模組：正在更新美股動能池...")
@@ -276,7 +265,6 @@ if run_us:
                     t_str = str(t).strip().upper()
                     if t_str.endswith('-0') or t_str.endswith('.0'): 
                         t_str = t_str[:-2]
-                    # 🌟 美股防呆：把 BRK.B 轉成 Yahoo 認得的 BRK-B
                     t_str = t_str.replace('.', '-')
                     us_pool.append(t_str)
                 us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
@@ -322,9 +310,7 @@ if run_us:
 with open(state_file, 'w', encoding='utf-8') as f:
     json.dump(state, f, ensure_ascii=False, indent=2)
 
-# ==========================================
-# 💾 寫入 CSV 歷史大數據庫
-# ==========================================
+# 💾 寫入歷史 CSV 庫
 history_rows = []
 if run_tw:
     for r in state.get('tw_data', []):
@@ -332,13 +318,13 @@ if run_tw:
 if run_us:
     for r in state.get('us_data', []):
         history_rows.append({'日期': today_str, '時段': '美股模組', '代號': r['ticker'], '名稱': r['name'], '當前股價': round(r.get('price', 0), 2), '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
-
 if history_rows:
     df_history = pd.DataFrame(history_rows)
     df_history.to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
 
+
 # ==========================================
-# 🌐 網頁 HTML 自動即時渲染
+# 🌐 網頁 HTML 自動即時渲染 (用於 GitHub Pages)
 # ==========================================
 def build_html_table(data_list):
     if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
@@ -350,11 +336,9 @@ def build_html_table(data_list):
             row_class = "sell-pinned" if r.get('is_fixed') else "sell-target"
         else:
             row_class = ""
-            
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
         price_val = r.get('price', 0)
         price_str = f"{price_val:.2f}" if price_val > 0 else "N/A"
-        
         rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{price_str}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
 
@@ -362,7 +346,7 @@ ixic_txt = state.get('filters', {}).get('IXIC', '等待更新...')
 twii_txt = state.get('filters', {}).get('TWII', '等待更新...')
 sox_txt = state.get('filters', {}).get('SOX', '等待更新...')
 
-html_content = f"""<!DOCTYPE html>
+web_html = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -387,29 +371,22 @@ html_content = f"""<!DOCTYPE html>
 </head>
 <body>
     <h1>🔬 跨市場多因子動能實驗室</h1>
-    
     <div class="header-panel">
-        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（全時段即時同步）</div>
+        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（網頁端同步）</div>
         <div class="filter-tag">🇺🇸 納斯達克 (控台股) | {ixic_txt}</div>
         <div class="filter-tag">🇹🇼 加權指數 (控SOXL) | {twii_txt}</div>
         <div class="filter-tag">💻 費城半導體 (控美股) | {sox_txt}</div>
     </div>
-    
     <div class="container">
         <div class="box">
-            <h3>🇹🇼 台股避險動能池 (共12檔) 
-                <span>早上 07:00 刷新 | 動能算法: (1M+3M)/2 | 最後同步: {state.get('tw_time')}</span>
-            </h3>
+            <h3>🇹🇼 台股避險動能池 (共12檔) <span>最後同步: {state.get('tw_time')}</span></h3>
             <table>
                 <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1M+3M)動能</th><th>策略狀態</th></tr>
                 {build_html_table(state.get('tw_data', []))}
             </table>
         </div>
-
         <div class="box">
-            <h3>🇺🇸 美股避險動能池 (共12檔)
-                <span>下午 14:00 刷新 | 動能算法: (1M+3M+6M)/3 | 最後同步: {state.get('us_time')}</span>
-            </h3>
+            <h3>🇺🇸 美股避險動能池 (共12檔) <span>最後同步: {state.get('us_time')}</span></h3>
             <table>
                 <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
                 {build_html_table(state.get('us_data', []))}
@@ -420,9 +397,158 @@ html_content = f"""<!DOCTYPE html>
 </html>"""
 
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
+    f.write(web_html)
 print("🌐 網頁發布引擎成功運作！最新數據已順利匯出至 index.html。")
 
+
+# ==========================================
+# 📧 🚀 專門為 Email 打造的高對比、高清晰度渲染引擎 (防止黑化與縮小)
+# ==========================================
+def build_email_table_html(data_list):
+    if not data_list: return "<tr><td colspan='6' style='padding:15px; text-align:center; color:#888;'>等待今日模組數據補齊...</td></tr>"
+    rows = ""
+    for idx, r in enumerate(data_list):
+        # 使用絕對實色 (Solid Hex Color)，禁止 rgba，防止信箱軟體強制黑化
+        bg_color = "#161b22"
+        text_color = "#c9d1d9"
+        border_left = "1px solid #30363d"
+        font_weight = "normal"
+        text_decor = "none"
+        
+        if "買進" in r['status']:
+            bg_color = "#142c4f"    # 明確的實色深藍
+            text_color = "#58a6ff"  # 明確的亮藍字
+            border_left = "5px solid #58a6ff"
+            font_weight = "bold"
+        elif "賣出" in r['status']:
+            if r.get('is_fixed'):
+                bg_color = "#3c1818" # 實色暗紅 (釘住警告)
+                text_color = "#ff7b72"
+                border_left = "5px solid #f85149"
+                font_weight = "bold"
+            else:
+                bg_color = "#211616" # 淘汰淘汰
+                text_color = "#8b949e"
+                border_left = "5px solid #da3633"
+                text_decor = "line-through"
+                
+        pin_icon = "📌 釘住" if r.get('is_fixed') else f"第 {idx+1 - len([x for x in data_list if x.get('is_fixed')])} 名"
+        price_val = r.get('price', 0)
+        price_str = f"{price_val:.2f}" if price_val > 0 else "N/A"
+        
+        rows += f"""<tr style="background-color: {bg_color}; color: {text_color}; text-decoration: {text_decor};">
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{pin_icon}</td>
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px; border-left: {border_left};"><strong>{r['ticker']}</strong></td>
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{r['name']}</td>
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px; color: #ffffff; font-weight: bold;">${price_str}</td>
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{r['momentum']:.2f}%</td>
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 14px;">{r['status']}</td>
+        </tr>"""
+    return rows
+
+# 建立專為手機優化、絕不縮小的垂直條列式大字體 Email 內容
+email_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="background-color: #0d1117; color: #c9d1d9; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 10px; margin: 0;">
+    
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px; background-color: #0d1117; margin: 0 auto;">
+        <tr>
+            <td style="padding: 10px 0; text-align: center;">
+                <h1 style="color: #58a6ff; font-size: 24px; margin-bottom: 5px;">🔬 跨市場多因子動能實驗室</h1>
+                <p style="color: #8b949e; font-size: 13px; margin: 0;">報告產生時間 (台北): {now.strftime('%Y-%m-%d %H:%M:%S')}</p>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding: 10px 0;">
+                <div style="background-color: #161b22; border: 2px solid #30363d; padding: 15px; border-radius: 8px;">
+                    <div style="color: #58a6ff; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 8px;">📊 大盤避險濾網狀態 (全時段強制高對比)</div>
+                    
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff; font-weight: bold;">
+                        🇺🇸 納斯達克 (控台股) <span style="color: #8b949e; font-weight: normal; margin: 0 5px;">|</span> <span style="color: #79c0ff;">{ixic_txt}</span>
+                    </div>
+                    
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058; font-weight: bold;">
+                        🇹🇼 加權指數 (控SOXL) <span style="color: #8b949e; font-weight: normal; margin: 0 5px;">|</span> <span style="color: #56d44f;">{twii_txt}</span>
+                    </div>
+                    
+                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70; font-weight: bold;">
+                        💻 費城半導體 (控美股) <span style="color: #8b949e; font-weight: normal; margin: 0 5px;">|</span> <span style="color: #ff9b57;">{sox_txt}</span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding: 15px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #30363d; border-radius: 8px; overflow: hidden; background-color: #161b22;">
+                    <tr>
+                        <td style="background-color: #21262d; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #30363d;">
+                            🇹🇼 台股避險動能池 (共12檔)
+                            <br><span style="font-size: 12px; color: #8b949e; font-weight: normal;">更新時間: {state.get('tw_time')}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr style="background-color: #1f242c; color: #8b949e;">
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">屬性</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">代號</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">名稱</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">現價</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">動能</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">狀態</th>
+                                </tr>
+                                {build_email_table_html(state.get('tw_data', []))}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding: 15px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #30363d; border-radius: 8px; overflow: hidden; background-color: #161b22;">
+                    <tr>
+                        <td style="background-color: #21262d; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #30363d;">
+                            🇺🇸 美股避險動能池 (共12檔)
+                            <br><span style="font-size: 12px; color: #8b949e; font-weight: normal;">更新時間: {state.get('us_time')}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr style="background-color: #1f242c; color: #8b949e;">
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">屬性</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">代號</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">名稱</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">現價</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">動能</th>
+                                    <th style="padding: 12px 4px; font-size: 13px; text-align: center;">狀態</th>
+                                </tr>
+                                {build_email_table_html(state.get('us_data', []))}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding: 20px; text-align: center; color: #666666; font-size: 12px;">
+                本郵件由 Github Actions 自動化量化實驗室系統發送。請勿直接回覆。
+            </td>
+        </tr>
+    </table>
+    
+</body>
+</html>"""
+
+# 判斷是早上還是下午，給予不同的信件標題
 if run_tw and run_us:
     mail_subject = f"🌍 雙市場合併通知 (台美股皆已更新) - {today_str}"
 elif run_tw:
@@ -430,4 +556,5 @@ elif run_tw:
 else:
     mail_subject = f"🌇 午後量化通知 (美股模組更新完畢) - {today_str}"
 
-send_email_notify(mail_subject, html_content)
+# 🌟 發送專門為 Email 渲染的最佳化 HTML，而不是網頁版 HTML
+send_email_notify(mail_subject, email_html)
