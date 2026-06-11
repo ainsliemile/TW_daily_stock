@@ -1,104 +1,104 @@
 {
-  "date": "2026-06-11",
+  "date": "2026-06-12",
   "filters": {
-    "IXIC": "IXIC 20MA: 25678.82 小於 26431.22",
-    "TWII": "TWII 10MA: 43149.46 小於 44782.88",
-    "SOX": "SOX (1M+3M) 動能: 34.21% (多頭)"
+    "IXIC": "IXIC 20MA: 25809.66 小於 26355.65",
+    "TWII": "TWII 10MA: 43225.54 小於 44790.49",
+    "SOX": "SOX (1M+3M) 動能: 42.37% (多頭)"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 35.439998626708984,
-      "momentum": 44.874260451531,
+      "price": 33.43000030517578,
+      "momentum": 33.14415825530348,
       "status": "❌ 跌破IXIC濾網(強制賣出)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 312.54998779296875,
-      "momentum": 46.483190716787185,
+      "price": 295.5,
+      "momentum": 35.208506944576435,
       "status": "❌ 跌破IXIC濾網(強制賣出)",
       "is_fixed": true
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 28.510000228881836,
-      "momentum": 246.0864187327112,
+      "price": 29.540000915527344,
+      "momentum": 262.7840747679932,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2327.TW",
       "name": "國巨*",
-      "price": 819.0,
-      "momentum": 156.0301362725728,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "8454.TW",
-      "name": "富邦媒",
-      "price": 439.5,
-      "momentum": 145.17939893780593,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "4958.TW",
-      "name": "臻鼎-KY",
-      "price": 502.0,
-      "momentum": 112.51832579100507,
+      "price": 836.00146484375,
+      "momentum": 159.40633339037734,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3090.TW",
       "name": "日電貿",
-      "price": 212.0,
-      "momentum": 104.45032146276961,
+      "price": 233.0,
+      "momentum": 121.04798676227246,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "8454.TW",
+      "name": "富邦媒",
+      "price": 396.0,
+      "momentum": 117.08586141424959,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "4958.TW",
+      "name": "臻鼎-KY",
+      "price": 529.0,
+      "momentum": 112.79462219774837,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3167.TW",
       "name": "大量",
-      "price": 858.0,
-      "momentum": 102.36573576799142,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3189.TW",
-      "name": "景碩",
-      "price": 660.0,
-      "momentum": 87.23957563757794,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "8021.TW",
-      "name": "尖點",
-      "price": 556.0,
-      "momentum": 81.15856571848089,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "2454.TW",
-      "name": "聯發科",
-      "price": 4155.0,
-      "momentum": 77.99615598002696,
+      "price": 847.0,
+      "momentum": 87.3562509507892,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "4916.TW",
       "name": "事欣科",
-      "price": 111.5,
-      "momentum": 77.95913460535095,
+      "price": 114.5,
+      "momentum": 83.2234192428161,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "8021.TW",
+      "name": "尖點",
+      "price": 570.0,
+      "momentum": 81.66994033280213,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2454.TW",
+      "name": "聯發科",
+      "price": 4085.0,
+      "momentum": 74.16300907407182,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "6890.TW",
+      "name": "來億-KY",
+      "price": 284.0,
+      "momentum": 73.70030581039755,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -201,6 +201,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-11 07:00:47",
+  "tw_time": "2026-06-12 07:00:57",
   "us_time": "2026-06-11 14:00:48"
 }
