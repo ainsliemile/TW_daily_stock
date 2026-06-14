@@ -4,10 +4,10 @@
     "IXIC": "20MA: 25888.84 小於 26318.33",
     "TWII": "10MA: 44169.04 小於 44685.40",
     "SOX": "動能: 43.06% (多頭)",
-    "BTC": "現價 64028.7 vs 120MA 71792.2 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4238.8 vs 120MA 4718.2 (⚠️ 熊市警訊(半年~1年內))",
-    "CDS": "❌ 抓取失敗 (需檢查網站阻擋)",
-    "STLFSI4": "❌ 抓取失敗，需檢查連線"
+    "BTC": "現價 64030.0 vs 120MA 71792.2 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4238.8 vs 120MA 4718.2 (⚠️ 熊市警訊)",
+    "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
+    "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)"
   },
   "tw_data": [
     {
@@ -109,19 +109,35 @@
   ],
   "us_data": [
     {
-      "ticker": "SOXL",
-      "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 234.67999267578125,
-      "momentum": 254.2477043110766,
-      "status": "❌ 跌破TWII濾網(強制賣出)",
-      "is_fixed": true
-    },
-    {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
       "price": 98.01000213623047,
       "momentum": 53.29349786252472,
-      "status": "⭐️ 買進標的 (無濾網釘住)",
+      "status": "⭐️ 買進標的",
+      "is_fixed": true
+    },
+    {
+      "ticker": "SOXL",
+      "name": "Direxion Daily Semiconductor Bull 3X Shares",
+      "price": 234.67999267578125,
+      "momentum": 254.2477043110766,
+      "status": "❌ 跌破TWII濾網",
+      "is_fixed": true
+    },
+    {
+      "ticker": "SOXL",
+      "name": "SOXL",
+      "price": 234.67999267578125,
+      "momentum": 254.2477043110766,
+      "status": "❌ 跌破TWII濾網",
+      "is_fixed": true
+    },
+    {
+      "ticker": "USD",
+      "name": "USD",
+      "price": 98.01000213623047,
+      "momentum": 53.29349786252472,
+      "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
@@ -144,7 +160,7 @@
       "ticker": "AXTI",
       "name": "AXT, Inc.",
       "price": 97.18000030517578,
-      "momentum": 201.71774344599322,
+      "momentum": 201.71774344599328,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -168,7 +184,7 @@
       "ticker": "INTC",
       "name": "Intel",
       "price": 124.56999969482422,
-      "momentum": 127.06387083607125,
+      "momentum": 127.06387083607123,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -176,7 +192,7 @@
       "ticker": "STX",
       "name": "Seagate Technology",
       "price": 931.0399780273438,
-      "momentum": 123.26809309094213,
+      "momentum": 123.26809309094216,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,5 +222,5 @@
     }
   ],
   "tw_time": "2026-06-12 07:00:57",
-  "us_time": "2026-06-14 23:28:01"
+  "us_time": "2026-06-14 23:55:06"
 }
