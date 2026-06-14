@@ -9,6 +9,7 @@
         h1 { text-align: center; color: #58a6ff; margin-bottom: 10px; }
         .header-panel { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
         .filter-tag { display: inline-block; background: #21262d; padding: 8px 15px; margin: 5px; border-radius: 20px; border: 1px solid #58a6ff; font-size: 14px; }
+        .macro-tag { border: 1px solid #f85149; background: #3c1818; color: #ff7b72; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1600px; margin: 0 auto; }
         .box { flex: 1; min-width: 500px; background: #161b22; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .box h3 { margin: 0; padding: 15px; background: #21262d; text-align: center; color: #fff; border-bottom: 1px solid #30363d; }
@@ -23,12 +24,22 @@
 </head>
 <body>
     <h1>🔬 跨市場多因子動能實驗室</h1>
+    
     <div class="header-panel">
         <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（網頁端同步）</div>
-        <div class="filter-tag">🇺🇸 納斯達克 (控台股) | IXIC 20MA: 25809.66 小於 26355.65</div>
-        <div class="filter-tag">🇹🇼 加權指數 (控SOXL) | TWII 10MA: 44169.04 小於 44685.40</div>
-        <div class="filter-tag">💻 費城半導體 (控美股) | SOX (1M+3M) 動能: 42.37% (多頭)</div>
+        <div class="filter-tag">🇺🇸 納斯達克 | 20MA: 25888.84 小於 26318.33</div>
+        <div class="filter-tag">🇹🇼 加權指數 | 10MA: 44169.04 小於 44685.40</div>
+        <div class="filter-tag">💻 費半指數 | 動能: 43.06% (多頭)</div>
     </div>
+
+    <div class="header-panel" style="border: 1px solid #f85149;">
+        <div style="margin-bottom: 10px; color: #ff7b72; font-size: 15px; font-weight: bold;">🚨 總體經濟與熊市警訊指標</div>
+        <div class="filter-tag macro-tag">₿ BTC 120日均線 | 現價 64086.6 vs 120MA 71792.7 (⚠️ 熊市警訊)</div>
+        <div class="filter-tag macro-tag">🥇 黃金 120日均線 | 現價 4238.8 vs 120MA 4718.2 (⚠️ 熊市警訊(半年~1年內))</div>
+        <div class="filter-tag macro-tag">🏦 金融壓力 (STLFSI4) | 等待更新...</div>
+        <div class="filter-tag macro-tag">🛡️ 美國 5年期 CDS | 無法直接連線(建議使用API)</div>
+    </div>
+
     <div class="container">
         <div class="box">
             <h3>🇹🇼 台股避險動能池 (共12檔) <span>最後同步: 2026-06-12 07:00:57</span></h3>
@@ -38,10 +49,10 @@
             </table>
         </div>
         <div class="box">
-            <h3>🇺🇸 美股避險動能池 (共12檔) <span>最後同步: 2026-06-12 14:00:47</span></h3>
+            <h3>🇺🇸 美股避險動能池 (共12檔) <span>最後同步: 2026-06-14 23:08:32</span></h3>
             <table>
                 <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
-                <tr class='sell-pinned'><td>📌 釘住</td><td><strong>SOXL</strong></td><td>Direxion Daily Semiconductor Bull 3X Shares</td><td>223.99</td><td>248.01%</td><td>❌ 跌破TWII濾網(強制賣出)</td></tr><tr class='buy-target'><td>📌 釘住</td><td><strong>USD</strong></td><td>ProShares Ultra Semiconductors</td><td>96.01</td><td>50.47%</td><td>⭐️ 買進標的 (無濾網釘住)</td></tr><tr class='buy-target'><td>1</td><td><strong>SNDK</strong></td><td>Sandisk</td><td>1881.51</td><td>330.32%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>2</td><td><strong>BWET</strong></td><td>Breakwave Tanker Shipping ETF</td><td>191.03</td><td>314.02%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>3</td><td><strong>AXTI</strong></td><td>AXT, Inc.</td><td>88.34</td><td>183.81%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>4</td><td><strong>MU</strong></td><td>Micron Technology</td><td>995.87</td><td>156.85%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>5</td><td><strong>DELL</strong></td><td>Dell Technologies</td><td>391.45</td><td>137.03%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>6</td><td><strong>LNVGY</strong></td><td>Lenovo Group Limited</td><td>59.37</td><td>119.82%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>7</td><td><strong>STX</strong></td><td>Seagate Technology</td><td>868.09</td><td>116.03%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>8</td><td><strong>INTC</strong></td><td>Intel</td><td>116.96</td><td>114.75%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>9</td><td><strong>WDC</strong></td><td>Western Digital</td><td>529.29</td><td>107.82%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>10</td><td><strong>AMD</strong></td><td>Advanced Micro Devices</td><td>488.45</td><td>92.12%</td><td>⭐️ 買進標的</td></tr>
+                <tr class='sell-pinned'><td>📌 釘住</td><td><strong>SOXL</strong></td><td>Direxion Daily Semiconductor Bull 3X Shares</td><td>234.68</td><td>254.25%</td><td>❌ 跌破TWII濾網(強制賣出)</td></tr><tr class='buy-target'><td>📌 釘住</td><td><strong>USD</strong></td><td>ProShares Ultra Semiconductors</td><td>98.01</td><td>53.29%</td><td>⭐️ 買進標的 (無濾網釘住)</td></tr><tr class='buy-target'><td>1</td><td><strong>BWET</strong></td><td>Breakwave Tanker Shipping ETF</td><td>199.90</td><td>328.89%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>2</td><td><strong>SNDK</strong></td><td>Sandisk</td><td>1980.10</td><td>328.81%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>3</td><td><strong>AXTI</strong></td><td>AXT, Inc.</td><td>97.18</td><td>201.72%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>4</td><td><strong>MU</strong></td><td>Micron Technology</td><td>981.61</td><td>141.71%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>5</td><td><strong>DELL</strong></td><td>Dell Technologies</td><td>395.57</td><td>135.77%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>6</td><td><strong>INTC</strong></td><td>Intel</td><td>124.57</td><td>127.06%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>7</td><td><strong>STX</strong></td><td>Seagate Technology</td><td>931.04</td><td>123.27%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>8</td><td><strong>LNVGY</strong></td><td>Lenovo Group Limited</td><td>57.25</td><td>111.49%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>9</td><td><strong>WDC</strong></td><td>Western Digital</td><td>562.93</td><td>110.12%</td><td>⭐️ 買進標的</td></tr><tr class='buy-target'><td>10</td><td><strong>AMD</strong></td><td>Advanced Micro Devices</td><td>511.57</td><td>103.47%</td><td>⭐️ 買進標的</td></tr>
             </table>
         </div>
     </div>
