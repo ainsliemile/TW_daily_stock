@@ -7,10 +7,12 @@ import warnings
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import io
+import re
 
 warnings.filterwarnings('ignore')
 
@@ -52,7 +54,7 @@ adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 })
 
 tw_tz = pytz.timezone('Asia/Taipei')
@@ -80,15 +82,15 @@ if state.get('date') != today_str:
     if 'us_data' not in state: state['us_data'] = []
     if 'tw_time' not in state: state['tw_time'] = '等待今日計算...'
     if 'us_time' not in state: state['us_time'] = '等待今日計算...'
+    if 'cds_history' not in state: state['cds_history'] = {}
 
 # ==========================================
-# 📊 濾網與數據計算引擎 (防呆升級版)
+# 📊 濾網與數據計算引擎
 # ==========================================
 def get_ma_filter(ticker, window, period="50d"):
     try:
         df = yf.download(ticker, period=period, session=session, progress=False)
         if df.empty:
-            print(f"⚠️ {ticker} 抓取為空值！(Yahoo 可能阻擋連線)")
             return False, False, 0, 0
             
         s = df['Close']
@@ -99,69 +101,111 @@ def get_ma_filter(ticker, window, period="50d"):
             curr = float(s.iloc[-1])
             ma = float(s.rolling(window).mean().iloc[-1])
             return True, curr > ma, curr, ma
-        else:
-            print(f"⚠️ {ticker} 歷史資料不足 ({len(s)} < {window}天)")
     except Exception as e:
-        print(f"⚠️ {ticker} 濾網抓取發生錯誤: {e}")
+        pass
     return False, False, 0, 0
 
 def get_sox_momentum():
     try:
         df = yf.download("^SOX", period="100d", session=session, progress=False)
-        if df.empty:
-            return False, False, 0
-            
-        s = df['Close']
-        if isinstance(s, pd.DataFrame): s = s.squeeze()
-        s = s.dropna()
-        
-        if len(s) >= 64:
-            m1 = (s.iloc[-1] / s.iloc[-22] - 1) 
-            m3 = (s.iloc[-1] / s.iloc[-64] - 1) 
-            avg_mom = (m1 + m3) / 2
-            return True, avg_mom > 0, avg_mom * 100
+        if not df.empty:
+            s = df['Close']
+            if isinstance(s, pd.DataFrame): s = s.squeeze()
+            s = s.dropna()
+            if len(s) >= 64:
+                m1 = (s.iloc[-1] / s.iloc[-22] - 1) 
+                m3 = (s.iloc[-1] / s.iloc[-64] - 1) 
+                avg_mom = (m1 + m3) / 2
+                return True, avg_mom > 0, avg_mom * 100
     except:
         pass
     return False, False, 0
 
-# 新增：FRED 聖路易斯聯儲金融壓力指數
+# 【修改】FRED 聖路易斯聯儲金融壓力指數 (無備用值，失敗即報錯)
 def get_stlfsi4_signal():
     try:
         url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=STLFSI4"
-        df = pd.read_csv(url, parse_dates=['DATE'], index_col='DATE')
-        if not df.empty:
-            df['STLFSI4'] = pd.to_numeric(df['STLFSI4'], errors='coerce')
-            df = df.dropna()
-            curr = float(df['STLFSI4'].iloc[-1])
-            if curr > 0.5:
-                status = "🚨 確定熊市"
-            elif curr > 0:
-                status = "⚠️ 警戒"
-            else:
-                status = "✅ 安全"
-            return True, curr, status
+        resp = session.get(url, timeout=10)
+        if resp.status_code == 200:
+            df = pd.read_csv(io.StringIO(resp.text), parse_dates=True, index_col=0)
+            df.columns = [c.strip().upper() for c in df.columns]
+            if 'STLFSI4' in df.columns:
+                df['STLFSI4'] = pd.to_numeric(df['STLFSI4'], errors='coerce')
+                df = df.dropna()
+                if not df.empty:
+                    curr = float(df['STLFSI4'].iloc[-1])
+                    date_str = df.index[-1].strftime('%Y-%m-%d')
+                    if curr > 0.5: status = "🚨 確定熊市"
+                    elif curr > 0: status = "⚠️ 警戒"
+                    else: status = "✅ 安全"
+                    return True, curr, status, date_str
     except Exception as e:
         print(f"⚠️ STLFSI4 抓取錯誤: {e}")
-    return False, 0, "未知"
+        
+    return False, 0, "❌ 抓取失敗", "未知"
 
-# 新增：美國 5 年期 CDS (MacroMicro)
-def get_us_cds_signal():
+# 【修改】美國 5 年期 CDS (無備用值，失敗即報錯)
+def get_us_cds_signal(state_data):
+    current_price = 0
+    fetch_success = False
+    
     try:
-        # 由於 MacroMicro 會阻擋自動化爬蟲，若失敗將顯示防呆提醒
-        # 若未來你有 MacroMicro API Key，可將下方替換為正式 API Request
-        url = "https://www.macromicro.me/collections/7840/global-cds/68239/us-5year-cds"
-        # 這裡僅配置基礎框架，實際未授權環境下極大概率回傳 403 Forbidden
-        response = session.get(url, timeout=5)
-        if response.status_code == 200:
-            # 假設我們成功解析(此處為邏輯展示，實際需解出圖表 JSON)
-            # pct_change = ((curr - past_1m) / past_1m) * 100
-            # return True, pct_change
-            return False, "網站阻擋自動抓取" 
-        else:
-            return False, "無法直接連線(建議使用API)"
-    except:
-        pass
-    return False, "抓取失敗"
+        url = "https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd"
+        headers = {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+        }
+        resp = session.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            match = re.search(r'data-test="instrument-price-last"[^>]*>([\d\.]+)</span>', resp.text)
+            if not match:
+                match = re.search(r'class="text-5xl/9[^>]*>([\d\.]+)</div>', resp.text)
+            if match:
+                current_price = float(match.group(1))
+                fetch_success = True
+    except Exception as e:
+        print(f"⚠️ CDS 抓取異常: {e}")
+
+    # 若抓取失敗，直接回報錯誤，不往下計算
+    if not fetch_success:
+        return "❌ 抓取失敗 (需檢查網站阻擋)"
+
+    # ===== 自動記錄 CDS 價格並計算 1 個月漲跌幅 =====
+    if 'cds_history' not in state_data:
+        state_data['cds_history'] = {}
+        
+    state_data['cds_history'][today_str] = current_price
+        
+    past_dates = []
+    for d_str in state_data['cds_history'].keys():
+        try:
+            d_obj = datetime.strptime(d_str, '%Y-%m-%d').replace(tzinfo=pytz.timezone('Asia/Taipei'))
+            past_dates.append((d_str, d_obj))
+        except: pass
+        
+    if not past_dates:
+        return f"現價 {current_price:.2f} (首日建檔中...)"
+        
+    past_dates.sort(key=lambda x: x[1])
+    past_price, past_d_str = None, None
+    
+    for d_str, d_obj in past_dates:
+        if (now - d_obj).days >= 20:
+            past_price = state_data['cds_history'][d_str]
+            past_d_str = d_str
+            break
+            
+    if past_price is None:
+        past_price = state_data['cds_history'][past_dates[0][0]]
+        past_d_str = past_dates[0][0]
+
+    pct_change = ((current_price - past_price) / past_price) * 100 if past_price > 0 else 0
+    
+    status = "✅ 安全"
+    if pct_change > 40: status = "🚨 確定熊市"
+    elif pct_change > 20: status = "⚠️ 熊市警訊"
+        
+    return f"現價 {current_price:.2f} | 較 {past_d_str}({past_price:.2f}) 漲跌: {pct_change:.1f}% ({status})"
 
 def fetch_close_series(ticker):
     try:
@@ -174,12 +218,9 @@ def fetch_close_series(ticker):
                 now_utc = pd.Timestamp.utcnow()
                 if last_date.tz is None: last_date = last_date.tz_localize('UTC')
                 else: last_date = last_date.tz_convert('UTC')
-                
-                if (now_utc - last_date).days > 15:
-                    return pd.Series()
+                if (now_utc - last_date).days > 15: return pd.Series()
                 return s
-    except:
-        pass
+    except: pass
     return pd.Series()
 
 def calc_mom_tw(s):
@@ -201,46 +242,38 @@ success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
 if success_ixic:
     ixic_pass = ix_pass
     state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
-else:
-    ixic_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
+else: ixic_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
 
 # 2. TWII 濾網
 success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
 if success_twii:
     twii_pass = tw_pass
     state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
-else:
-    twii_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
+else: twii_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
 
 # 3. SOX 濾網
 success_sox, sx_pass, sox_mom_val = get_sox_momentum()
 if success_sox:
     sox_pass = sx_pass
     state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
-else:
-    sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
+else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
 
-# --- 新增：總經與熊市警訊指標 ---
-# 1. BTC vs 120MA
+# --- 總經與熊市警訊指標 ---
 success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter("BTC-USD", 120, period="1y")
 if success_btc:
-    btc_status = "✅ 安全" if btc_pass else "⚠️ 熊市警訊"
-    state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({btc_status})"
+    state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
-# 2. 黃金 vs 120MA
 success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
 if success_gold:
-    gold_status = "✅ 安全" if gold_pass else "⚠️ 熊市警訊(半年~1年內)"
-    state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({gold_status})"
+    state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊(半年~1年內)'})"
 
-# 3. STLFSI4 金融壓力指數
-success_stl, stl_curr, stl_status = get_stlfsi4_signal()
+success_stl, stl_curr, stl_status, stl_date = get_stlfsi4_signal()
 if success_stl:
-    state['filters']['STLFSI4'] = f"數值 {stl_curr:.4f} ({stl_status})"
+    state['filters']['STLFSI4'] = f"數值 {stl_curr:.4f} ({stl_status}) | 最後更新: {stl_date}"
+else:
+    state['filters']['STLFSI4'] = "❌ 抓取失敗，需檢查連線"
 
-# 4. US CDS
-success_cds, cds_msg = get_us_cds_signal()
-state['filters']['CDS'] = cds_msg
+state['filters']['CDS'] = get_us_cds_signal(state)
 
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
 run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
@@ -282,11 +315,7 @@ if run_tw:
                 is_fixed = t in tw_fixed_tickers
                 status = "⭐️ 買進標的"
                 if is_fixed and not ixic_pass: status = "❌ 跌破IXIC濾網(強制賣出)"
-                
-                tw_results.append({
-                    'ticker': actual_t, 'name': n, 'price': float(s.iloc[-1]), 
-                    'momentum': mom, 'status': status, 'is_fixed': is_fixed
-                })
+                tw_results.append({'ticker': actual_t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
                 
     fixed_tw_data = [r for r in tw_results if r['is_fixed']]
     dynamic_tw_data = [r for r in tw_results if not r['is_fixed']]
@@ -331,11 +360,7 @@ if run_us:
                 if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if twii_pass else "❌ 跌破TWII濾網(強制賣出)"
                 elif t == 'USD': status = "⭐️ 買進標的 (無濾網釘住)"
                 else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱(強制賣出)"
-                
-                us_results.append({
-                    'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 
-                    'momentum': mom, 'status': status, 'is_fixed': is_fixed
-                })
+                us_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
 
     fixed_us_data = [r for r in us_results if r['is_fixed']]
     dynamic_us_data = [r for r in us_results if not r['is_fixed']]
@@ -356,7 +381,7 @@ if history_rows:
     pd.DataFrame(history_rows).to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
 
 # ==========================================
-# 🌐 網頁 HTML 自動即時渲染 (用於 GitHub Pages)
+# 🌐 網頁 HTML 自動即時渲染
 # ==========================================
 def build_html_table(data_list):
     if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
@@ -371,7 +396,6 @@ def build_html_table(data_list):
 ixic_txt = state.get('filters', {}).get('IXIC', '等待更新...')
 twii_txt = state.get('filters', {}).get('TWII', '等待更新...')
 sox_txt = state.get('filters', {}).get('SOX', '等待更新...')
-
 btc_txt = state.get('filters', {}).get('BTC', '等待更新...')
 gold_txt = state.get('filters', {}).get('GOLD', '等待更新...')
 stlfsi4_txt = state.get('filters', {}).get('STLFSI4', '等待更新...')
@@ -403,22 +427,19 @@ web_html = f"""<!DOCTYPE html>
 </head>
 <body>
     <h1>🔬 跨市場多因子動能實驗室</h1>
-    
     <div class="header-panel">
-        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態（網頁端同步）</div>
+        <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態</div>
         <div class="filter-tag">🇺🇸 納斯達克 | {ixic_txt}</div>
         <div class="filter-tag">🇹🇼 加權指數 | {twii_txt}</div>
         <div class="filter-tag">💻 費半指數 | {sox_txt}</div>
     </div>
-
     <div class="header-panel" style="border: 1px solid #f85149;">
         <div style="margin-bottom: 10px; color: #ff7b72; font-size: 15px; font-weight: bold;">🚨 總體經濟與熊市警訊指標</div>
-        <div class="filter-tag macro-tag">₿ BTC 120日均線 | {btc_txt}</div>
-        <div class="filter-tag macro-tag">🥇 黃金 120日均線 | {gold_txt}</div>
+        <div class="filter-tag macro-tag">₿ BTC 120MA | {btc_txt}</div>
+        <div class="filter-tag macro-tag">🥇 黃金 120MA | {gold_txt}</div>
         <div class="filter-tag macro-tag">🏦 金融壓力 (STLFSI4) | {stlfsi4_txt}</div>
-        <div class="filter-tag macro-tag">🛡️ 美國 5年期 CDS | {cds_txt}</div>
+        <div class="filter-tag macro-tag">🛡️ 美國5年期CDS | {cds_txt}</div>
     </div>
-
     <div class="container">
         <div class="box">
             <h3>🇹🇼 台股避險動能池 (共12檔) <span>最後同步: {state.get('tw_time')}</span></h3>
@@ -439,10 +460,9 @@ web_html = f"""<!DOCTYPE html>
 </html>"""
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(web_html)
-print("🌐 網頁發布引擎成功運作！最新數據已順利匯出至 index.html。")
 
 # ==========================================
-# 📧 🚀 專門為 Email 打造的高對比、高清晰度渲染引擎
+# 📧 🚀 Email HTML 渲染引擎
 # ==========================================
 def build_email_table_html(data_list):
     if not data_list: return "<tr><td colspan='6' style='padding:15px; text-align:center; color:#888;'>等待今日模組數據補齊...</td></tr>"
@@ -454,10 +474,8 @@ def build_email_table_html(data_list):
         elif "賣出" in r['status']:
             if r.get('is_fixed'): bg_color, text_color, border_left, font_weight = "#3c1818", "#ff7b72", "5px solid #f85149", "bold"
             else: bg_color, text_color, border_left, text_decor = "#211616", "#8b949e", "5px solid #da3633", "line-through"
-                
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"第 {idx+1 - len([x for x in data_list if x.get('is_fixed')])} 名"
         price_str = f"{r.get('price', 0):.2f}" if r.get('price', 0) > 0 else "N/A"
-        
         rows += f"""<tr style="background-color: {bg_color}; color: {text_color}; text-decoration: {text_decor};">
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{pin_icon}</td>
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px; border-left: {border_left};"><strong>{r['ticker']}</strong></td>
@@ -473,26 +491,23 @@ email_html = f"""<!DOCTYPE html>
 <body style="background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; padding: 10px; margin: 0;">
     <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px; background-color: #0d1117; margin: 0 auto;">
         <tr><td style="padding: 10px 0; text-align: center;"><h1 style="color: #58a6ff; font-size: 24px; margin-bottom: 5px;">🔬 跨市場多因子動能實驗室</h1><p style="color: #8b949e; font-size: 13px; margin: 0;">報告產生時間: {now.strftime('%Y-%m-%d %H:%M:%S')}</p></td></tr>
-        
         <tr>
             <td style="padding: 10px 0;">
                 <div style="background-color: #161b22; border: 2px solid #30363d; padding: 15px; border-radius: 8px;">
                     <div style="color: #58a6ff; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 8px;">📊 大盤避險濾網狀態</div>
-                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff; font-weight: bold;">🇺🇸 納斯達克 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #79c0ff;">{ixic_txt}</span></div>
-                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058; font-weight: bold;">🇹🇼 加權指數 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #56d44f;">{twii_txt}</span></div>
-                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70; font-weight: bold;">💻 費城半導體 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff9b57;">{sox_txt}</span></div>
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff;">🇺🇸 納斯達克 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #79c0ff;">{ixic_txt}</span></div>
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058;">🇹🇼 加權指數 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #56d44f;">{twii_txt}</span></div>
+                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70;">💻 費城半導體 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff9b57;">{sox_txt}</span></div>
                 </div>
-
                 <div style="background-color: #2a1515; border: 2px solid #f85149; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <div style="color: #ff7b72; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #f85149; padding-bottom: 8px;">🚨 總體經濟與熊市警訊指標</div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC 120MA <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff7b72;">{btc_txt}</span></div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 120MA <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff7b72;">{gold_txt}</span></div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 金融壓力 (STLFSI4) <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff7b72;">{stlfsi4_txt}</span></div>
-                    <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國5年期CDS <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff7b72;">{cds_txt}</span></div>
+                    <div style="color: #ff7b72; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #f85149; padding-bottom: 8px;">🚨 總經與熊市警訊</div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC 120MA <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{btc_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 120MA <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{gold_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 STLFSI4 <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{stlfsi4_txt}</span></div>
+                    <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國CDS <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{cds_txt}</span></div>
                 </div>
             </td>
         </tr>
-        
         <tr>
             <td style="padding: 15px 0;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #30363d; border-radius: 8px; overflow: hidden; background-color: #161b22;">
@@ -506,7 +521,6 @@ email_html = f"""<!DOCTYPE html>
                 </table>
             </td>
         </tr>
-        
         <tr>
             <td style="padding: 15px 0;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #30363d; border-radius: 8px; overflow: hidden; background-color: #161b22;">
