@@ -2,17 +2,12 @@ import pandas as pd
 import yfinance as yf
 import json
 import os
-import requests
 import warnings
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-import io
-import re
 
 warnings.filterwarnings('ignore')
 
@@ -41,22 +36,13 @@ def send_email_notify(subject, html_body):
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
         server.quit()
-        print("📧 Email 通知發送成功！請檢查你的信箱。")
+        print("📧 Email 通知發送成功！請檢查信箱。")
     except Exception as e:
         print(f"❌ Email 發送失敗: {e}")
 
 # ==========================================
-# 🌟 超穩定安全連線引擎
+# 🌟 基礎設定
 # ==========================================
-session = requests.Session()
-retry = Retry(connect=3, backoff_factor=0.5)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
-session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-})
-
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
 today_str = now.strftime('%Y-%m-%d')
@@ -82,21 +68,17 @@ if state.get('date') != today_str:
     if 'us_data' not in state: state['us_data'] = []
     if 'tw_time' not in state: state['tw_time'] = '等待今日計算...'
     if 'us_time' not in state: state['us_time'] = '等待今日計算...'
-    if 'cds_history' not in state: state['cds_history'] = {}
 
 # ==========================================
 # 📊 濾網與數據計算引擎
 # ==========================================
 def get_ma_filter(ticker, window, period="50d"):
     try:
-        df = yf.download(ticker, period=period, session=session, progress=False)
-        if df.empty:
-            return False, False, 0, 0
-            
+        df = yf.download(ticker, period=period, progress=False)
+        if df.empty: return False, False, 0, 0
         s = df['Close']
         if isinstance(s, pd.DataFrame): s = s.squeeze()
         s = s.dropna()
-        
         if len(s) >= window:
             curr = float(s.iloc[-1])
             ma = float(s.rolling(window).mean().iloc[-1])
@@ -107,7 +89,7 @@ def get_ma_filter(ticker, window, period="50d"):
 
 def get_sox_momentum():
     try:
-        df = yf.download("^SOX", period="100d", session=session, progress=False)
+        df = yf.download("^SOX", period="100d", progress=False)
         if not df.empty:
             s = df['Close']
             if isinstance(s, pd.DataFrame): s = s.squeeze()
@@ -117,99 +99,13 @@ def get_sox_momentum():
                 m3 = (s.iloc[-1] / s.iloc[-64] - 1) 
                 avg_mom = (m1 + m3) / 2
                 return True, avg_mom > 0, avg_mom * 100
-    except:
+    except Exception as e:
         pass
     return False, False, 0
 
-# 【修改】FRED 聖路易斯聯儲金融壓力指數 (無備用值，失敗即報錯)
-def get_stlfsi4_signal():
-    try:
-        url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=STLFSI4"
-        resp = session.get(url, timeout=10)
-        if resp.status_code == 200:
-            df = pd.read_csv(io.StringIO(resp.text), parse_dates=True, index_col=0)
-            df.columns = [c.strip().upper() for c in df.columns]
-            if 'STLFSI4' in df.columns:
-                df['STLFSI4'] = pd.to_numeric(df['STLFSI4'], errors='coerce')
-                df = df.dropna()
-                if not df.empty:
-                    curr = float(df['STLFSI4'].iloc[-1])
-                    date_str = df.index[-1].strftime('%Y-%m-%d')
-                    if curr > 0.5: status = "🚨 確定熊市"
-                    elif curr > 0: status = "⚠️ 警戒"
-                    else: status = "✅ 安全"
-                    return True, curr, status, date_str
-    except Exception as e:
-        print(f"⚠️ STLFSI4 抓取錯誤: {e}")
-        
-    return False, 0, "❌ 抓取失敗", "未知"
-
-# 【修改】美國 5 年期 CDS (無備用值，失敗即報錯)
-def get_us_cds_signal(state_data):
-    current_price = 0
-    fetch_success = False
-    
-    try:
-        url = "https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd"
-        headers = {
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-        }
-        resp = session.get(url, headers=headers, timeout=10)
-        if resp.status_code == 200:
-            match = re.search(r'data-test="instrument-price-last"[^>]*>([\d\.]+)</span>', resp.text)
-            if not match:
-                match = re.search(r'class="text-5xl/9[^>]*>([\d\.]+)</div>', resp.text)
-            if match:
-                current_price = float(match.group(1))
-                fetch_success = True
-    except Exception as e:
-        print(f"⚠️ CDS 抓取異常: {e}")
-
-    # 若抓取失敗，直接回報錯誤，不往下計算
-    if not fetch_success:
-        return "❌ 抓取失敗 (需檢查網站阻擋)"
-
-    # ===== 自動記錄 CDS 價格並計算 1 個月漲跌幅 =====
-    if 'cds_history' not in state_data:
-        state_data['cds_history'] = {}
-        
-    state_data['cds_history'][today_str] = current_price
-        
-    past_dates = []
-    for d_str in state_data['cds_history'].keys():
-        try:
-            d_obj = datetime.strptime(d_str, '%Y-%m-%d').replace(tzinfo=pytz.timezone('Asia/Taipei'))
-            past_dates.append((d_str, d_obj))
-        except: pass
-        
-    if not past_dates:
-        return f"現價 {current_price:.2f} (首日建檔中...)"
-        
-    past_dates.sort(key=lambda x: x[1])
-    past_price, past_d_str = None, None
-    
-    for d_str, d_obj in past_dates:
-        if (now - d_obj).days >= 20:
-            past_price = state_data['cds_history'][d_str]
-            past_d_str = d_str
-            break
-            
-    if past_price is None:
-        past_price = state_data['cds_history'][past_dates[0][0]]
-        past_d_str = past_dates[0][0]
-
-    pct_change = ((current_price - past_price) / past_price) * 100 if past_price > 0 else 0
-    
-    status = "✅ 安全"
-    if pct_change > 40: status = "🚨 確定熊市"
-    elif pct_change > 20: status = "⚠️ 熊市警訊"
-        
-    return f"現價 {current_price:.2f} | 較 {past_d_str}({past_price:.2f}) 漲跌: {pct_change:.1f}% ({status})"
-
 def fetch_close_series(ticker):
     try:
-        tkr = yf.Ticker(ticker, session=session)
+        tkr = yf.Ticker(ticker)
         hist = tkr.history(period="1y", auto_adjust=True)
         if not hist.empty and 'Close' in hist.columns:
             s = hist['Close'].dropna()
@@ -236,44 +132,37 @@ def calc_mom_us(s):
     m6 = (s.iloc[-1] / s.iloc[-127]) - 1
     return ((m1 + m3 + m6) / 3) * 100
 
-print("🔄 正在檢查並更新避險濾網與總經警訊...")
-# 1. IXIC 濾網
+# ==========================================
+# 🚀 執行主流程
+# ==========================================
+print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
+
+# 1. 大盤濾網
 success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
-if success_ixic:
-    ixic_pass = ix_pass
-    state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
+if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
 else: ixic_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
 
-# 2. TWII 濾網
 success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
-if success_twii:
-    twii_pass = tw_pass
-    state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
+if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
 else: twii_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
 
-# 3. SOX 濾網
 success_sox, sx_pass, sox_mom_val = get_sox_momentum()
-if success_sox:
-    sox_pass = sx_pass
-    state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
+if success_sox: state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sx_pass else '空頭'})"
 else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
 
-# --- 總經與熊市警訊指標 ---
+# 2. 自動抓取：加密貨幣與黃金均線
 success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter("BTC-USD", 120, period="1y")
-if success_btc:
-    state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
+if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
 success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
-if success_gold:
-    state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊(半年~1年內)'})"
+if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊(半年~1年內)'})"
 
-success_stl, stl_curr, stl_status, stl_date = get_stlfsi4_signal()
-if success_stl:
-    state['filters']['STLFSI4'] = f"數值 {stl_curr:.4f} ({stl_status}) | 最後更新: {stl_date}"
-else:
-    state['filters']['STLFSI4'] = "❌ 抓取失敗，需檢查連線"
+# 3. 手動查詢：總經警訊指標 (附超連結與警戒範圍)
+stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
+state['filters']['STLFSI4'] = f"{stl_link} (⚠️警戒: >0 | 🚨熊市: >0.5)"
 
-state['filters']['CDS'] = get_us_cds_signal(state)
+cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
+state['filters']['CDS'] = f"{cds_link} (⚠️警戒: 月漲幅>20% | 🚨熊市: >40%)"
 
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
 run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
@@ -282,7 +171,7 @@ run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 # 🌞 台股模組
 # ==========================================
 if run_tw:
-    print("🌅 觸發台股模組：正在更新台股動能池...")
+    print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
     tw_pool, tw_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
@@ -296,19 +185,16 @@ if run_tw:
                     t_str = t_str.replace('.TW0', '.TWO')
                     tw_pool.append(t_str)
                 tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
-    except Exception as e:
-        print(f"台股 Excel 讀取失敗: {e}")
+    except: pass
 
     tw_results = []
     tw_fixed_tickers = ['00631L', '00675L']
-    
     for t, n in zip(tw_pool, tw_names):
         actual_t = t if t.endswith('.TW') or t.endswith('.TWO') else f"{t}.TW"
         s = fetch_close_series(actual_t)
         if s.empty and not (t.endswith('.TW') or t.endswith('.TWO')):
             actual_t = f"{t}.TWO"
             s = fetch_close_series(actual_t)
-            
         if not s.empty:
             mom = calc_mom_tw(s)
             if mom > -900:
@@ -327,7 +213,7 @@ if run_tw:
 # 🌇 美股模組
 # ==========================================
 if run_us:
-    print("🌇 觸發美股模組：正在更新美股動能池...")
+    print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
@@ -341,15 +227,12 @@ if run_us:
                     t_str = t_str.replace('.', '-')
                     us_pool.append(t_str)
                 us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
-    except Exception as e:
-        print(f"美股 Excel 讀取失敗: {e}")
+    except: pass
 
     us_results = []
     us_fixed_tickers = ['SOXL', 'USD']
     for ft in us_fixed_tickers:
-        if ft not in us_pool:
-            us_pool.append(ft)
-            us_names.append(ft)
+        if ft not in us_pool: us_pool.append(ft); us_names.append(ft)
 
     for t, n in zip(us_pool, us_names):
         s = fetch_close_series(t)
@@ -369,20 +252,18 @@ if run_us:
     state['us_data'] = fixed_us_data + dynamic_us_data[:10]
     state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
+# ==========================================
+# 💾 儲存檔案與渲染
+# ==========================================
 with open(state_file, 'w', encoding='utf-8') as f:
     json.dump(state, f, ensure_ascii=False, indent=2)
 
-# 💾 寫入歷史 CSV 庫
 history_rows = []
 for phase, data_key in [('台股模組', 'tw_data'), ('美股模組', 'us_data')]:
     for r in state.get(data_key, []):
         history_rows.append({'日期': today_str, '時段': phase, '代號': r['ticker'], '名稱': r['name'], '當前股價': round(r.get('price', 0), 2), '動能(%)': round(r['momentum'], 2), '狀態': r['status']})
-if history_rows:
-    pd.DataFrame(history_rows).to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
+if history_rows: pd.DataFrame(history_rows).to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
 
-# ==========================================
-# 🌐 網頁 HTML 自動即時渲染
-# ==========================================
 def build_html_table(data_list):
     if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
     rows = ""
@@ -438,7 +319,7 @@ web_html = f"""<!DOCTYPE html>
         <div class="filter-tag macro-tag">₿ BTC 120MA | {btc_txt}</div>
         <div class="filter-tag macro-tag">🥇 黃金 120MA | {gold_txt}</div>
         <div class="filter-tag macro-tag">🏦 金融壓力 (STLFSI4) | {stlfsi4_txt}</div>
-        <div class="filter-tag macro-tag">🛡️ 美國5年期CDS | {cds_txt}</div>
+        <div class="filter-tag macro-tag">🛡️ 美國 5 年期 CDS | {cds_txt}</div>
     </div>
     <div class="container">
         <div class="box">
@@ -458,19 +339,14 @@ web_html = f"""<!DOCTYPE html>
     </div>
 </body>
 </html>"""
-
 with open("index.html", "w", encoding="utf-8") as f: f.write(web_html)
 
-# ==========================================
-# 📧 🚀 Email HTML 渲染引擎
-# ==========================================
 def build_email_table_html(data_list):
     if not data_list: return "<tr><td colspan='6' style='padding:15px; text-align:center; color:#888;'>等待今日模組數據補齊...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
         bg_color, text_color, border_left, font_weight, text_decor = "#161b22", "#c9d1d9", "1px solid #30363d", "normal", "none"
-        if "買進" in r['status']:
-            bg_color, text_color, border_left, font_weight = "#142c4f", "#58a6ff", "5px solid #58a6ff", "bold"
+        if "買進" in r['status']: bg_color, text_color, border_left, font_weight = "#142c4f", "#58a6ff", "5px solid #58a6ff", "bold"
         elif "賣出" in r['status']:
             if r.get('is_fixed'): bg_color, text_color, border_left, font_weight = "#3c1818", "#ff7b72", "5px solid #f85149", "bold"
             else: bg_color, text_color, border_left, text_decor = "#211616", "#8b949e", "5px solid #da3633", "line-through"
@@ -503,8 +379,8 @@ email_html = f"""<!DOCTYPE html>
                     <div style="color: #ff7b72; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #f85149; padding-bottom: 8px;">🚨 總經與熊市警訊</div>
                     <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC 120MA <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{btc_txt}</span></div>
                     <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 120MA <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{gold_txt}</span></div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 STLFSI4 <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{stlfsi4_txt}</span></div>
-                    <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國CDS <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{cds_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 STLFSI4 <span style="color: #8b949e;">|</span> <span style="color: #ffffff;">{stlfsi4_txt}</span></div>
+                    <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國 CDS <span style="color: #8b949e;">|</span> <span style="color: #ffffff;">{cds_txt}</span></div>
                 </div>
             </td>
         </tr>
@@ -537,8 +413,10 @@ email_html = f"""<!DOCTYPE html>
     </table>
 </body></html>"""
 
+print(f"\n[{now.strftime('%H:%M:%S')}] 🚀 準備發送 Email 通知...")
 if run_tw and run_us: mail_subject = f"🌍 雙市場合併通知 (含總經警訊) - {today_str}"
 elif run_tw: mail_subject = f"🌅 晨間量化通知 (含總經警訊) - {today_str}"
 else: mail_subject = f"🌇 午後量化通知 (含總經警訊) - {today_str}"
 
 send_email_notify(mail_subject, email_html)
+print(f"🎉 程式執行完畢！結束時間: {datetime.now(tw_tz).strftime('%H:%M:%S')}")
