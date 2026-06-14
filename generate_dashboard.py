@@ -20,7 +20,7 @@ def send_email_notify(subject, html_body):
     recipient = os.environ.get("GMAIL_RECIPIENT", gmail_user) 
     
     if not gmail_user or not gmail_password:
-        print("⚠️ 未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD 環境變數，跳過 Email 通知發送。")
+        print("⚠️ 未設定環境變數，跳過 Email 通知。")
         return
         
     try:
@@ -28,15 +28,13 @@ def send_email_notify(subject, html_body):
         msg['Subject'] = subject
         msg['From'] = gmail_user
         msg['To'] = recipient
-        
-        part = MIMEText(html_body, 'html', 'utf-8')
-        msg.attach(part)
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
         
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
         server.quit()
-        print("📧 Email 通知發送成功！請檢查信箱。")
+        print("📧 Email 通知發送成功！")
     except Exception as e:
         print(f"❌ Email 發送失敗: {e}")
 
@@ -70,74 +68,50 @@ if state.get('date') != today_str:
     if 'us_time' not in state: state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 📊 濾網與數據計算引擎
+# 📊 核心計算引擎
 # ==========================================
 def get_ma_filter(ticker, window, period="50d"):
     try:
         df = yf.download(ticker, period=period, progress=False)
         if df.empty: return False, False, 0, 0
-        s = df['Close']
-        if isinstance(s, pd.DataFrame): s = s.squeeze()
+        s = df['Close'].squeeze() if isinstance(df['Close'], pd.DataFrame) else df['Close']
         s = s.dropna()
         if len(s) >= window:
-            curr = float(s.iloc[-1])
-            ma = float(s.rolling(window).mean().iloc[-1])
+            curr, ma = float(s.iloc[-1]), float(s.rolling(window).mean().iloc[-1])
             return True, curr > ma, curr, ma
-    except Exception as e:
-        pass
+    except: pass
     return False, False, 0, 0
 
 def get_sox_momentum():
     try:
         df = yf.download("^SOX", period="100d", progress=False)
-        if not df.empty:
-            s = df['Close']
-            if isinstance(s, pd.DataFrame): s = s.squeeze()
-            s = s.dropna()
-            if len(s) >= 64:
-                m1 = (s.iloc[-1] / s.iloc[-22] - 1) 
-                m3 = (s.iloc[-1] / s.iloc[-64] - 1) 
-                avg_mom = (m1 + m3) / 2
-                return True, avg_mom > 0, avg_mom * 100
-    except Exception as e:
-        pass
+        s = df['Close'].squeeze().dropna()
+        if len(s) >= 64:
+            mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
+            return True, mom > 0, mom * 100
+    except: pass
     return False, False, 0
 
 def fetch_close_series(ticker):
     try:
         tkr = yf.Ticker(ticker)
-        hist = tkr.history(period="1y", auto_adjust=True)
-        if not hist.empty and 'Close' in hist.columns:
-            s = hist['Close'].dropna()
-            if not s.empty:
-                last_date = s.index[-1]
-                now_utc = pd.Timestamp.utcnow()
-                if last_date.tz is None: last_date = last_date.tz_localize('UTC')
-                else: last_date = last_date.tz_convert('UTC')
-                if (now_utc - last_date).days > 15: return pd.Series()
-                return s
+        s = tkr.history(period="1y", auto_adjust=True)['Close'].dropna()
+        if not s.empty: return s
     except: pass
     return pd.Series()
 
 def calc_mom_tw(s):
     if len(s) < 65: return -999
-    m1 = (s.iloc[-1] / s.iloc[-22]) - 1
-    m3 = (s.iloc[-1] / s.iloc[-64]) - 1
-    return ((m1 + m3) / 2) * 100
+    return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1) / 2) * 100
 
 def calc_mom_us(s):
     if len(s) < 130: return -999
-    m1 = (s.iloc[-1] / s.iloc[-22]) - 1
-    m3 = (s.iloc[-1] / s.iloc[-64]) - 1
-    m6 = (s.iloc[-1] / s.iloc[-127]) - 1
-    return ((m1 + m3 + m6) / 3) * 100
+    return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1 + (s.iloc[-1] / s.iloc[-127]) - 1) / 3) * 100
 
 # ==========================================
-# 🚀 執行主流程 (修正變數定義錯誤)
+# 🚀 執行主流程 (修正變數統一)
 # ==========================================
-print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
-
-# 初始化這些變數，防止 NameError
+# 初始化變數
 ix_pass, tw_pass, sox_pass = False, False, False
 
 # 1. 大盤濾網
@@ -153,18 +127,17 @@ success_sox, sox_pass, sox_mom_val = get_sox_momentum()
 if success_sox: state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
 else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
 
-# 2. 加密貨幣與黃金均線
+# 2. 總經指標
 success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter("BTC-USD", 120, period="1y")
 if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
 success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
-if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊(半年~1年內)'})"
+if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
 
-# 3. 手動查詢警訊
-stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
+stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank">🔗 點擊查詢</a>'
 state['filters']['STLFSI4'] = f"{stl_link} (⚠️警戒: >0 | 🚨熊市: >0.5)"
-cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
-state['filters']['CDS'] = f"{cds_link} (⚠️警戒: 月漲幅>20% | 🚨熊市: >40%)"
+cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank">🔗 點擊查詢</a>'
+state['filters']['CDS'] = f"{cds_link} (⚠️警戒: 月漲>20% | 🚨熊市: >40%)"
 
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
 run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
@@ -173,85 +146,64 @@ run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 # 🌞 台股模組
 # ==========================================
 if run_tw:
-    print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
     tw_pool, tw_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
         for sheet in ['台灣ETF', '台灣股票']:
             if sheet in xls.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
-                df[1] = df[1].fillna("")
-                for t in df.iloc[:, 0]:
-                    t_str = str(t).strip().upper()
-                    if t_str.endswith('.0'): t_str = t_str[:-2]
-                    t_str = t_str.replace('.TW0', '.TWO')
-                    tw_pool.append(t_str)
-                tw_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+                for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
+                    tw_pool.append(str(t).strip().replace('.TW0', '.TWO').split('.')[0] + ".TW")
+                    tw_names.append(n)
     except: pass
-
+    
     tw_results = []
-    tw_fixed_tickers = ['00631L', '00675L']
     for t, n in zip(tw_pool, tw_names):
-        actual_t = t if t.endswith('.TW') or t.endswith('.TWO') else f"{t}.TW"
-        s = fetch_close_series(actual_t)
-        if s.empty and not (t.endswith('.TW') or t.endswith('.TWO')):
-            actual_t = f"{t}.TWO"
-            s = fetch_close_series(actual_t)
+        s = fetch_close_series(t)
         if not s.empty:
             mom = calc_mom_tw(s)
             if mom > -900:
-                is_fixed = t in tw_fixed_tickers
+                is_fixed = t in ['00631L.TW', '00675L.TW']
                 status = "⭐️ 買進標的"
-                if is_fixed and not ixic_pass: status = "❌ 跌破IXIC濾網(強制賣出)"
-                tw_results.append({'ticker': actual_t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
-                
-    fixed_tw_data = [r for r in tw_results if r['is_fixed']]
-    dynamic_tw_data = [r for r in tw_results if not r['is_fixed']]
-    dynamic_tw_data.sort(key=lambda x: x['momentum'], reverse=True)
-    state['tw_data'] = fixed_tw_data + dynamic_tw_data[:10]
+                if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
+                tw_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+    
+    fixed = [r for r in tw_results if r['is_fixed']]
+    dynamic = sorted([r for r in tw_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
+    state['tw_data'] = fixed + dynamic[:10]
     state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
 # 🌇 美股模組
 # ==========================================
 if run_us:
-    print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
         for sheet in ['美國ETF', '美國股票']:
             if sheet in xls.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
-                df[1] = df[1].fillna("")
-                for t in df.iloc[:, 0]:
-                    t_str = str(t).strip().upper()
-                    if t_str.endswith('-0') or t_str.endswith('.0'): t_str = t_str[:-2]
-                    t_str = t_str.replace('.', '-')
-                    us_pool.append(t_str)
-                us_names.extend(df.iloc[:, 1].astype(str).str.strip().tolist())
+                for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
+                    us_pool.append(str(t).strip().replace('.', '-'))
+                    us_names.append(n)
     except: pass
-
+    
     us_results = []
-    us_fixed_tickers = ['SOXL', 'USD']
-    for ft in us_fixed_tickers:
-        if ft not in us_pool: us_pool.append(ft); us_names.append(ft)
-
-    for t, n in zip(us_pool, us_names):
+    for t, n in zip(us_pool + ['SOXL', 'USD'], us_names + ['SOXL', 'USD']):
         s = fetch_close_series(t)
         if not s.empty:
             mom = calc_mom_us(s)
             if mom > -900:
-                is_fixed = t in us_fixed_tickers
-                if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if twii_pass else "❌ 跌破TWII濾網(強制賣出)"
-                elif t == 'USD': status = "⭐️ 買進標的 (無濾網釘住)"
-                else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱(強制賣出)"
+                is_fixed = t in ['SOXL', 'USD']
+                # --- 這裡已經修正為 tw_pass 了 ---
+                if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
+                elif t == 'USD': status = "⭐️ 買進標的"
+                else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
                 us_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
-
-    fixed_us_data = [r for r in us_results if r['is_fixed']]
-    dynamic_us_data = [r for r in us_results if not r['is_fixed']]
-    dynamic_us_data.sort(key=lambda x: x['momentum'], reverse=True)
-    fixed_us_data.sort(key=lambda x: x['ticker'])
-    state['us_data'] = fixed_us_data + dynamic_us_data[:10]
+    
+    fixed = [r for r in us_results if r['is_fixed']]
+    dynamic = sorted([r for r in us_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
+    state['us_data'] = fixed + dynamic[:10]
     state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
