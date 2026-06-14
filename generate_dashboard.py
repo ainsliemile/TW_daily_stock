@@ -133,34 +133,36 @@ def calc_mom_us(s):
     return ((m1 + m3 + m6) / 3) * 100
 
 # ==========================================
-# 🚀 執行主流程
+# 🚀 執行主流程 (修正變數定義錯誤)
 # ==========================================
 print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
 
+# 初始化這些變數，防止 NameError
+ix_pass, tw_pass, sox_pass = False, False, False
+
 # 1. 大盤濾網
 success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
-if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ixic_pass else '小於'} {ixic_ma20:.2f}"
-else: ixic_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
+if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ix_pass else '小於'} {ixic_ma20:.2f}"
+else: ix_pass = '大於' in state.get('filters', {}).get('IXIC', '大於')
 
 success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
-if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if twii_pass else '小於'} {twii_ma10:.2f}"
-else: twii_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
+if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if tw_pass else '小於'} {twii_ma10:.2f}"
+else: tw_pass = '大於' in state.get('filters', {}).get('TWII', '大於')
 
-success_sox, sx_pass, sox_mom_val = get_sox_momentum()
-if success_sox: state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sx_pass else '空頭'})"
+success_sox, sox_pass, sox_mom_val = get_sox_momentum()
+if success_sox: state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
 else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '多頭')
 
-# 2. 自動抓取：加密貨幣與黃金均線
+# 2. 加密貨幣與黃金均線
 success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter("BTC-USD", 120, period="1y")
 if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
 success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
 if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊(半年~1年內)'})"
 
-# 3. 手動查詢：總經警訊指標 (附超連結與警戒範圍)
+# 3. 手動查詢警訊
 stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
 state['filters']['STLFSI4'] = f"{stl_link} (⚠️警戒: >0 | 🚨熊市: >0.5)"
-
 cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
 state['filters']['CDS'] = f"{cds_link} (⚠️警戒: 月漲幅>20% | 🚨熊市: >40%)"
 
