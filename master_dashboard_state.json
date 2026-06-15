@@ -2,10 +2,10 @@
   "date": "2026-06-15",
   "filters": {
     "IXIC": "20MA: 25888.84 小於 26318.33",
-    "TWII": "10MA: 45376.27 大於 44689.24",
+    "TWII": "10MA: 45396.99 大於 44691.31",
     "SOX": "動能: 43.06% (多頭)",
-    "BTC": "現價 65677.6 vs 120MA 71805.9 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4347.2 vs 120MA 4717.9 (⚠️ 熊市警訊)",
+    "BTC": "現價 65804.0 vs 120MA 71807.0 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4333.5 vs 120MA 4717.8 (⚠️ 熊市警訊)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)"
   },
@@ -206,5 +206,5 @@
     }
   ],
   "tw_time": "2026-06-15 10:26:40",
-  "us_time": "2026-06-15 11:31:00"
+  "us_time": "2026-06-15 14:01:00"
 }
