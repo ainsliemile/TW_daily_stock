@@ -85,10 +85,11 @@ def get_ma_filter(ticker, window, period="50d"):
 def get_sox_momentum():
     try:
         df = yf.download("^SOX", period="100d", progress=False)
-        s = df['Close'].squeeze().dropna()
-        if len(s) >= 64:
-            mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
-            return True, mom > 0, mom * 100
+        if not df.empty:
+            s = df['Close'].squeeze().dropna()
+            if len(s) >= 64:
+                mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
+                return True, mom > 0, mom * 100
     except: pass
     return False, False, 0
 
@@ -109,8 +110,10 @@ def calc_mom_us(s):
     return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1 + (s.iloc[-1] / s.iloc[-127]) - 1) / 3) * 100
 
 # ==========================================
-# 🚀 執行主流程 (修正變數統一)
+# 🚀 執行主流程
 # ==========================================
+print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
+
 # 初始化變數
 ix_pass, tw_pass, sox_pass = False, False, False
 
@@ -134,9 +137,9 @@ if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_
 success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
 if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
 
-stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank">🔗 點擊查詢</a>'
+stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
 state['filters']['STLFSI4'] = f"{stl_link} (⚠️警戒: >0 | 🚨熊市: >0.5)"
-cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank">🔗 點擊查詢</a>'
+cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
 state['filters']['CDS'] = f"{cds_link} (⚠️警戒: 月漲>20% | 🚨熊市: >40%)"
 
 run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
@@ -146,6 +149,7 @@ run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 # 🌞 台股模組
 # ==========================================
 if run_tw:
+    print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
     tw_pool, tw_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
@@ -153,8 +157,10 @@ if run_tw:
             if sheet in xls.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
                 for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
-                    tw_pool.append(str(t).strip().replace('.TW0', '.TWO').split('.')[0] + ".TW")
-                    tw_names.append(n)
+                    clean_t = str(t).strip().replace('.TW0', '.TWO').split('.')[0] + ".TW"
+                    if clean_t not in tw_pool: # 防止重複
+                        tw_pool.append(clean_t)
+                        tw_names.append(n)
     except: pass
     
     tw_results = []
@@ -177,6 +183,7 @@ if run_tw:
 # 🌇 美股模組
 # ==========================================
 if run_us:
+    print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
@@ -184,18 +191,26 @@ if run_us:
             if sheet in xls.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
                 for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
-                    us_pool.append(str(t).strip().replace('.', '-'))
-                    us_names.append(n)
+                    clean_t = str(t).strip().replace('.', '-')
+                    if clean_t not in us_pool: # 防止從 Excel 讀取時重複
+                        us_pool.append(clean_t)
+                        us_names.append(n)
     except: pass
     
+    us_fixed_tickers = ['SOXL', 'USD']
+    for ft in us_fixed_tickers:
+        if ft not in us_pool:
+            us_pool.append(ft)
+            us_names.append(ft)
+
     us_results = []
-    for t, n in zip(us_pool + ['SOXL', 'USD'], us_names + ['SOXL', 'USD']):
+    # 【已修復】直接對乾淨的 us_pool 進行迴圈，不再手動加上 + ['SOXL', 'USD']
+    for t, n in zip(us_pool, us_names):
         s = fetch_close_series(t)
         if not s.empty:
             mom = calc_mom_us(s)
             if mom > -900:
-                is_fixed = t in ['SOXL', 'USD']
-                # --- 這裡已經修正為 tw_pass 了 ---
+                is_fixed = t in us_fixed_tickers
                 if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
                 elif t == 'USD': status = "⭐️ 買進標的"
                 else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
@@ -209,8 +224,7 @@ if run_us:
 # ==========================================
 # 💾 儲存檔案與渲染
 # ==========================================
-with open(state_file, 'w', encoding='utf-8') as f:
-    json.dump(state, f, ensure_ascii=False, indent=2)
+with open(state_file, 'w', encoding='utf-8') as f: json.dump(state, f, ensure_ascii=False, indent=2)
 
 history_rows = []
 for phase, data_key in [('台股模組', 'tw_data'), ('美股模組', 'us_data')]:
