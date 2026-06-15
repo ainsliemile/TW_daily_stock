@@ -146,7 +146,7 @@ run_tw = (current_hour < 11) or (len(state.get('tw_data', [])) == 0)
 run_us = (current_hour >= 11) or (len(state.get('us_data', [])) == 0)
 
 # ==========================================
-# 🌞 台股模組
+# 🌞 台股模組 (含終極去重防呆)
 # ==========================================
 if run_tw:
     print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
@@ -157,19 +157,40 @@ if run_tw:
             if sheet in xls.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
                 for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
-                    clean_t = str(t).strip().replace('.TW0', '.TWO').split('.')[0] + ".TW"
-                    if clean_t not in tw_pool: # 防止重複
+                    clean_t = str(t).strip().upper()
+                    if clean_t.endswith('.0'): clean_t = clean_t[:-2]
+                    clean_t = clean_t.replace('.TW0', '.TWO')
+                    if not (clean_t.endswith('.TW') or clean_t.endswith('.TWO')):
+                        clean_t += ".TW"
+                    
+                    if clean_t not in tw_pool:
                         tw_pool.append(clean_t)
                         tw_names.append(n)
     except: pass
     
+    # 確保釘住標的存在
+    tw_fixed_tickers = ['00631L.TW', '00675L.TW']
+    for ft in tw_fixed_tickers:
+        if ft not in tw_pool:
+            tw_pool.append(ft)
+            tw_names.append(ft)
+            
     tw_results = []
+    seen_tw = set() # 終極去重機制
     for t, n in zip(tw_pool, tw_names):
+        if t in seen_tw: continue
+        seen_tw.add(t)
+        
         s = fetch_close_series(t)
+        if s.empty and t.endswith('.TW'):
+            fallback_t = t.replace('.TW', '.TWO')
+            s = fetch_close_series(fallback_t)
+            if not s.empty: t = fallback_t
+            
         if not s.empty:
             mom = calc_mom_tw(s)
             if mom > -900:
-                is_fixed = t in ['00631L.TW', '00675L.TW']
+                is_fixed = t in tw_fixed_tickers
                 status = "⭐️ 買進標的"
                 if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
                 tw_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
@@ -180,7 +201,7 @@ if run_tw:
     state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
-# 🌇 美股模組
+# 🌇 美股模組 (含終極去重防呆)
 # ==========================================
 if run_us:
     print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
@@ -191,12 +212,16 @@ if run_us:
             if sheet in xls.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
                 for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
-                    clean_t = str(t).strip().replace('.', '-')
-                    if clean_t not in us_pool: # 防止從 Excel 讀取時重複
+                    clean_t = str(t).strip().upper()
+                    if clean_t.endswith('-0') or clean_t.endswith('.0'): clean_t = clean_t[:-2]
+                    clean_t = clean_t.replace('.', '-')
+                    
+                    if clean_t not in us_pool:
                         us_pool.append(clean_t)
                         us_names.append(n)
     except: pass
     
+    # 確保釘住標的存在
     us_fixed_tickers = ['SOXL', 'USD']
     for ft in us_fixed_tickers:
         if ft not in us_pool:
@@ -204,8 +229,11 @@ if run_us:
             us_names.append(ft)
 
     us_results = []
-    # 【已修復】直接對乾淨的 us_pool 進行迴圈，不再手動加上 + ['SOXL', 'USD']
+    seen_us = set() # 終極去重機制
     for t, n in zip(us_pool, us_names):
+        if t in seen_us: continue
+        seen_us.add(t)
+        
         s = fetch_close_series(t)
         if not s.empty:
             mom = calc_mom_us(s)
@@ -222,7 +250,7 @@ if run_us:
     state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
-# 💾 儲存檔案與渲染
+# 💾 儲存檔案與渲染 HTML
 # ==========================================
 with open(state_file, 'w', encoding='utf-8') as f: json.dump(state, f, ensure_ascii=False, indent=2)
 
