@@ -2,107 +2,107 @@
   "date": "2026-06-15",
   "filters": {
     "IXIC": "20MA: 25888.84 小於 26318.33",
-    "TWII": "10MA: 44169.04 小於 44685.40",
+    "TWII": "10MA: 45374.30 大於 44689.04",
     "SOX": "動能: 43.06% (多頭)",
-    "BTC": "現價 65344.0 vs 120MA 71803.1 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4310.1 vs 120MA 4717.6 (⚠️ 熊市警訊)",
-    "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)"
+    "BTC": "現價 65640.0 vs 120MA 71805.6 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4344.2 vs 120MA 4717.8 (⚠️ 熊市警訊)",
+    "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
+    "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 34.83000183105469,
-      "momentum": 36.007004239468024,
+      "price": 37.0,
+      "momentum": 46.773896144910296,
       "status": "❌ 跌破IXIC濾網",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 307.54998779296875,
-      "momentum": 37.73258903055958,
+      "price": 327.3999938964844,
+      "momentum": 49.04897465475621,
       "status": "❌ 跌破IXIC濾網",
       "is_fixed": true
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 29.469999313354492,
-      "momentum": 260.4687483583676,
+      "price": 28.469999313354492,
+      "momentum": 244.4816734976515,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2327.TW",
       "name": "國巨*",
-      "price": 855.0,
-      "momentum": 164.39617943433268,
+      "price": 940.0,
+      "momentum": 187.40132941779981,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3090.TW",
       "name": "日電貿",
-      "price": 256.0,
-      "momentum": 141.06392106392107,
+      "price": 281.5,
+      "momentum": 151.44655562119783,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "4958.TW",
       "name": "臻鼎-KY",
-      "price": 552.0,
-      "momentum": 125.69544551573195,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "8454.TW",
-      "name": "富邦媒",
-      "price": 356.5,
-      "momentum": 99.62275352236583,
+      "price": 597.0,
+      "momentum": 134.385599456945,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2454.TW",
       "name": "聯發科",
-      "price": 4180.0,
-      "momentum": 78.46715778822544,
+      "price": 4535.0,
+      "momentum": 101.38661007276359,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2493.TW",
       "name": "揚博",
-      "price": 207.0,
-      "momentum": 74.904181184669,
+      "price": 227.5,
+      "momentum": 92.70833333333334,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "2059.TW",
-      "name": "川湖",
-      "price": 6910.0,
-      "momentum": 73.97727341669244,
+      "ticker": "8454.TW",
+      "name": "富邦媒",
+      "price": 330.0,
+      "momentum": 86.70959793917356,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2303.TW",
       "name": "聯電",
-      "price": 133.5,
-      "momentum": 71.95407318052749,
+      "price": 139.5,
+      "momentum": 80.63598166539343,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "4916.TW",
-      "name": "事欣科",
-      "price": 107.5,
-      "momentum": 68.31433717412918,
+      "ticker": "2059.TW",
+      "name": "川湖",
+      "price": 7075.0,
+      "momentum": 77.91436599220982,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "6196.TW",
+      "name": "帆宣",
+      "price": 582.0,
+      "momentum": 77.55374171650233,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -221,6 +221,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-15 07:00:49",
+  "tw_time": "2026-06-15 10:15:20",
   "us_time": "2026-06-14 23:55:06"
 }
