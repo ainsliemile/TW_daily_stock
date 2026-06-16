@@ -5,12 +5,13 @@ import os
 import requests
 import warnings
 import smtplib
+import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import pytz
-import time
-import random
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 warnings.filterwarnings('ignore')
 
@@ -23,7 +24,7 @@ def send_email_notify(subject, html_body):
     recipient = os.environ.get("GMAIL_RECIPIENT", gmail_user) 
     
     if not gmail_user or not gmail_password:
-        print("⚠️ 未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD 環境變數，跳過 Email 通知。")
+        print("⚠️ 未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD，跳過 Email 發送。")
         return
         
     try:
@@ -31,7 +32,6 @@ def send_email_notify(subject, html_body):
         msg['Subject'] = subject
         msg['From'] = gmail_user
         msg['To'] = recipient
-        
         part = MIMEText(html_body, 'html', 'utf-8')
         msg.attach(part)
         
@@ -39,12 +39,12 @@ def send_email_notify(subject, html_body):
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
         server.quit()
-        print("📧 Email 通知發送成功！請檢查你的信箱。")
+        print("📧 Email 通知發送成功！")
     except Exception as e:
         print(f"❌ Email 發送失敗: {e}")
 
 # ==========================================
-# 🌟 初始化設定 & 偽裝 Session
+# 🌟 初始化設定 & 網路重試機制 (移植自 backend.py)
 # ==========================================
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
@@ -54,240 +54,215 @@ state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
 excel_file = 'TrackingList.xlsx'
 
-# 建立一個帶有瀏覽器偽裝的 Session
-custom_session = requests.Session()
-custom_session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-    "Accept": "*/*",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Connection": "keep-alive"
+# 建立極速與防封鎖 Session
+session = requests.Session()
+retry = Retry(connect=3, backoff_factor=0.5)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
+session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 })
 
 if os.path.exists(state_file):
     try:
-        with open(state_file, 'r', encoding='utf-8') as f:
-            state = json.load(f)
-    except:
-        state = {}
-else:
-    state = {}
+        with open(state_file, 'r', encoding='utf-8') as f: state = json.load(f)
+    except: state = {}
+else: state = {}
 
 if state.get('date') != today_str:
     state['date'] = today_str
-    if 'filters' not in state: state['filters'] = {}
-    if 'tw_data' not in state: state['tw_data'] = []
-    if 'us_data' not in state: state['us_data'] = []
-    if 'tw_time' not in state: state['tw_time'] = '等待今日計算...'
-    if 'us_time' not in state: state['us_time'] = '等待今日計算...'
+    for key in ['filters', 'tw_data', 'us_data']:
+        if key not in state: state[key] = {} if key == 'filters' else []
+    state['tw_time'] = '等待今日計算...'
+    state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 📊 濾網與數據計算引擎 (加入 Session 與 Sleep)
+# 🛠️ 核心下載引擎：超穩定安全下載 (移植自 backend.py)
 # ==========================================
-def get_ma_filter(ticker, window, period="50d"):
-    try:
-        tkr = yf.Ticker(ticker, session=custom_session)
-        df = tkr.history(period=period, auto_adjust=True)
-        if df.empty: return False, False, 0, 0
-        s = df['Close'].dropna()
-        if len(s) >= window:
-            curr = float(s.iloc[-1])
-            ma = float(s.rolling(window).mean().iloc[-1])
-            return True, curr > ma, curr, ma
-    except Exception as e: 
-        print(f"⚠️ 抓取 {ticker} MA濾網失敗: {e}")
+def download_robustly(tickers, group_name, period="1y"):
+    print(f"\n[{now.strftime('%H:%M:%S')}] 🚀 準備「超穩定安全下載」 {group_name} 共 {len(tickers)} 檔標的...")
+    all_prices = {}
+    total = len(tickers)
+    
+    for i, ticker in enumerate(tickers, 1):
+        try:
+            tkr = yf.Ticker(ticker, session=session)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                data = tkr.history(period=period, auto_adjust=True)
+            
+            actual_ticker = ticker
+            
+            # 🔥 智能後綴轉換與正名機制
+            if data.empty or 'Close' not in data.columns:
+                fallback_ticker = None
+                if ticker.endswith('.TW'): fallback_ticker = ticker.replace('.TW', '.TWO')
+                elif not ticker.endswith('.TW') and not ticker.endswith('.TWO') and '.' in ticker: fallback_ticker = ticker.replace('.', '-')
+
+                if fallback_ticker:
+                    tkr_fallback = yf.Ticker(fallback_ticker, session=session)
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        data = tkr_fallback.history(period=period, auto_adjust=True)
+                    if not data.empty and 'Close' in data.columns:
+                        actual_ticker = fallback_ticker
+
+            if not data.empty and 'Close' in data.columns:
+                p = data['Close']
+                if isinstance(p, pd.DataFrame): p = p.iloc[:, 0]
+                # 清除時區避免 concat 時出錯
+                if p.index.tz is not None: p.index = p.index.tz_localize(None)
+                all_prices[actual_ticker] = p
+                print(f"   ({i}/{total}) ✅ 成功: {actual_ticker}")
+            else:
+                print(f"   ({i}/{total}) ❌ 失敗: {ticker} (查無資料)")
+                
+        except Exception as e:
+            print(f"   ({i}/{total}) ❌ 失敗: {ticker} ({e})")
+            
+        # 🔥 核心防護：極短延遲 0.1 秒
+        time.sleep(0.1) 
+        
+    if not all_prices: return pd.DataFrame()
+    return pd.DataFrame(all_prices)
+
+def get_ma_from_series(s, window):
+    s = s.dropna()
+    if len(s) >= window:
+        curr, ma = float(s.iloc[-1]), float(s.rolling(window).mean().iloc[-1])
+        return True, curr > ma, curr, ma
     return False, False, 0, 0
 
-def get_sox_momentum():
-    try:
-        tkr = yf.Ticker("^SOX", session=custom_session)
-        df = tkr.history(period="100d", auto_adjust=True)
-        if not df.empty:
-            s = df['Close'].dropna()
-            if len(s) >= 64:
-                mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
-                return True, mom > 0, mom * 100
-    except Exception as e: 
-        print(f"⚠️ 抓取 SOX 動能失敗: {e}")
-    return False, False, 0
-
-def fetch_close_series(ticker):
-    try:
-        tkr = yf.Ticker(ticker, session=custom_session)
-        df = tkr.history(period="1y", auto_adjust=True)
-        if not df.empty:
-            s = df['Close'].dropna()
-            if not s.empty:
-                # 防呆：剔除超過 10 天沒更新的資料
-                last_date = s.index[-1]
-                now_utc = pd.Timestamp.utcnow()
-                if last_date.tz is None: last_date = last_date.tz_localize('UTC')
-                else: last_date = last_date.tz_convert('UTC')
-                if (now_utc - last_date).days > 10: 
-                    return pd.Series()
-                return s
-    except Exception as e: 
-        pass
-    return pd.Series()
-
 def calc_mom_tw(s):
+    s = s.dropna()
     if len(s) < 65: return -999
     return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1) / 2) * 100
 
 def calc_mom_us(s):
+    s = s.dropna()
     if len(s) < 130: return -999
     return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1 + (s.iloc[-1] / s.iloc[-127]) - 1) / 3) * 100
 
 # ==========================================
-# 🚀 執行主流程 (大盤指標)
+# 🚀 執行主流程：大盤與總經
 # ==========================================
-print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
+macro_tickers = ["^IXIC", "^TWII", "^SOX", "BTC-USD", "GC=F"]
+df_macro = download_robustly(macro_tickers, "大盤與總經", period="1y")
 
-# 大盤指標之間加上短暫的隨機延遲 (0.5 ~ 1.5秒)
-time.sleep(random.uniform(0.5, 1.5))
-success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
+# 1. 大盤濾網
+success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_from_series(df_macro.get("^IXIC", pd.Series()), 20)
 if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ix_pass else '小於'} {ixic_ma20:.2f}"
 
-time.sleep(random.uniform(0.5, 1.5))
-success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
+success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_from_series(df_macro.get("^TWII", pd.Series()).tail(30), 10)
 if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if tw_pass else '小於'} {twii_ma10:.2f}"
 
-time.sleep(random.uniform(0.5, 1.5))
-success_sox, sox_pass, sox_mom_val = get_sox_momentum()
-if success_sox: state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
+s_sox = df_macro.get("^SOX", pd.Series()).dropna()
+if len(s_sox) >= 64:
+    sox_mom = ((s_sox.iloc[-1] / s_sox.iloc[-22] - 1) + (s_sox.iloc[-1] / s_sox.iloc[-64] - 1)) / 2
+    sox_pass = sox_mom > 0
+    state['filters']['SOX'] = f"動能: {sox_mom * 100:.2f}% ({'多頭' if sox_pass else '空頭'})"
+else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '')
 
-time.sleep(random.uniform(0.5, 1.5))
-success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter("BTC-USD", 120, period="1y")
+# 2. 總經與熊市警訊
+success_btc, btc_pass, btc_curr, btc_ma = get_ma_from_series(df_macro.get("BTC-USD", pd.Series()), 120)
 if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
-time.sleep(random.uniform(0.5, 1.5))
-success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
+success_gold, gold_pass, gold_curr, gold_ma = get_ma_from_series(df_macro.get("GC=F", pd.Series()), 120)
 if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
 
-stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
-state['filters']['STLFSI4'] = f"{stl_link} (⚠️警戒: >0 | 🚨熊市: >0.5)"
-cds_link = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
-state['filters']['CDS'] = f"{cds_link} (⚠️警戒: 月漲>20% | 🚨熊市: >40%)"
-
-run_tw = True
-run_us = True
+state['filters']['STLFSI4'] = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)'
+state['filters']['CDS'] = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)'
 
 # ==========================================
 # 🌞 台股模組
 # ==========================================
-if run_tw:
-    print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
-    tw_pool, tw_names = [], []
-    try:
-        xls = pd.ExcelFile(excel_file)
-        for sheet in ['台灣ETF', '台灣股票']:
-            if sheet in xls.sheet_names:
-                df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
-                for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
-                    clean_t = str(t).strip().upper()
-                    if clean_t.endswith('.0'): clean_t = clean_t[:-2]
-                    clean_t = clean_t.replace('.TW0', '.TWO')
-                    if not (clean_t.endswith('.TW') or clean_t.endswith('.TWO')):
-                        clean_t += ".TW"
-                    if clean_t not in tw_pool:
-                        tw_pool.append(clean_t)
-                        tw_names.append(n)
-    except: pass
-    
-    tw_fixed_tickers = ['00631L.TW', '00675L.TW']
-    for ft in tw_fixed_tickers:
-        if ft not in tw_pool:
-            tw_pool.append(ft)
-            tw_names.append(ft)
-            
-    tw_results = []
-    seen_tw = set()
-    total_tw = len(tw_pool)
-    
-    for idx, (t, n) in enumerate(zip(tw_pool, tw_names)):
-        if t in seen_tw: continue
-        seen_tw.add(t)
-        
-        # 顯示進度，方便在終端機觀察
-        print(f"   ({idx+1}/{total_tw}) 抓取台股: {t}")
-        s = fetch_close_series(t)
-        
-        if s.empty and t.endswith('.TW'):
-            time.sleep(random.uniform(0.5, 1.5)) # 備援抓取前也稍等
-            fallback_t = t.replace('.TW', '.TWO')
-            s = fetch_close_series(fallback_t)
-            if not s.empty: t = fallback_t
-            
-        if not s.empty:
-            mom = calc_mom_tw(s)
-            if mom > -900:
-                is_fixed = t in tw_fixed_tickers
-                status = "⭐️ 買進標的"
-                if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
-                tw_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
-        
-        # 🌟 核心防護機制：每抓一檔，隨機休息 1 到 3 秒
-        time.sleep(random.uniform(1.0, 3.0))
-    
-    if tw_results:
-        fixed = [r for r in tw_results if r['is_fixed']]
-        dynamic = sorted([r for r in tw_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
-        state['tw_data'] = fixed + dynamic[:10]
-        state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
+tw_pool, tw_names_map = [], {}
+try:
+    xls = pd.ExcelFile(excel_file)
+    for sheet in ['台灣ETF', '台灣股票']:
+        if sheet in xls.sheet_names:
+            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
+            for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
+                clean_t = str(t).strip().upper()
+                if clean_t.endswith('.0'): clean_t = clean_t[:-2]
+                clean_t = clean_t.replace('.TW0', '.TWO')
+                if not (clean_t.endswith('.TW') or clean_t.endswith('.TWO')): clean_t += ".TW"
+                if clean_t not in tw_pool:
+                    tw_pool.append(clean_t)
+                    tw_names_map[clean_t] = n
+except: pass
+
+tw_fixed_tickers = ['00631L.TW', '00675L.TW']
+for ft in tw_fixed_tickers:
+    if ft not in tw_pool:
+        tw_pool.append(ft)
+        tw_names_map[ft] = ft
+
+df_tw = download_robustly(tw_pool, "台股池", period="1y")
+
+tw_results = []
+for t in tw_pool:
+    # 支援 .TW 自動轉 .TWO 後的鍵值對應
+    actual_t = t if t in df_tw.columns else (t.replace('.TW', '.TWO') if t.replace('.TW', '.TWO') in df_tw.columns else None)
+    if actual_t:
+        s = df_tw[actual_t]
+        mom = calc_mom_tw(s)
+        if mom > -900:
+            is_fixed = t in tw_fixed_tickers
+            status = "⭐️ 買進標的"
+            if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
+            tw_results.append({'ticker': actual_t, 'name': tw_names_map.get(t, actual_t), 'price': float(s.dropna().iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+
+if tw_results:
+    fixed = [r for r in tw_results if r['is_fixed']]
+    dynamic = sorted([r for r in tw_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
+    state['tw_data'] = fixed + dynamic[:10]
+    state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
 # 🌇 美股模組
 # ==========================================
-if run_us:
-    print(f"\n[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
-    us_pool, us_names = [], []
-    try:
-        xls = pd.ExcelFile(excel_file)
-        for sheet in ['美國ETF', '美國股票']:
-            if sheet in xls.sheet_names:
-                df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
-                for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
-                    clean_t = str(t).strip().upper()
-                    if clean_t.endswith('-0') or clean_t.endswith('.0'): clean_t = clean_t[:-2]
-                    clean_t = clean_t.replace('.', '-')
-                    if clean_t not in us_pool:
-                        us_pool.append(clean_t)
-                        us_names.append(n)
-    except: pass
-    
-    us_fixed_tickers = ['SOXL', 'USD']
-    for ft in us_fixed_tickers:
-        if ft not in us_pool:
-            us_pool.append(ft)
-            us_names.append(ft)
+us_pool, us_names_map = [], {}
+try:
+    xls = pd.ExcelFile(excel_file)
+    for sheet in ['美國ETF', '美國股票']:
+        if sheet in xls.sheet_names:
+            df = pd.read_excel(excel_file, sheet_name=sheet, header=None, dtype=str).dropna(subset=[0])
+            for t, n in zip(df.iloc[:, 0], df[1].fillna("")):
+                clean_t = str(t).strip().upper()
+                if clean_t.endswith('-0') or clean_t.endswith('.0'): clean_t = clean_t[:-2]
+                clean_t = clean_t.replace('.', '-')
+                if clean_t not in us_pool:
+                    us_pool.append(clean_t)
+                    us_names_map[clean_t] = n
+except: pass
 
-    us_results = []
-    seen_us = set()
-    total_us = len(us_pool)
-    
-    for idx, (t, n) in enumerate(zip(us_pool, us_names)):
-        if t in seen_us: continue
-        seen_us.add(t)
-        
-        print(f"   ({idx+1}/{total_us}) 抓取美股: {t}")
-        s = fetch_close_series(t)
-        
-        if not s.empty:
-            mom = calc_mom_us(s)
-            if mom > -900:
-                is_fixed = t in us_fixed_tickers
-                if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
-                elif t == 'USD': status = "⭐️ 買進標的"
-                else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
-                us_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
-                
-        # 🌟 核心防護機制：每抓一檔，隨機休息 1 到 3 秒
-        time.sleep(random.uniform(1.0, 3.0))
-    
-    if us_results:
-        fixed = [r for r in us_results if r.get('is_fixed', False)]
-        dynamic = sorted([r for r in us_results if not r.get('is_fixed', False)], key=lambda x: x['momentum'], reverse=True)
-        state['us_data'] = fixed + dynamic[:10]
-        state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
+us_fixed_tickers = ['SOXL', 'USD']
+for ft in us_fixed_tickers:
+    if ft not in us_pool:
+        us_pool.append(ft)
+        us_names_map[ft] = ft
+
+df_us = download_robustly(us_pool, "美股池", period="1y")
+
+us_results = []
+for t in us_pool:
+    if t in df_us.columns:
+        s = df_us[t]
+        mom = calc_mom_us(s)
+        if mom > -900:
+            is_fixed = t in us_fixed_tickers
+            if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
+            elif t == 'USD': status = "⭐️ 買進標的"
+            else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
+            us_results.append({'ticker': t, 'name': us_names_map.get(t, t), 'price': float(s.dropna().iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+
+if us_results:
+    fixed = [r for r in us_results if r['is_fixed']]
+    dynamic = sorted([r for r in us_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
+    state['us_data'] = fixed + dynamic[:10]
+    state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
 
 # ==========================================
 # 💾 儲存檔案與渲染 HTML
@@ -301,14 +276,12 @@ for phase, data_key in [('台股模組', 'tw_data'), ('美股模組', 'us_data')
 if history_rows: pd.DataFrame(history_rows).to_csv(history_file, mode='a', header=not os.path.exists(history_file), index=False, encoding='utf-8-sig')
 
 def build_html_table(data_list):
-    if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>歷史數據加載中或尚無資料...</td></tr>"
+    if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
-        is_fixed = r.get('is_fixed', r.get('is_is_fixed', False))
-        row_class = "buy-target" if "買進" in r['status'] else ("sell-pinned" if is_fixed and "賣出" in r['status'] else "sell-target" if "賣出" in r['status'] else "")
-        pin_icon = "📌 釘住" if is_fixed else f"{idx+1 - len([x for x in data_list if x.get('is_fixed', x.get('is_is_fixed', False))])}"
-        price_str = f"{r.get('price', 0):.2f}" if r.get('price', 0) > 0 else "N/A"
-        rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{price_str}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
+        row_class = "buy-target" if "買進" in r['status'] else ("sell-pinned" if r.get('is_fixed') and "賣出" in r['status'] else "sell-target" if "賣出" in r['status'] else "")
+        pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
+        rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r.get('price', 0):.2f}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
 
 ixic_txt = state.get('filters', {}).get('IXIC', '等待更新...')
@@ -379,22 +352,20 @@ web_html = f"""<!DOCTYPE html>
 with open("index.html", "w", encoding="utf-8") as f: f.write(web_html)
 
 def build_email_table_html(data_list):
-    if not data_list: return "<tr><td colspan='6' style='padding:15px; text-align:center; color:#888;'>等待今日模組數據補齊...</td></tr>"
+    if not data_list: return "<tr><td colspan='6' style='padding:15px; text-align:center; color:#888;'>無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
         bg_color, text_color, border_left, font_weight, text_decor = "#161b22", "#c9d1d9", "1px solid #30363d", "normal", "none"
-        is_fixed = r.get('is_fixed', r.get('is_is_fixed', False))
         if "買進" in r['status']: bg_color, text_color, border_left, font_weight = "#142c4f", "#58a6ff", "5px solid #58a6ff", "bold"
         elif "賣出" in r['status']:
-            if is_fixed: bg_color, text_color, border_left, font_weight = "#3c1818", "#ff7b72", "5px solid #f85149", "bold"
+            if r.get('is_fixed'): bg_color, text_color, border_left, font_weight = "#3c1818", "#ff7b72", "5px solid #f85149", "bold"
             else: bg_color, text_color, border_left, text_decor = "#211616", "#8b949e", "5px solid #da3633", "line-through"
-        pin_icon = "📌 釘住" if is_fixed else f"第 {idx+1 - len([x for x in data_list if x.get('is_fixed', x.get('is_is_fixed', False))])} 名"
-        price_str = f"{r.get('price', 0):.2f}" if r.get('price', 0) > 0 else "N/A"
+        pin_icon = "📌 釘住" if r.get('is_fixed') else f"第 {idx+1 - len([x for x in data_list if x.get('is_fixed')])} 名"
         rows += f"""<tr style="background-color: {bg_color}; color: {text_color}; text-decoration: {text_decor};">
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{pin_icon}</td>
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px; border-left: {border_left};"><strong>{r['ticker']}</strong></td>
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{r['name']}</td>
-            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px; color: #ffffff; font-weight: bold;">${price_str}</td>
+            <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px; color: #ffffff; font-weight: bold;">${r.get('price', 0):.2f}</td>
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 15px;">{r['momentum']:.2f}%</td>
             <td style="padding: 14px 6px; border-bottom: 1px solid #30363d; text-align: center; font-size: 14px;">{r['status']}</td>
         </tr>"""
@@ -409,24 +380,16 @@ email_html = f"""<!DOCTYPE html>
             <td style="padding: 10px 0;">
                 <div style="background-color: #161b22; border: 2px solid #30363d; padding: 15px; border-radius: 8px;">
                     <div style="color: #58a6ff; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 8px;">📊 大盤避險濾網狀態</div>
-                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff;">🇺🇸 納斯達克 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #79c0ff;">{ixic_txt}</span></div>
-                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058;">🇹🇼 加權指數 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #56d44f;">{twii_txt}</span></div>
-                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70;">💻 費城半導體 <span style="color: #8b949e; margin: 0 5px;">|</span> <span style="color: #ff9b57;">{sox_txt}</span></div>
-                </div>
-                
-                <div style="background-color: #2a1515; border: 2px solid #f85149; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <div style="color: #ff7b72; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #f85149; padding-bottom: 8px;">🚨 總經與熊市警訊</div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC 120MA <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{btc_txt}</span></div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 120MA <span style="color: #8b949e;">|</span> <span style="color: #ff7b72;">{gold_txt}</span></div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 STLFSI4 <span style="color: #8b949e;">|</span> <span style="color: #ffffff;">{stlfsi4_txt}</span></div>
-                    <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國 CDS <span style="color: #8b949e;">|</span> <span style="color: #ffffff;">{cds_txt}</span></div>
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff;">🇺🇸 納斯達克 | <span style="color: #79c0ff;">{ixic_txt}</span></div>
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058;">🇹🇼 加權指數 | <span style="color: #56d44f;">{twii_txt}</span></div>
+                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70;">💻 費城半導體 | <span style="color: #ff9b57;">{sox_txt}</span></div>
                 </div>
             </td>
         </tr>
         <tr>
             <td style="padding: 15px 0;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #30363d; border-radius: 8px; overflow: hidden; background-color: #161b22;">
-                    <tr><td style="background-color: #21262d; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #30363d;">🇹🇼 台股避險動能池 <br><span style="font-size: 12px; color: #8b949e; font-weight: normal;">更新時間: {state.get('tw_time')}</span></td></tr>
+                    <tr><td style="background-color: #21262d; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #30363d;">🇹🇼 台股避險動能池</td></tr>
                     <tr><td>
                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr style="background-color: #1f242c; color: #8b949e;"><th style="padding: 12px 4px; font-size: 13px;">屬性</th><th style="padding: 12px 4px; font-size: 13px;">代號</th><th style="padding: 12px 4px; font-size: 13px;">名稱</th><th style="padding: 12px 4px; font-size: 13px;">現價</th><th style="padding: 12px 4px; font-size: 13px;">動能</th><th style="padding: 12px 4px; font-size: 13px;">狀態</th></tr>
@@ -439,7 +402,7 @@ email_html = f"""<!DOCTYPE html>
         <tr>
             <td style="padding: 15px 0;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #30363d; border-radius: 8px; overflow: hidden; background-color: #161b22;">
-                    <tr><td style="background-color: #21262d; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #30363d;">🇺🇸 美股避險動能池 <br><span style="font-size: 12px; color: #8b949e; font-weight: normal;">更新時間: {state.get('us_time')}</span></td></tr>
+                    <tr><td style="background-color: #21262d; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #30363d;">🇺🇸 美股避險動能池</td></tr>
                     <tr><td>
                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr style="background-color: #1f242c; color: #8b949e;"><th style="padding: 12px 4px; font-size: 13px;">屬性</th><th style="padding: 12px 4px; font-size: 13px;">代號</th><th style="padding: 12px 4px; font-size: 13px;">名稱</th><th style="padding: 12px 4px; font-size: 13px;">現價</th><th style="padding: 12px 4px; font-size: 13px;">動能</th><th style="padding: 12px 4px; font-size: 13px;">狀態</th></tr>
@@ -452,5 +415,5 @@ email_html = f"""<!DOCTYPE html>
     </table>
 </body></html>"""
 
-mail_subject = f"🌍 雙市場合併通知 (台美股皆已同步更新) - {today_str}"
-send_email_notify(mail_subject, email_html)
+send_email_notify(f"🌍 雙市場合併通知 - {today_str}", email_html)
+print(f"\n🎉 執行完畢！所有報價皆已安全抓取並更新完成。")
