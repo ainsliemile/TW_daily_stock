@@ -2,12 +2,15 @@ import pandas as pd
 import yfinance as yf
 import json
 import os
+import requests
 import warnings
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import pytz
+import time
+import random
 
 warnings.filterwarnings('ignore')
 
@@ -20,7 +23,7 @@ def send_email_notify(subject, html_body):
     recipient = os.environ.get("GMAIL_RECIPIENT", gmail_user) 
     
     if not gmail_user or not gmail_password:
-        print("⚠️ 未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD，跳過 Email 發送。")
+        print("⚠️ 未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD 環境變數，跳過 Email 通知。")
         return
         
     try:
@@ -28,6 +31,7 @@ def send_email_notify(subject, html_body):
         msg['Subject'] = subject
         msg['From'] = gmail_user
         msg['To'] = recipient
+        
         part = MIMEText(html_body, 'html', 'utf-8')
         msg.attach(part)
         
@@ -35,12 +39,12 @@ def send_email_notify(subject, html_body):
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
         server.quit()
-        print("📧 Email 通知發送成功！")
+        print("📧 Email 通知發送成功！請檢查你的信箱。")
     except Exception as e:
         print(f"❌ Email 發送失敗: {e}")
 
 # ==========================================
-# 🌟 初始化設定
+# 🌟 初始化設定 & 偽裝 Session
 # ==========================================
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
@@ -50,10 +54,21 @@ state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
 excel_file = 'TrackingList.xlsx'
 
+# 建立一個帶有瀏覽器偽裝的 Session
+custom_session = requests.Session()
+custom_session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive"
+})
+
 if os.path.exists(state_file):
     try:
-        with open(state_file, 'r', encoding='utf-8') as f: state = json.load(f)
-    except: state = {}
+        with open(state_file, 'r', encoding='utf-8') as f:
+            state = json.load(f)
+    except:
+        state = {}
 else:
     state = {}
 
@@ -62,52 +77,57 @@ if state.get('date') != today_str:
     if 'filters' not in state: state['filters'] = {}
     if 'tw_data' not in state: state['tw_data'] = []
     if 'us_data' not in state: state['us_data'] = []
-    if 'tw_time' not in state: state['tw_time'] = '等待計算...'
-    if 'us_time' not in state: state['us_time'] = '等待計算...'
+    if 'tw_time' not in state: state['tw_time'] = '等待今日計算...'
+    if 'us_time' not in state: state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 🛠️ 批量下載核心工具 (防阻擋神器)
+# 📊 濾網與數據計算引擎 (加入 Session 與 Sleep)
 # ==========================================
-def download_batch(tickers, period="1y"):
-    """使用多線程一次性抓取整個池子的資料，避免 Too Many Requests"""
-    tickers = list(set([str(t).strip() for t in tickers if pd.notna(t) and str(t).strip() != ""]))
-    if not tickers: return pd.DataFrame()
+def get_ma_filter(ticker, window, period="50d"):
     try:
-        # auto_adjust=True 確保拿到的是還原權息的除權息股價，動能計算才準確
-        df = yf.download(tickers, period=period, threads=True, progress=False, group_by='ticker', auto_adjust=True)
-        return df
-    except Exception as e:
-        print(f"⚠️ 批量下載失敗: {e}")
-        return pd.DataFrame()
+        tkr = yf.Ticker(ticker, session=custom_session)
+        df = tkr.history(period=period, auto_adjust=True)
+        if df.empty: return False, False, 0, 0
+        s = df['Close'].dropna()
+        if len(s) >= window:
+            curr = float(s.iloc[-1])
+            ma = float(s.rolling(window).mean().iloc[-1])
+            return True, curr > ma, curr, ma
+    except Exception as e: 
+        print(f"⚠️ 抓取 {ticker} MA濾網失敗: {e}")
+    return False, False, 0, 0
 
-def get_series_from_batch(df, ticker):
-    """相容新舊版 yfinance 的欄位結構，安全萃取單一股票的 Close 序列"""
-    if df is None or df.empty: return pd.Series()
+def get_sox_momentum():
     try:
-        if isinstance(df.columns, pd.MultiIndex):
-            # 模式1: df[Ticker]['Close']
-            if ticker in df.columns.levels[0]:
-                sub_df = df[ticker]
-                if 'Close' in sub_df.columns: return sub_df['Close'].dropna()
-            # 模式2: df['Close'][Ticker]
-            elif 'Close' in df.columns.levels[0]:
-                if ticker in df.columns.levels[1]:
-                    return df['Close'][ticker].dropna()
-        else:
-            # 只有一檔股票退化成普通 DataFrame 的情況
-            if 'Close' in df.columns: return df['Close'].dropna()
-    except: pass
+        tkr = yf.Ticker("^SOX", session=custom_session)
+        df = tkr.history(period="100d", auto_adjust=True)
+        if not df.empty:
+            s = df['Close'].dropna()
+            if len(s) >= 64:
+                mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
+                return True, mom > 0, mom * 100
+    except Exception as e: 
+        print(f"⚠️ 抓取 SOX 動能失敗: {e}")
+    return False, False, 0
+
+def fetch_close_series(ticker):
+    try:
+        tkr = yf.Ticker(ticker, session=custom_session)
+        df = tkr.history(period="1y", auto_adjust=True)
+        if not df.empty:
+            s = df['Close'].dropna()
+            if not s.empty:
+                # 防呆：剔除超過 10 天沒更新的資料
+                last_date = s.index[-1]
+                now_utc = pd.Timestamp.utcnow()
+                if last_date.tz is None: last_date = last_date.tz_localize('UTC')
+                else: last_date = last_date.tz_convert('UTC')
+                if (now_utc - last_date).days > 10: 
+                    return pd.Series()
+                return s
+    except Exception as e: 
+        pass
     return pd.Series()
-
-def validate_series(s):
-    if s.empty: return pd.Series()
-    # 防呆：剔除超過 10 天沒更新的廢棄快取
-    last_date = s.index[-1]
-    now_utc = pd.Timestamp.utcnow()
-    if last_date.tz is None: last_date = last_date.tz_localize('UTC')
-    else: last_date = last_date.tz_convert('UTC')
-    if (now_utc - last_date).days > 10: return pd.Series()
-    return s
 
 def calc_mom_tw(s):
     if len(s) < 65: return -999
@@ -118,56 +138,29 @@ def calc_mom_us(s):
     return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1 + (s.iloc[-1] / s.iloc[-127]) - 1) / 3) * 100
 
 # ==========================================
-# 🚀 執行主流程：總經與大盤指標 (全批量)
+# 🚀 執行主流程 (大盤指標)
 # ==========================================
-print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始批量下載避險濾網與總經警訊...")
-macro_tickers = ["^IXIC", "^TWII", "^SOX", "BTC-USD", "GC=F"]
-macro_df = download_batch(macro_tickers, period="1y")
+print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
 
-def get_ma_filter_batch(ticker, window, period_limit=None):
-    s = get_series_from_batch(macro_df, ticker)
-    s = validate_series(s)
-    if period_limit and len(s) > period_limit: s = s.tail(period_limit)
-    if len(s) >= window:
-        curr, ma = float(s.iloc[-1]), float(s.rolling(window).mean().iloc[-1])
-        return True, curr > ma, curr, ma
-    return False, False, 0, 0
-
-def get_sox_momentum_batch():
-    s = get_series_from_batch(macro_df, "^SOX")
-    s = validate_series(s)
-    if len(s) >= 64:
-        mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
-        return True, mom > 0, mom * 100
-    return False, False, 0
-
-# 1. 大盤濾網
-success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter_batch("^IXIC", 20)
+# 大盤指標之間加上短暫的隨機延遲 (0.5 ~ 1.5秒)
+time.sleep(random.uniform(0.5, 1.5))
+success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_filter("^IXIC", 20)
 if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ix_pass else '小於'} {ixic_ma20:.2f}"
-else:
-    old_val = state.get('filters', {}).get('IXIC', '無資料')
-    ix_pass = '大於' in old_val
-    if "⚠️連線異常" not in old_val: state['filters']['IXIC'] = f"⚠️連線異常, 舊檔: {old_val}"
 
-success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter_batch("^TWII", 10, period_limit=30)
+time.sleep(random.uniform(0.5, 1.5))
+success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_filter("^TWII", 10, period="30d")
 if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if tw_pass else '小於'} {twii_ma10:.2f}"
-else:
-    old_val = state.get('filters', {}).get('TWII', '無資料')
-    tw_pass = '大於' in old_val
-    if "⚠️連線異常" not in old_val: state['filters']['TWII'] = f"⚠️連線異常, 舊檔: {old_val}"
 
-success_sox, sox_pass, sox_mom_val = get_sox_momentum_batch()
+time.sleep(random.uniform(0.5, 1.5))
+success_sox, sox_pass, sox_mom_val = get_sox_momentum()
 if success_sox: state['filters']['SOX'] = f"動能: {sox_mom_val:.2f}% ({'多頭' if sox_pass else '空頭'})"
-else:
-    old_val = state.get('filters', {}).get('SOX', '無資料')
-    sox_pass = '多頭' in old_val
-    if "⚠️連線異常" not in old_val: state['filters']['SOX'] = f"⚠️連線異常, 舊檔: {old_val}"
 
-# 2. 總經與熊市警訊
-success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter_batch("BTC-USD", 120)
+time.sleep(random.uniform(0.5, 1.5))
+success_btc, btc_pass, btc_curr, btc_ma = get_ma_filter("BTC-USD", 120, period="1y")
 if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
-success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter_batch("GC=F", 120)
+time.sleep(random.uniform(0.5, 1.5))
+success_gold, gold_pass, gold_curr, gold_ma = get_ma_filter("GC=F", 120, period="1y")
 if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
 
 stl_link = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a>'
@@ -179,7 +172,7 @@ run_tw = True
 run_us = True
 
 # ==========================================
-# 🌞 台股模組 (批量下載)
+# 🌞 台股模組
 # ==========================================
 if run_tw:
     print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
@@ -193,7 +186,8 @@ if run_tw:
                     clean_t = str(t).strip().upper()
                     if clean_t.endswith('.0'): clean_t = clean_t[:-2]
                     clean_t = clean_t.replace('.TW0', '.TWO')
-                    if not (clean_t.endswith('.TW') or clean_t.endswith('.TWO')): clean_t += ".TW"
+                    if not (clean_t.endswith('.TW') or clean_t.endswith('.TWO')):
+                        clean_t += ".TW"
                     if clean_t not in tw_pool:
                         tw_pool.append(clean_t)
                         tw_names.append(n)
@@ -205,23 +199,23 @@ if run_tw:
             tw_pool.append(ft)
             tw_names.append(ft)
             
-    # 【關鍵優化】一次性下載所有台股
-    tw_df = download_batch(tw_pool, period="1y")
     tw_results = []
+    seen_tw = set()
+    total_tw = len(tw_pool)
     
-    for t, n in zip(tw_pool, tw_names):
-        s = get_series_from_batch(tw_df, t)
-        s = validate_series(s)
+    for idx, (t, n) in enumerate(zip(tw_pool, tw_names)):
+        if t in seen_tw: continue
+        seen_tw.add(t)
         
-        # 針對上市轉上櫃的備援機制 (這只發生在極少數股票，單筆請求不會被鎖)
+        # 顯示進度，方便在終端機觀察
+        print(f"   ({idx+1}/{total_tw}) 抓取台股: {t}")
+        s = fetch_close_series(t)
+        
         if s.empty and t.endswith('.TW'):
+            time.sleep(random.uniform(0.5, 1.5)) # 備援抓取前也稍等
             fallback_t = t.replace('.TW', '.TWO')
-            try:
-                tkr = yf.Ticker(fallback_t)
-                s_fb = tkr.history(period="1y", auto_adjust=True)['Close'].dropna()
-                s = validate_series(s_fb)
-                if not s.empty: t = fallback_t
-            except: pass
+            s = fetch_close_series(fallback_t)
+            if not s.empty: t = fallback_t
             
         if not s.empty:
             mom = calc_mom_tw(s)
@@ -230,21 +224,21 @@ if run_tw:
                 status = "⭐️ 買進標的"
                 if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
                 tw_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+        
+        # 🌟 核心防護機制：每抓一檔，隨機休息 1 到 3 秒
+        time.sleep(random.uniform(1.0, 3.0))
     
     if tw_results:
         fixed = [r for r in tw_results if r['is_fixed']]
         dynamic = sorted([r for r in tw_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
         state['tw_data'] = fixed + dynamic[:10]
         state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        print("⚠️ 台股模組全部抓取失敗，保留前次紀錄！")
-        if "⚠️抓取失敗" not in state.get('tw_time', ''): state['tw_time'] = state.get('tw_time', '') + " (⚠️抓取失敗, 顯示舊檔)"
 
 # ==========================================
-# 🌇 美股模組 (批量下載)
+# 🌇 美股模組
 # ==========================================
 if run_us:
-    print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
+    print(f"\n[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
     us_pool, us_names = [], []
     try:
         xls = pd.ExcelFile(excel_file)
@@ -266,13 +260,16 @@ if run_us:
             us_pool.append(ft)
             us_names.append(ft)
 
-    # 【關鍵優化】一次性下載所有美股
-    us_df = download_batch(us_pool, period="1y")
     us_results = []
+    seen_us = set()
+    total_us = len(us_pool)
     
-    for t, n in zip(us_pool, us_names):
-        s = get_series_from_batch(us_df, t)
-        s = validate_series(s)
+    for idx, (t, n) in enumerate(zip(us_pool, us_names)):
+        if t in seen_us: continue
+        seen_us.add(t)
+        
+        print(f"   ({idx+1}/{total_us}) 抓取美股: {t}")
+        s = fetch_close_series(t)
         
         if not s.empty:
             mom = calc_mom_us(s)
@@ -281,16 +278,16 @@ if run_us:
                 if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
                 elif t == 'USD': status = "⭐️ 買進標的"
                 else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
-                us_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_is_fixed': is_fixed})
+                us_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+                
+        # 🌟 核心防護機制：每抓一檔，隨機休息 1 到 3 秒
+        time.sleep(random.uniform(1.0, 3.0))
     
     if us_results:
         fixed = [r for r in us_results if r.get('is_fixed', False)]
         dynamic = sorted([r for r in us_results if not r.get('is_fixed', False)], key=lambda x: x['momentum'], reverse=True)
         state['us_data'] = fixed + dynamic[:10]
         state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        print("⚠️ 美股模組全部抓取失敗，保留前次紀錄！")
-        if "⚠️抓取失敗" not in state.get('us_time', ''): state['us_time'] = state.get('us_time', '') + " (⚠️抓取失敗, 顯示舊檔)"
 
 # ==========================================
 # 💾 儲存檔案與渲染 HTML
