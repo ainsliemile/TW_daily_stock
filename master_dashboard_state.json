@@ -1,11 +1,11 @@
 {
   "date": "2026-06-16",
   "filters": {
-    "IXIC": "20MA: 26683.94 大於 26341.27",
-    "TWII": "10MA: 44169.04 小於 44685.40",
-    "SOX": "動能: 48.82% (多頭)",
-    "BTC": "現價 66170.0 vs 120MA 71784.4 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4334.1 vs 120MA 4717.8 (⚠️ 熊市警訊)",
+    "IXIC": "20MA: 25888.84 小於 26318.33",
+    "TWII": "10MA: 45809.19 大於 44732.53",
+    "SOX": "動能: 43.06% (多頭)",
+    "BTC": "現價 66043.4 vs 120MA 71783.3 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4339.5 vs 120MA 4716.8 (⚠️ 熊市警訊)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)"
   },
@@ -125,18 +125,18 @@
       "is_fixed": true
     },
     {
-      "ticker": "BWET",
-      "name": "Breakwave Tanker Shipping ETF",
-      "price": 199.89999389648438,
-      "momentum": 328.8886150865225,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
       "ticker": "SNDK",
       "name": "Sandisk",
       "price": 1980.0999755859375,
       "momentum": 328.8132644852424,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "BWET",
+      "name": "Breakwave Tanker Shipping ETF",
+      "price": 198.77000427246094,
+      "momentum": 296.5584107256802,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -159,8 +159,8 @@
     {
       "ticker": "DELL",
       "name": "Dell Technologies",
-      "price": 395.57000732421875,
-      "momentum": 135.76571644505034,
+      "price": 409.07000732421875,
+      "momentum": 141.50061988198868,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,5 +206,5 @@
     }
   ],
   "tw_time": "2026-06-16 07:00:58",
-  "us_time": "2026-06-15 14:01:00"
+  "us_time": "2026-06-16 14:00:54"
 }
