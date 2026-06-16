@@ -25,7 +25,9 @@ jobs:
 
       - name: 安裝相依套件
         run: |
-          pip install yfinance pandas openpyxl pytz requests urllib3 curl_cffi
+          #pip install yfinance pandas openpyxl pytz requests urllib3 curl_cffi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: 執行量化面板計算與發送 Email 🚀
         env:
