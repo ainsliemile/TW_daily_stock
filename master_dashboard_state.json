@@ -4,8 +4,8 @@
     "IXIC": "20MA: 25888.84 小於 26318.33",
     "TWII": "10MA: 45809.19 大於 44732.53",
     "SOX": "動能: 43.06% (多頭)",
-    "BTC": "現價 66720.0 vs 120MA 71767.7 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4366.1 vs 120MA 4717.1 (⚠️ 熊市警訊)",
+    "BTC": "現價 66545.2 vs 120MA 71766.2 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4361.8 vs 120MA 4717.0 (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)"
   },
@@ -121,7 +121,7 @@
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
       "price": 234.67999267578125,
       "momentum": 254.2477043110766,
-      "status": "⭐️ 買進標的 (釘住)",
+      "status": "❌ 跌破TWII濾網",
       "is_fixed": true
     },
     {
@@ -205,6 +205,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-16 17:08:58",
-  "us_time": "2026-06-16 17:08:58"
+  "tw_time": "2026-06-16 20:29:00",
+  "us_time": "2026-06-16 20:29:00"
 }
