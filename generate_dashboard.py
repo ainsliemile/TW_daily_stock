@@ -9,8 +9,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import pytz
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 warnings.filterwarnings('ignore')
 
@@ -44,20 +42,8 @@ def send_email_notify(subject, html_body):
         print(f"❌ Email 發送失敗: {e}")
 
 # ==========================================
-# 🌟 超穩定安全連線引擎 (強制破除 CDN 快取)
+# 🌟 初始化設定
 # ==========================================
-session = requests.Session()
-retry = Retry(connect=3, backoff_factor=0.5)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
-session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0"
-})
-
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
 today_str = now.strftime('%Y-%m-%d')
@@ -84,44 +70,52 @@ if state.get('date') != today_str:
     if 'us_time' not in state: state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 📊 濾網與數據計算引擎
+# 📊 濾網與數據計算引擎 (改用 yf.Ticker 提升穩定性)
 # ==========================================
 def get_ma_filter(ticker, window, period="50d"):
     try:
-        df = yf.download(ticker, period=period, session=session, progress=False)
+        tkr = yf.Ticker(ticker)
+        df = tkr.history(period=period)
         if df.empty: return False, False, 0, 0
-        s = df['Close'].squeeze() if isinstance(df['Close'], pd.DataFrame) else df['Close']
-        s = s.dropna()
+        s = df['Close'].dropna()
         if len(s) >= window:
-            curr, ma = float(s.iloc[-1]), float(s.rolling(window).mean().iloc[-1])
+            curr = float(s.iloc[-1])
+            ma = float(s.rolling(window).mean().iloc[-1])
             return True, curr > ma, curr, ma
-    except: pass
+    except Exception as e: 
+        print(f"⚠️ 抓取 {ticker} MA濾網失敗: {e}")
     return False, False, 0, 0
 
 def get_sox_momentum():
     try:
-        df = yf.download("^SOX", period="100d", session=session, progress=False)
+        tkr = yf.Ticker("^SOX")
+        df = tkr.history(period="100d")
         if not df.empty:
-            s = df['Close'].squeeze().dropna()
+            s = df['Close'].dropna()
             if len(s) >= 64:
                 mom = ((s.iloc[-1] / s.iloc[-22] - 1) + (s.iloc[-1] / s.iloc[-64] - 1)) / 2
                 return True, mom > 0, mom * 100
-    except: pass
+    except Exception as e: 
+        print(f"⚠️ 抓取 SOX 動能失敗: {e}")
     return False, False, 0
 
 def fetch_close_series(ticker):
     try:
-        tkr = yf.Ticker(ticker, session=session)
-        s = tkr.history(period="1y", auto_adjust=True)['Close'].dropna()
-        if not s.empty:
-            # 防呆：剔除超過 10 天沒更新的廢棄股票/過期快取
-            last_date = s.index[-1]
-            now_utc = pd.Timestamp.utcnow()
-            if last_date.tz is None: last_date = last_date.tz_localize('UTC')
-            else: last_date = last_date.tz_convert('UTC')
-            if (now_utc - last_date).days > 10: return pd.Series()
-            return s
-    except: pass
+        tkr = yf.Ticker(ticker)
+        df = tkr.history(period="1y")
+        if not df.empty:
+            s = df['Close'].dropna()
+            if not s.empty:
+                # 防呆：剔除超過 10 天沒更新的廢棄股票/過期快取
+                last_date = s.index[-1]
+                now_utc = pd.Timestamp.utcnow()
+                if last_date.tz is None: last_date = last_date.tz_localize('UTC')
+                else: last_date = last_date.tz_convert('UTC')
+                if (now_utc - last_date).days > 10: 
+                    return pd.Series()
+                return s
+    except Exception as e: 
+        pass
     return pd.Series()
 
 def calc_mom_tw(s):
@@ -133,7 +127,7 @@ def calc_mom_us(s):
     return (((s.iloc[-1] / s.iloc[-22]) - 1 + (s.iloc[-1] / s.iloc[-64]) - 1 + (s.iloc[-1] / s.iloc[-127]) - 1) / 3) * 100
 
 # ==========================================
-# 🚀 執行主流程 (新增誠實報錯機制)
+# 🚀 執行主流程
 # ==========================================
 print(f"\n[{now.strftime('%H:%M:%S')}] 🔄 開始檢查避險濾網與總經警訊...")
 
@@ -184,7 +178,7 @@ run_tw = True
 run_us = True
 
 # ==========================================
-# 🌞 台股模組 (含防阻擋保護)
+# 🌞 台股模組
 # ==========================================
 if run_tw:
     print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
@@ -231,19 +225,18 @@ if run_tw:
                 if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
                 tw_results.append({'ticker': t, 'name': n, 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
     
-    # 防呆：如果完全抓不到資料（被阻擋），保留前次歷史紀錄，只更新時間標示
     if tw_results:
         fixed = [r for r in tw_results if r['is_fixed']]
         dynamic = sorted([r for r in tw_results if not r['is_fixed']], key=lambda x: x['momentum'], reverse=True)
         state['tw_data'] = fixed + dynamic[:10]
         state['tw_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
     else:
-        print("⚠️ 台股模組全部抓取失敗 (可能被阻擋)，保留前次紀錄！")
+        print("⚠️ 台股模組全部抓取失敗，保留前次紀錄！")
         if "⚠️抓取失敗" not in state.get('tw_time', ''):
             state['tw_time'] = state.get('tw_time', '') + " (⚠️抓取失敗, 顯示舊檔)"
 
 # ==========================================
-# 🌇 美股模組 (含防阻擋保護)
+# 🌇 美股模組
 # ==========================================
 if run_us:
     print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
@@ -290,7 +283,7 @@ if run_us:
         state['us_data'] = fixed + dynamic[:10]
         state['us_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
     else:
-        print("⚠️ 美股模組全部抓取失敗 (可能被阻擋)，保留前次紀錄！")
+        print("⚠️ 美股模組全部抓取失敗，保留前次紀錄！")
         if "⚠️抓取失敗" not in state.get('us_time', ''):
             state['us_time'] = state.get('us_time', '') + " (⚠️抓取失敗, 顯示舊檔)"
 
@@ -364,14 +357,14 @@ web_html = f"""<!DOCTYPE html>
     </div>
     <div class="container">
         <div class="box">
-            <h3>🇹🇼 台股避險動能池 (共12檔) <span>最後同步: {state.get('tw_time')}</span></h3>
+            <h3>🇹🇼 台股避險動能池 <span>最後同步: {state.get('tw_time')}</span></h3>
             <table>
                 <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1M+3M)動能</th><th>策略狀態</th></tr>
                 {build_html_table(state.get('tw_data', []))}
             </table>
         </div>
         <div class="box">
-            <h3>🇺🇸 美股避險動能池 (共12檔) <span>最後同步: {state.get('us_time')}</span></h3>
+            <h3>🇺🇸 美股避險動能池 <span>最後同步: {state.get('us_time')}</span></h3>
             <table>
                 <tr><th>屬性/排名</th><th>代號</th><th>名稱</th><th>當前股價</th><th>(1+3+6M)動能</th><th>策略狀態</th></tr>
                 {build_html_table(state.get('us_data', []))}
