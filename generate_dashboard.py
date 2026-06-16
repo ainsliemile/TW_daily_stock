@@ -1,7 +1,6 @@
 import pandas as pd
 import json
 import os
-import requests
 import warnings
 import smtplib
 import time
@@ -9,8 +8,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import pytz
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+
+# 🔥 終極破牆神器：使用 curl_cffi 完美偽裝真實 Chrome 瀏覽器
+from curl_cffi import requests
 
 warnings.filterwarnings('ignore')
 
@@ -43,7 +43,7 @@ def send_email_notify(subject, html_body):
         print(f"❌ Email 發送失敗: {e}")
 
 # ==========================================
-# 🌟 初始化設定 & 極速防護 Session
+# 🌟 初始化設定
 # ==========================================
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
@@ -52,13 +52,6 @@ today_str = now.strftime('%Y-%m-%d')
 state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
 excel_file = 'TrackingList.xlsx'
-
-# 建立極速與防封鎖 Session
-session = requests.Session()
-retry = Retry(connect=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
 
 if os.path.exists(state_file):
     try:
@@ -74,11 +67,11 @@ if state.get('date') != today_str:
     state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 🎯 核心武器：直接打 Yahoo 台灣的背後 API (不依賴 yfinance)
+# 🎯 核心武器：完美偽裝 TLS 指紋抓取 Yahoo 資料
 # ==========================================
-def fetch_raw_yahoo_api(ticker):
+def fetch_yahoo_with_cffi(ticker):
     """
-    偽裝成從 tw.stock.yahoo.com 瀏覽網頁，直接獲取 JSON 圖表歷史報價
+    使用 curl_cffi 模擬真實 Chrome 120 版本的底層網路特徵，直接穿透 Yahoo WAF
     """
     url = f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}"
     params = {
@@ -87,26 +80,27 @@ def fetch_raw_yahoo_api(ticker):
         "includePrePost": "false",
         "events": "div,splits"
     }
-    # 🔥 強制掛上 tw.stock.yahoo.com 的來源標頭，讓伺服器以為是合法網頁點擊
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Referer": f"https://tw.stock.yahoo.com/quote/{ticker}",
-        "Origin": "https://tw.stock.yahoo.com",
-        "Accept": "application/json"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Origin": "https://finance.yahoo.com",
+        "Referer": f"https://finance.yahoo.com/quote/{ticker}"
     }
     
     try:
-        res = session.get(url, params=params, headers=headers, timeout=10)
-        res.raise_for_status()
-        data = res.json()
+        # 🔥 impersonate="chrome120" 是破牆的關鍵，這會讓封包看起來跟真人瀏覽器一模一樣
+        res = requests.get(url, params=params, headers=headers, impersonate="chrome120", timeout=15)
         
-        # 解析 Yahoo 回傳的 JSON 結構
+        if res.status_code != 200:
+            return pd.Series()
+            
+        data = res.json()
         result = data.get('chart', {}).get('result', [])
         if not result: return pd.Series()
         
         timestamps = result[0].get('timestamp', [])
-        # 優先抓取還原權息的收盤價 (adjclose)，若無則抓一般收盤價 (close)
         indicators = result[0].get('indicators', {})
+        
         try:
             closes = indicators['adjclose'][0]['adjclose']
         except KeyError:
@@ -114,40 +108,37 @@ def fetch_raw_yahoo_api(ticker):
             
         if not timestamps or not closes: return pd.Series()
         
-        # 轉成 Pandas Series，過濾掉 None 的無效資料
         df = pd.DataFrame({'close': closes}, index=pd.to_datetime(timestamps, unit='s')).dropna()
         return df['close']
-    
     except Exception as e:
         return pd.Series()
 
 def download_robustly_custom(tickers, group_name):
-    print(f"\n[{now.strftime('%H:%M:%S')}] 🚀 準備自訂抓取 {group_name} 共 {len(tickers)} 檔標的...")
+    print(f"\n[{now.strftime('%H:%M:%S')}] 🚀 準備以「瀏覽器完美偽裝模式」抓取 {group_name} 共 {len(tickers)} 檔標的...")
     all_prices = {}
     total = len(tickers)
     
     for i, ticker in enumerate(tickers, 1):
-        s = fetch_raw_yahoo_api(ticker)
+        s = fetch_yahoo_with_cffi(ticker)
         actual_ticker = ticker
         
-        # 智能後綴轉換與備援機制 (.TW 找不到換 .TWO)
         if s.empty:
             fallback = None
             if ticker.endswith('.TW'): fallback = ticker.replace('.TW', '.TWO')
             elif not ticker.endswith('.TW') and not ticker.endswith('.TWO') and '.' in ticker: fallback = ticker.replace('.', '-')
             
             if fallback:
-                time.sleep(0.2)
-                s = fetch_raw_yahoo_api(fallback)
+                time.sleep(0.5)
+                s = fetch_yahoo_with_cffi(fallback)
                 if not s.empty: actual_ticker = fallback
                 
         if not s.empty:
             all_prices[actual_ticker] = s
             print(f"   ({i}/{total}) ✅ 成功: {actual_ticker}")
         else:
-            print(f"   ({i}/{total}) ❌ 失敗: {ticker} (查無資料或遭阻擋)")
+            print(f"   ({i}/{total}) ❌ 失敗: {ticker} (可能遭擋或無此代號)")
             
-        time.sleep(0.2) # 極短延遲防封鎖
+        time.sleep(0.5) # 安全的停頓
         
     if not all_prices: return pd.DataFrame()
     return pd.DataFrame(all_prices)
@@ -178,7 +169,6 @@ def calc_mom_us(s):
 macro_tickers = ["^IXIC", "^TWII", "^SOX", "BTC-USD", "GC=F"]
 df_macro = download_robustly_custom(macro_tickers, "大盤與總經")
 
-# 1. 大盤濾網
 success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_from_series(df_macro.get("^IXIC", pd.Series()), 20)
 if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ix_pass else '小於'} {ixic_ma20:.2f}"
 
@@ -192,7 +182,6 @@ if len(s_sox) >= 64:
     state['filters']['SOX'] = f"動能: {sox_mom * 100:.2f}% ({'多頭' if sox_pass else '空頭'})"
 else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '')
 
-# 2. 總經與熊市警訊
 success_btc, btc_pass, btc_curr, btc_ma = get_ma_from_series(df_macro.get("BTC-USD", pd.Series()), 120)
 if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
@@ -223,9 +212,7 @@ except: pass
 
 tw_fixed_tickers = ['00631L.TW', '00675L.TW']
 for ft in tw_fixed_tickers:
-    if ft not in tw_pool:
-        tw_pool.append(ft)
-        tw_names_map[ft] = ft
+    if ft not in tw_pool: tw_pool.append(ft); tw_names_map[ft] = ft
 
 df_tw = download_robustly_custom(tw_pool, "台股池")
 
@@ -267,9 +254,7 @@ except: pass
 
 us_fixed_tickers = ['SOXL', 'USD']
 for ft in us_fixed_tickers:
-    if ft not in us_pool:
-        us_pool.append(ft)
-        us_names_map[ft] = ft
+    if ft not in us_pool: us_pool.append(ft); us_names_map[ft] = ft
 
 df_us = download_robustly_custom(us_pool, "美股池")
 
