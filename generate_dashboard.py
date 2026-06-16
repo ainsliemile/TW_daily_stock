@@ -1,6 +1,8 @@
 import pandas as pd
+import yfinance as yf
 import json
 import os
+import requests
 import warnings
 import smtplib
 import time
@@ -8,9 +10,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import pytz
-
-# 🔥 終極破牆神器：使用 curl_cffi 完美偽裝真實 Chrome 瀏覽器
-from curl_cffi import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 warnings.filterwarnings('ignore')
 
@@ -23,7 +24,7 @@ def send_email_notify(subject, html_body):
     recipient = os.environ.get("GMAIL_RECIPIENT", gmail_user) 
     
     if not gmail_user or not gmail_password:
-        print("⚠️ 未設定 Email 環境變數，跳過發送。")
+        print("⚠️ 未設定 GMAIL_USER 或 GMAIL_APP_PASSWORD，跳過 Email 發送。")
         return
         
     try:
@@ -43,7 +44,7 @@ def send_email_notify(subject, html_body):
         print(f"❌ Email 發送失敗: {e}")
 
 # ==========================================
-# 🌟 初始化設定
+# 🌟 初始化設定 & 極速 Session
 # ==========================================
 tw_tz = pytz.timezone('Asia/Taipei')
 now = datetime.now(tw_tz)
@@ -52,6 +53,16 @@ today_str = now.strftime('%Y-%m-%d')
 state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
 excel_file = 'TrackingList.xlsx'
+
+# 設定防阻擋 Session，但將重試次數降到最低，避免 GH Actions 卡死 40 分鐘
+session = requests.Session()
+retry = Retry(connect=1, backoff_factor=0.1)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
+session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+})
 
 if os.path.exists(state_file):
     try:
@@ -67,81 +78,25 @@ if state.get('date') != today_str:
     state['us_time'] = '等待今日計算...'
 
 # ==========================================
-# 🎯 核心武器：完美偽裝 TLS 指紋抓取 Yahoo 資料
+# 🎯 核心抓取函數 (強制繞過快取)
 # ==========================================
-def fetch_yahoo_with_cffi(ticker):
-    """
-    使用 curl_cffi 模擬真實 Chrome 120 版本的底層網路特徵，直接穿透 Yahoo WAF
-    """
-    url = f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}"
-    params = {
-        "range": "1y",
-        "interval": "1d",
-        "includePrePost": "false",
-        "events": "div,splits"
-    }
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Origin": "https://finance.yahoo.com",
-        "Referer": f"https://finance.yahoo.com/quote/{ticker}"
-    }
-    
+def fetch_series(ticker):
+    """使用 yf.download 繞過 Ticker 快取，強制獲取最新報價"""
     try:
-        # 🔥 impersonate="chrome120" 是破牆的關鍵，這會讓封包看起來跟真人瀏覽器一模一樣
-        res = requests.get(url, params=params, headers=headers, impersonate="chrome120", timeout=15)
+        # progress=False 避免終端機洗版，ignore_tz=True 統一時區避免錯誤
+        df = yf.download(ticker, period="1y", progress=False, ignore_tz=True)
+        if df.empty: return pd.Series()
         
-        if res.status_code != 200:
-            return pd.Series()
+        # 相容最新版 yfinance 的 MultiIndex 結構
+        if isinstance(df.columns, pd.MultiIndex):
+            s = df['Close'].iloc[:, 0]
+        else:
+            s = df['Close']
             
-        data = res.json()
-        result = data.get('chart', {}).get('result', [])
-        if not result: return pd.Series()
-        
-        timestamps = result[0].get('timestamp', [])
-        indicators = result[0].get('indicators', {})
-        
-        try:
-            closes = indicators['adjclose'][0]['adjclose']
-        except KeyError:
-            closes = indicators['quote'][0]['close']
-            
-        if not timestamps or not closes: return pd.Series()
-        
-        df = pd.DataFrame({'close': closes}, index=pd.to_datetime(timestamps, unit='s')).dropna()
-        return df['close']
+        if isinstance(s, pd.DataFrame): s = s.iloc[:, 0]
+        return s.dropna()
     except Exception as e:
         return pd.Series()
-
-def download_robustly_custom(tickers, group_name):
-    print(f"\n[{now.strftime('%H:%M:%S')}] 🚀 準備以「瀏覽器完美偽裝模式」抓取 {group_name} 共 {len(tickers)} 檔標的...")
-    all_prices = {}
-    total = len(tickers)
-    
-    for i, ticker in enumerate(tickers, 1):
-        s = fetch_yahoo_with_cffi(ticker)
-        actual_ticker = ticker
-        
-        if s.empty:
-            fallback = None
-            if ticker.endswith('.TW'): fallback = ticker.replace('.TW', '.TWO')
-            elif not ticker.endswith('.TW') and not ticker.endswith('.TWO') and '.' in ticker: fallback = ticker.replace('.', '-')
-            
-            if fallback:
-                time.sleep(0.5)
-                s = fetch_yahoo_with_cffi(fallback)
-                if not s.empty: actual_ticker = fallback
-                
-        if not s.empty:
-            all_prices[actual_ticker] = s
-            print(f"   ({i}/{total}) ✅ 成功: {actual_ticker}")
-        else:
-            print(f"   ({i}/{total}) ❌ 失敗: {ticker} (可能遭擋或無此代號)")
-            
-        time.sleep(0.5) # 安全的停頓
-        
-    if not all_prices: return pd.DataFrame()
-    return pd.DataFrame(all_prices)
 
 # ==========================================
 # 📊 動能與濾網計算函數
@@ -166,26 +121,28 @@ def calc_mom_us(s):
 # ==========================================
 # 🚀 執行主流程：大盤與總經
 # ==========================================
-macro_tickers = ["^IXIC", "^TWII", "^SOX", "BTC-USD", "GC=F"]
-df_macro = download_robustly_custom(macro_tickers, "大盤與總經")
-
-success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_from_series(df_macro.get("^IXIC", pd.Series()), 20)
+print(f"[{now.strftime('%H:%M:%S')}] 🔄 開始抓取大盤與總經濾網...")
+s_ixic = fetch_series("^IXIC")
+success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_from_series(s_ixic, 20)
 if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ix_pass else '小於'} {ixic_ma20:.2f}"
 
-success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_from_series(df_macro.get("^TWII", pd.Series()).tail(30), 10)
+s_twii = fetch_series("^TWII")
+success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_from_series(s_twii.tail(30), 10)
 if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if tw_pass else '小於'} {twii_ma10:.2f}"
 
-s_sox = df_macro.get("^SOX", pd.Series()).dropna()
+s_sox = fetch_series("^SOX")
 if len(s_sox) >= 64:
     sox_mom = ((s_sox.iloc[-1] / s_sox.iloc[-22] - 1) + (s_sox.iloc[-1] / s_sox.iloc[-64] - 1)) / 2
     sox_pass = sox_mom > 0
     state['filters']['SOX'] = f"動能: {sox_mom * 100:.2f}% ({'多頭' if sox_pass else '空頭'})"
 else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '')
 
-success_btc, btc_pass, btc_curr, btc_ma = get_ma_from_series(df_macro.get("BTC-USD", pd.Series()), 120)
+s_btc = fetch_series("BTC-USD")
+success_btc, btc_pass, btc_curr, btc_ma = get_ma_from_series(s_btc, 120)
 if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
-success_gold, gold_pass, gold_curr, gold_ma = get_ma_from_series(df_macro.get("GC=F", pd.Series()), 120)
+s_gold = fetch_series("GC=F")
+success_gold, gold_pass, gold_curr, gold_ma = get_ma_from_series(s_gold, 120)
 if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
 
 state['filters']['STLFSI4'] = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)'
@@ -194,6 +151,7 @@ state['filters']['CDS'] = '<a href="https://hk.investing.com/rates-bonds/united-
 # ==========================================
 # 🌞 台股模組
 # ==========================================
+print(f"[{now.strftime('%H:%M:%S')}] 🌅 觸發台股模組...")
 tw_pool, tw_names_map = [], {}
 try:
     xls = pd.ExcelFile(excel_file)
@@ -214,19 +172,23 @@ tw_fixed_tickers = ['00631L.TW', '00675L.TW']
 for ft in tw_fixed_tickers:
     if ft not in tw_pool: tw_pool.append(ft); tw_names_map[ft] = ft
 
-df_tw = download_robustly_custom(tw_pool, "台股池")
-
 tw_results = []
-for t in tw_pool:
-    actual_t = t if t in df_tw.columns else (t.replace('.TW', '.TWO') if t.replace('.TW', '.TWO') in df_tw.columns else None)
-    if actual_t:
-        s = df_tw[actual_t]
+for idx, t in enumerate(tw_pool, 1):
+    s = fetch_series(t)
+    actual_t = t
+    if s.empty and t.endswith('.TW'):
+        fallback = t.replace('.TW', '.TWO')
+        s = fetch_series(fallback)
+        if not s.empty: actual_t = fallback
+        
+    if not s.empty:
         mom = calc_mom_tw(s)
         if mom > -900:
-            is_fixed = t in tw_fixed_tickers
+            is_fixed = actual_t in tw_fixed_tickers
             status = "⭐️ 買進標的"
             if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
-            tw_results.append({'ticker': actual_t, 'name': tw_names_map.get(t, actual_t), 'price': float(s.dropna().iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+            tw_results.append({'ticker': actual_t, 'name': tw_names_map.get(t, actual_t), 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+    time.sleep(0.1) # 極短延遲
 
 if tw_results:
     fixed = [r for r in tw_results if r['is_fixed']]
@@ -237,6 +199,7 @@ if tw_results:
 # ==========================================
 # 🌇 美股模組
 # ==========================================
+print(f"[{now.strftime('%H:%M:%S')}] 🌇 觸發美股模組...")
 us_pool, us_names_map = [], {}
 try:
     xls = pd.ExcelFile(excel_file)
@@ -256,19 +219,18 @@ us_fixed_tickers = ['SOXL', 'USD']
 for ft in us_fixed_tickers:
     if ft not in us_pool: us_pool.append(ft); us_names_map[ft] = ft
 
-df_us = download_robustly_custom(us_pool, "美股池")
-
 us_results = []
-for t in us_pool:
-    if t in df_us.columns:
-        s = df_us[t]
+for idx, t in enumerate(us_pool, 1):
+    s = fetch_series(t)
+    if not s.empty:
         mom = calc_mom_us(s)
         if mom > -900:
             is_fixed = t in us_fixed_tickers
             if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
             elif t == 'USD': status = "⭐️ 買進標的"
             else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
-            us_results.append({'ticker': t, 'name': us_names_map.get(t, t), 'price': float(s.dropna().iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+            us_results.append({'ticker': t, 'name': us_names_map.get(t, t), 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
+    time.sleep(0.1) # 極短延遲
 
 if us_results:
     fixed = [r for r in us_results if r['is_fixed']]
@@ -395,6 +357,14 @@ email_html = f"""<!DOCTYPE html>
                     <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff;">🇺🇸 納斯達克 | <span style="color: #79c0ff;">{ixic_txt}</span></div>
                     <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058;">🇹🇼 加權指數 | <span style="color: #56d44f;">{twii_txt}</span></div>
                     <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70;">💻 費城半導體 | <span style="color: #ff9b57;">{sox_txt}</span></div>
+                </div>
+                
+                <div style="background-color: #2a1515; border: 2px solid #f85149; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <div style="color: #ff7b72; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #f85149; padding-bottom: 8px;">🚨 總經與熊市警訊</div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC 120MA | <span style="color: #ff7b72;">{btc_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 120MA | <span style="color: #ff7b72;">{gold_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 STLFSI4 | <span style="color: #ffffff;">{stlfsi4_txt}</span></div>
+                    <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國 CDS | <span style="color: #ffffff;">{cds_txt}</span></div>
                 </div>
             </td>
         </tr>
