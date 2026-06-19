@@ -3,34 +3,34 @@
   "filters": {
     "IXIC": "20MA: 26517.93 大於 26375.48",
     "SOX": "動能: 54.62% (多頭)",
-    "BTC": "現價 62804.5 vs 120MA 71719.3 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4226.8 vs 120MA 4713.6 (⚠️ 熊市警訊)",
+    "BTC": "現價 62679.8 vs 120MA 71718.2 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4153.4 vs 120MA 4710.5 (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 45877.39 大於 44658.32"
+    "TWII": "10MA: 46465.20 大於 44737.10"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 37.5099983215332,
-      "momentum": 48.67702968304,
+      "price": 38.33000183105469,
+      "momentum": 49.941565135472544,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 330.0,
-      "momentum": 50.33126506354626,
+      "price": 338.45001220703125,
+      "momentum": 52.4323534075267,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 28.459999084472656,
-      "momentum": 240.31520513309462,
+      "price": 28.420000076293945,
+      "momentum": 236.69662353385377,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -112,7 +112,7 @@
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
       "price": 108.70999908447266,
-      "momentum": 82.86104397731596,
+      "momentum": 82.8610497089812,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -184,7 +184,7 @@
       "ticker": "DELL",
       "name": "Dell Technologies",
       "price": 409.5,
-      "momentum": 148.18582960078464,
+      "momentum": 148.18584141868118,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -199,12 +199,12 @@
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 60.810001373291016,
-      "momentum": 128.68031251600388,
+      "price": 60.95000076293945,
+      "momentum": 129.20679012583534,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-19 07:01:02",
-  "us_time": "2026-06-19 07:01:02"
+  "tw_time": "2026-06-19 14:00:53",
+  "us_time": "2026-06-19 14:00:53"
 }
