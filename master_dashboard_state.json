@@ -1,10 +1,10 @@
 {
-  "date": "2026-06-19",
+  "date": "2026-06-22",
   "filters": {
     "IXIC": "20MA: 26517.93 大於 26375.48",
     "SOX": "動能: 54.62% (多頭)",
-    "BTC": "現價 62679.8 vs 120MA 71718.2 (⚠️ 熊市警訊)",
-    "GOLD": "現價 4153.4 vs 120MA 4710.5 (⚠️ 熊市警訊)",
+    "BTC": "現價 63625.0 vs 120MA 71607.0 (⚠️ 熊市警訊)",
+    "GOLD": "現價 4170.9 vs 120MA 4710.6 (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 46465.20 大於 44737.10"
@@ -144,7 +144,7 @@
       "ticker": "MU",
       "name": "Micron Technology",
       "price": 1133.989990234375,
-      "momentum": 201.9215151983992,
+      "momentum": 201.92150451177767,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -184,7 +184,7 @@
       "ticker": "DELL",
       "name": "Dell Technologies",
       "price": 409.5,
-      "momentum": 148.18584141868118,
+      "momentum": 148.18582960078464,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -205,6 +205,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-19 14:00:53",
-  "us_time": "2026-06-19 14:00:53"
+  "tw_time": "2026-06-22 07:00:57",
+  "us_time": "2026-06-22 07:00:57"
 }
