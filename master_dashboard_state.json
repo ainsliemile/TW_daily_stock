@@ -2,13 +2,13 @@
   "date": "2026-06-24",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: 44.48% (多頭)",
-    "BTC": "120MA: 62542.05 跌破 71555.56 (連23日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4155.70 跌破 4709.28 (連27日) (⚠️ 熊市警訊)",
+    "SOX": "動能: 43.07% (多頭)",
+    "BTC": "120MA: 62452.00 跌破 71554.81 (連23日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4126.00 跌破 4709.04 (連27日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 47741.51 突破 45004.15 (連5日)",
-    "SOX_10MA": "10MA: 13615.60 突破 13487.02 (連8日) | ✅多頭確認"
+    "SOX_10MA": "10MA: 13482.51 突破 13473.71 (連8日) | ✅多頭確認"
   },
   "tw_data": [
     {
@@ -30,8 +30,8 @@
     {
       "ticker": "6669.TW",
       "name": "緯穎",
-      "price": 4855.0,
-      "momentum": 260.0801175586779,
+      "price": 4675.0,
+      "momentum": 239.92297283242056,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -46,32 +46,32 @@
     {
       "ticker": "2327.TW",
       "name": "國巨*",
-      "price": 1065.0,
-      "momentum": 188.78813592786815,
+      "price": 1020.0,
+      "momentum": 171.20505929561185,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3090.TW",
       "name": "日電貿",
-      "price": 335.5,
-      "momentum": 154.3493075559374,
+      "price": 302.5,
+      "momentum": 129.05817105670582,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "4958.TW",
-      "name": "臻鼎-KY",
-      "price": 622.0,
-      "momentum": 116.15687850132575,
+      "ticker": "2303.TW",
+      "name": "聯電",
+      "price": 170.0,
+      "momentum": 121.62022897930794,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2493.TW",
       "name": "揚博",
-      "price": 268.0,
-      "momentum": 113.91444815735711,
+      "price": 265.0,
+      "momentum": 110.58777429467084,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -79,31 +79,31 @@
       "ticker": "3481.TW",
       "name": "群創",
       "price": 66.0,
-      "momentum": 106.82873338672256,
+      "momentum": 104.23267291841671,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "2303.TW",
-      "name": "聯電",
-      "price": 160.0,
-      "momentum": 105.25171649217798,
+      "ticker": "4958.TW",
+      "name": "臻鼎-KY",
+      "price": 587.0,
+      "momentum": 98.32173697310247,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2454.TW",
       "name": "聯發科",
-      "price": 4465.0,
-      "momentum": 95.77422870556673,
+      "price": 4535.0,
+      "momentum": 92.12587625723864,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "2344.TW",
-      "name": "華邦電",
-      "price": 222.0,
-      "momentum": 88.82837965454632,
+      "ticker": "1303.TW",
+      "name": "南亞",
+      "price": 154.5,
+      "momentum": 87.63351050458978,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 99.4800033569336,
-      "momentum": 70.62260732219917,
+      "price": 96.8499984741211,
+      "momentum": 66.1117682064674,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 241.3699951171875,
-      "momentum": 305.3657094322895,
+      "price": 231.4199981689453,
+      "momentum": 288.6553160388809,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SNDK",
       "name": "Sandisk",
-      "price": 2014.0999755859375,
-      "momentum": 345.01903020181703,
+      "price": 1963.5999755859375,
+      "momentum": 333.86096392029896,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 197.24000549316406,
-      "momentum": 285.2186542163725,
+      "price": 205.80999755859375,
+      "momentum": 301.9562364418214,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "MU",
       "name": "Micron Technology",
-      "price": 1095.1099853515625,
-      "momentum": 185.2016551586522,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "INTC",
-      "name": "Intel",
-      "price": 136.38499450683594,
-      "momentum": 166.97055709116555,
+      "price": 1051.77001953125,
+      "momentum": 173.9145423098871,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "DELL",
       "name": "Dell Technologies",
-      "price": 431.739990234375,
-      "momentum": 162.5714649723452,
+      "price": 427.7799987792969,
+      "momentum": 160.16311554640168,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "AXTI",
-      "name": "AXT, Inc.",
-      "price": 80.42510223388672,
-      "momentum": 155.1057287827598,
+      "ticker": "INTC",
+      "name": "Intel",
+      "price": 132.27999877929688,
+      "momentum": 158.93512034681737,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "WDC",
       "name": "Western Digital",
-      "price": 676.89501953125,
-      "momentum": 151.97457396881134,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "BE",
-      "name": "Bloom Energy Corporation",
-      "price": 328.25,
-      "momentum": 149.3707666483492,
+      "price": 670.75,
+      "momentum": 149.68708679023968,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "STX",
       "name": "Seagate Technology",
-      "price": 1030.93994140625,
-      "momentum": 145.80844297346698,
+      "price": 1038.5899658203125,
+      "momentum": 147.63246142572015,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "AXTI",
+      "name": "AXT, Inc.",
+      "price": 77.91000366210938,
+      "momentum": 147.12792040835657,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "BE",
+      "name": "Bloom Energy Corporation",
+      "price": 321.9800109863281,
+      "momentum": 144.6074704801357,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 57.11000061035156,
-      "momentum": 116.8496104945443,
+      "price": 57.130001068115234,
+      "momentum": 116.92555326165011,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-24 00:07:22",
-  "us_time": "2026-06-24 00:07:22"
+  "tw_time": "2026-06-24 07:01:01",
+  "us_time": "2026-06-24 07:01:01"
 }
