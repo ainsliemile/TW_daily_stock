@@ -343,7 +343,7 @@ web_html = f"""<!DOCTYPE html>
     <h1>🔬 跨市場多因子動能實驗室</h1>
     <div class="header-panel">
         <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態</div>
-        <div class="filter-tag">🇺🇸 費半 10MA濾網 | {sox_10ma_txt}</div>
+        <div class="filter-tag">🇺🇸 費半 10MA濾網(連4天) | {sox_10ma_txt}</div>
         <div class="filter-tag">🇹🇼 加權指數濾網 | {twii_txt}</div>
         <div class="filter-tag">💻 費半動能濾網 | {sox_txt}</div>
     </div>
