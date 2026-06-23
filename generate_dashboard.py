@@ -54,7 +54,6 @@ state_file = 'master_dashboard_state.json'
 history_file = 'master_historical_data.csv'
 excel_file = 'TrackingList.xlsx'
 
-# 設定防阻擋 Session，但將重試次數降到最低，避免 GH Actions 卡死 40 分鐘
 session = requests.Session()
 retry = Retry(connect=1, backoff_factor=0.1)
 adapter = HTTPAdapter(max_retries=retry)
@@ -81,13 +80,10 @@ if state.get('date') != today_str:
 # 🎯 核心抓取函數 (強制繞過快取)
 # ==========================================
 def fetch_series(ticker):
-    """使用 yf.download 繞過 Ticker 快取，強制獲取最新報價"""
     try:
-        # progress=False 避免終端機洗版，ignore_tz=True 統一時區避免錯誤
         df = yf.download(ticker, period="1y", progress=False, ignore_tz=True)
         if df.empty: return pd.Series()
         
-        # 相容最新版 yfinance 的 MultiIndex 結構
         if isinstance(df.columns, pd.MultiIndex):
             s = df['Close'].iloc[:, 0]
         else:
@@ -99,14 +95,55 @@ def fetch_series(ticker):
         return pd.Series()
 
 # ==========================================
-# 📊 動能與濾網計算函數
+# 📊 動能與「狀態機」濾網計算函數
 # ==========================================
-def get_ma_from_series(s, window):
+def get_ma_state(s, window, delay_days=1):
+    """計算均線狀態並追蹤連續站上/跌破的天數"""
     s = s.dropna()
-    if len(s) >= window:
-        curr, ma = float(s.iloc[-1]), float(s.rolling(window).mean().iloc[-1])
-        return True, curr > ma, curr, ma
-    return False, False, 0, 0
+    if len(s) < window:
+        return False, False, "無資料"
+
+    ma_series = s.rolling(window).mean()
+    is_above = s > ma_series
+
+    current_state = False
+    cons_above = 0
+    cons_below = 0
+    state_array = []
+
+    # 狀態機：計算歷史每一天的連續狀態
+    for val in is_above:
+        if val:
+            cons_above += 1
+            cons_below = 0
+        else:
+            cons_below += 1
+            cons_above = 0
+
+        # 滿足連續天數才翻轉訊號狀態
+        if cons_above >= delay_days:
+            current_state = True
+        elif cons_below >= delay_days:
+            current_state = False
+        state_array.append(current_state)
+
+    final_state = state_array[-1]
+    curr_price = float(s.iloc[-1])
+    curr_ma = float(ma_series.iloc[-1])
+    is_currently_above = is_above.iloc[-1]
+
+    # 當前連續幾日
+    current_consecutive = cons_above if is_currently_above else cons_below
+    direction = '突破' if is_currently_above else '跌破'
+
+    # 組合顯示字串
+    if delay_days > 1:
+        signal_str = '✅多頭確認' if final_state else '⚠️空頭確認'
+        display_text = f"{window}MA: {curr_price:.2f} {direction} {curr_ma:.2f} (連{current_consecutive}日) | {signal_str}"
+    else:
+        display_text = f"{window}MA: {curr_price:.2f} {direction} {curr_ma:.2f} (連{current_consecutive}日)"
+
+    return True, final_state, display_text
 
 def calc_mom_tw(s):
     s = s.dropna()
@@ -123,27 +160,35 @@ def calc_mom_us(s):
 # ==========================================
 print(f"[{now.strftime('%H:%M:%S')}] 🔄 開始抓取大盤與總經濾網...")
 s_ixic = fetch_series("^IXIC")
-success_ixic, ix_pass, ixic_curr, ixic_ma20 = get_ma_from_series(s_ixic, 20)
-if success_ixic: state['filters']['IXIC'] = f"20MA: {ixic_curr:.2f} {'大於' if ix_pass else '小於'} {ixic_ma20:.2f}"
+success_ixic, ix_pass, ixic_txt = get_ma_state(s_ixic, 20, 1)
+if success_ixic: state['filters']['IXIC'] = ixic_txt
 
 s_twii = fetch_series("^TWII")
-success_twii, tw_pass, twii_curr, twii_ma10 = get_ma_from_series(s_twii.tail(30), 10)
-if success_twii: state['filters']['TWII'] = f"10MA: {twii_curr:.2f} {'大於' if tw_pass else '小於'} {twii_ma10:.2f}"
+success_twii, tw_pass, twii_txt = get_ma_state(s_twii, 10, 1)
+if success_twii: state['filters']['TWII'] = twii_txt
 
+# 🎯 核心修改：SOX 10MA 連 4 日濾網
 s_sox = fetch_series("^SOX")
+success_sox, sox_10ma_state, sox_txt = get_ma_state(s_sox, 10, 4)
+
+# 為了維持美股模組的原有動能邏輯，依舊計算 SOX 動能
+sox_pass = True
 if len(s_sox) >= 64:
     sox_mom = ((s_sox.iloc[-1] / s_sox.iloc[-22] - 1) + (s_sox.iloc[-1] / s_sox.iloc[-64] - 1)) / 2
     sox_pass = sox_mom > 0
-    state['filters']['SOX'] = f"動能: {sox_mom * 100:.2f}% ({'多頭' if sox_pass else '空頭'})"
-else: sox_pass = '多頭' in state.get('filters', {}).get('SOX', '')
+
+if success_sox: 
+    state['filters']['SOX'] = f"{sox_txt} | 動能{'多' if sox_pass else '空'}"
+else: 
+    sox_pass = '多' in state.get('filters', {}).get('SOX', '')
 
 s_btc = fetch_series("BTC-USD")
-success_btc, btc_pass, btc_curr, btc_ma = get_ma_from_series(s_btc, 120)
-if success_btc: state['filters']['BTC'] = f"現價 {btc_curr:.1f} vs 120MA {btc_ma:.1f} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
+success_btc, btc_pass, btc_txt = get_ma_state(s_btc, 120, 1)
+if success_btc: state['filters']['BTC'] = f"{btc_txt} ({'✅ 安全' if btc_pass else '⚠️ 熊市警訊'})"
 
 s_gold = fetch_series("GC=F")
-success_gold, gold_pass, gold_curr, gold_ma = get_ma_from_series(s_gold, 120)
-if success_gold: state['filters']['GOLD'] = f"現價 {gold_curr:.1f} vs 120MA {gold_ma:.1f} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
+success_gold, gold_pass, gold_txt = get_ma_state(s_gold, 120, 1)
+if success_gold: state['filters']['GOLD'] = f"{gold_txt} ({'✅ 安全' if gold_pass else '⚠️ 熊市警訊'})"
 
 state['filters']['STLFSI4'] = '<a href="https://fred.stlouisfed.org/series/STLFSI4" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)'
 state['filters']['CDS'] = '<a href="https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd" target="_blank" style="color:#79c0ff; text-decoration:underline;">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)'
@@ -186,9 +231,10 @@ for idx, t in enumerate(tw_pool, 1):
         if mom > -900:
             is_fixed = actual_t in tw_fixed_tickers
             status = "⭐️ 買進標的"
-            if is_fixed and not ix_pass: status = "❌ 跌破IXIC濾網"
+            # 🎯 核心修改：00631L 濾網綁定為 SOX 10MA(連4日)
+            if is_fixed and not sox_10ma_state: status = "❌ 跌破SOX 10MA(連4日)"
             tw_results.append({'ticker': actual_t, 'name': tw_names_map.get(t, actual_t), 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
-    time.sleep(0.1) # 極短延遲
+    time.sleep(0.1)
 
 if tw_results:
     fixed = [r for r in tw_results if r['is_fixed']]
@@ -230,7 +276,7 @@ for idx, t in enumerate(us_pool, 1):
             elif t == 'USD': status = "⭐️ 買進標的"
             else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
             us_results.append({'ticker': t, 'name': us_names_map.get(t, t), 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
-    time.sleep(0.1) # 極短延遲
+    time.sleep(0.1)
 
 if us_results:
     fixed = [r for r in us_results if r['is_fixed']]
@@ -331,7 +377,7 @@ def build_email_table_html(data_list):
     for idx, r in enumerate(data_list):
         bg_color, text_color, border_left, font_weight, text_decor = "#161b22", "#c9d1d9", "1px solid #30363d", "normal", "none"
         if "買進" in r['status']: bg_color, text_color, border_left, font_weight = "#142c4f", "#58a6ff", "5px solid #58a6ff", "bold"
-        elif "賣出" in r['status']:
+        elif "賣出" in r['status'] or "跌破" in r['status']:
             if r.get('is_fixed'): bg_color, text_color, border_left, font_weight = "#3c1818", "#ff7b72", "5px solid #f85149", "bold"
             else: bg_color, text_color, border_left, text_decor = "#211616", "#8b949e", "5px solid #da3633", "line-through"
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"第 {idx+1 - len([x for x in data_list if x.get('is_fixed')])} 名"
@@ -361,8 +407,8 @@ email_html = f"""<!DOCTYPE html>
                 
                 <div style="background-color: #2a1515; border: 2px solid #f85149; padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <div style="color: #ff7b72; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #f85149; padding-bottom: 8px;">🚨 總經與熊市警訊</div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC 120MA | <span style="color: #ff7b72;">{btc_txt}</span></div>
-                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 120MA | <span style="color: #ff7b72;">{gold_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">₿ BTC | <span style="color: #ff7b72;">{btc_txt}</span></div>
+                    <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🥇 黃金 | <span style="color: #ff7b72;">{gold_txt}</span></div>
                     <div style="padding: 10px; margin-bottom: 8px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🏦 STLFSI4 | <span style="color: #ffffff;">{stlfsi4_txt}</span></div>
                     <div style="padding: 10px; background-color: #3c1818; border-radius: 6px; color: #ffffff; font-size: 14px; border-left: 6px solid #f85149;">🛡️ 美國 CDS | <span style="color: #ffffff;">{cds_txt}</span></div>
                 </div>
