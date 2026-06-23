@@ -159,28 +159,26 @@ def calc_mom_us(s):
 # 🚀 執行主流程：大盤與總經
 # ==========================================
 print(f"[{now.strftime('%H:%M:%S')}] 🔄 開始抓取大盤與總經濾網...")
-s_ixic = fetch_series("^IXIC")
-success_ixic, ix_pass, ixic_txt = get_ma_state(s_ixic, 20, 1)
-if success_ixic: state['filters']['IXIC'] = ixic_txt
 
-s_twii = fetch_series("^TWII")
-success_twii, tw_pass, twii_txt = get_ma_state(s_twii, 10, 1)
-if success_twii: state['filters']['TWII'] = twii_txt
-
-# 🎯 核心修改：SOX 10MA 連 4 日濾網
+# 抓取一次 SOX，但分開計算「10MA濾網」跟「動能濾網」
 s_sox = fetch_series("^SOX")
-success_sox, sox_10ma_state, sox_txt = get_ma_state(s_sox, 10, 4)
 
-# 為了維持美股模組的原有動能邏輯，依舊計算 SOX 動能
-sox_pass = True
+# 1. 新增：SOX 10MA (連4日) 濾網，正式取代原先的 IXIC 20MA
+success_sox_ma, sox_10ma_state, sox_10ma_txt = get_ma_state(s_sox, 10, 4)
+if success_sox_ma: state['filters']['SOX_10MA'] = sox_10ma_txt
+
+# 2. 維持：SOX 1M+3M 動能濾網，專給美股動能前五名使用
 if len(s_sox) >= 64:
     sox_mom = ((s_sox.iloc[-1] / s_sox.iloc[-22] - 1) + (s_sox.iloc[-1] / s_sox.iloc[-64] - 1)) / 2
     sox_pass = sox_mom > 0
-
-if success_sox: 
-    state['filters']['SOX'] = f"{sox_txt} | 動能{'多' if sox_pass else '空'}"
+    state['filters']['SOX'] = f"動能: {sox_mom * 100:.2f}% ({'多頭' if sox_pass else '空頭'})"
 else: 
-    sox_pass = '多' in state.get('filters', {}).get('SOX', '')
+    sox_pass = '多頭' in state.get('filters', {}).get('SOX', '')
+
+# 3. 其他大盤維持現有邏輯，但升級「連X日」顯示
+s_twii = fetch_series("^TWII")
+success_twii, tw_pass, twii_txt = get_ma_state(s_twii, 10, 1)
+if success_twii: state['filters']['TWII'] = twii_txt
 
 s_btc = fetch_series("BTC-USD")
 success_btc, btc_pass, btc_txt = get_ma_state(s_btc, 120, 1)
@@ -231,8 +229,11 @@ for idx, t in enumerate(tw_pool, 1):
         if mom > -900:
             is_fixed = actual_t in tw_fixed_tickers
             status = "⭐️ 買進標的"
-            # 🎯 核心修改：00631L 濾網綁定為 SOX 10MA(連4日)
-            if is_fixed and not sox_10ma_state: status = "❌ 跌破SOX 10MA(連4日)"
+            
+            # 🎯 核心修正：00631L 與 00675L 現在完全聽命於「SOX 10MA(連4日)」
+            if is_fixed and not sox_10ma_state: 
+                status = "❌ 跌破SOX 10MA(連4日)"
+                
             tw_results.append({'ticker': actual_t, 'name': tw_names_map.get(t, actual_t), 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
     time.sleep(0.1)
 
@@ -272,6 +273,7 @@ for idx, t in enumerate(us_pool, 1):
         mom = calc_mom_us(s)
         if mom > -900:
             is_fixed = t in us_fixed_tickers
+            # 🎯 這裡的 sox_pass 就是原汁原味的 1M+3M 動能，完全沒動到
             if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
             elif t == 'USD': status = "⭐️ 買進標的"
             else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
@@ -299,12 +301,13 @@ def build_html_table(data_list):
     if not data_list: return "<tr><td colspan='6' style='text-align:center; color:#666;'>無資料...</td></tr>"
     rows = ""
     for idx, r in enumerate(data_list):
-        row_class = "buy-target" if "買進" in r['status'] else ("sell-pinned" if r.get('is_fixed') and "賣出" in r['status'] else "sell-target" if "賣出" in r['status'] else "")
+        row_class = "buy-target" if "買進" in r['status'] else ("sell-pinned" if r.get('is_fixed') and "賣出" in r['status'] else "sell-target" if "賣出" in r['status'] or "跌破" in r['status'] else "")
         pin_icon = "📌 釘住" if r.get('is_fixed') else f"{idx+1 - len([x for x in data_list if x.get('is_fixed')])}"
         rows += f"<tr class='{row_class}'><td>{pin_icon}</td><td><strong>{r['ticker']}</strong></td><td>{r['name']}</td><td>{r.get('price', 0):.2f}</td><td>{r['momentum']:.2f}%</td><td>{r['status']}</td></tr>"
     return rows
 
-ixic_txt = state.get('filters', {}).get('IXIC', '等待更新...')
+# 抓取獨立的三個標籤
+sox_10ma_txt = state.get('filters', {}).get('SOX_10MA', '等待更新...')
 twii_txt = state.get('filters', {}).get('TWII', '等待更新...')
 sox_txt = state.get('filters', {}).get('SOX', '等待更新...')
 btc_txt = state.get('filters', {}).get('BTC', '等待更新...')
@@ -340,14 +343,14 @@ web_html = f"""<!DOCTYPE html>
     <h1>🔬 跨市場多因子動能實驗室</h1>
     <div class="header-panel">
         <div style="margin-bottom: 10px; color: #8b949e; font-size: 14px;">大盤避險濾網狀態</div>
-        <div class="filter-tag">🇺🇸 納斯達克 | {ixic_txt}</div>
-        <div class="filter-tag">🇹🇼 加權指數 | {twii_txt}</div>
-        <div class="filter-tag">💻 費半指數 | {sox_txt}</div>
+        <div class="filter-tag">🇺🇸 費半 10MA濾網 | {sox_10ma_txt}</div>
+        <div class="filter-tag">🇹🇼 加權指數濾網 | {twii_txt}</div>
+        <div class="filter-tag">💻 費半動能濾網 | {sox_txt}</div>
     </div>
     <div class="header-panel" style="border: 1px solid #f85149;">
         <div style="margin-bottom: 10px; color: #ff7b72; font-size: 15px; font-weight: bold;">🚨 總體經濟與熊市警訊指標</div>
-        <div class="filter-tag macro-tag">₿ BTC 120MA | {btc_txt}</div>
-        <div class="filter-tag macro-tag">🥇 黃金 120MA | {gold_txt}</div>
+        <div class="filter-tag macro-tag">₿ BTC | {btc_txt}</div>
+        <div class="filter-tag macro-tag">🥇 黃金 | {gold_txt}</div>
         <div class="filter-tag macro-tag">🏦 金融壓力 (STLFSI4) | {stlfsi4_txt}</div>
         <div class="filter-tag macro-tag">🛡️ 美國 5 年期 CDS | {cds_txt}</div>
     </div>
@@ -400,9 +403,9 @@ email_html = f"""<!DOCTYPE html>
             <td style="padding: 10px 0;">
                 <div style="background-color: #161b22; border: 2px solid #30363d; padding: 15px; border-radius: 8px;">
                     <div style="color: #58a6ff; font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 8px;">📊 大盤避險濾網狀態</div>
-                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff;">🇺🇸 納斯達克 | <span style="color: #79c0ff;">{ixic_txt}</span></div>
+                    <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #58a6ff;">🇺🇸 費半 10MA | <span style="color: #79c0ff;">{sox_10ma_txt}</span></div>
                     <div style="padding: 12px; margin-bottom: 10px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #34d058;">🇹🇼 加權指數 | <span style="color: #56d44f;">{twii_txt}</span></div>
-                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70;">💻 費城半導體 | <span style="color: #ff9b57;">{sox_txt}</span></div>
+                    <div style="padding: 12px; background-color: #21262d; border-radius: 6px; color: #ffffff; font-size: 15px; border-left: 6px solid #ffab70;">💻 費半動能 | <span style="color: #ff9b57;">{sox_txt}</span></div>
                 </div>
                 
                 <div style="background-color: #2a1515; border: 2px solid #f85149; padding: 15px; border-radius: 8px; margin-top: 15px;">
