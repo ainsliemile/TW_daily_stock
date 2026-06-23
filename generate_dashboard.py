@@ -274,7 +274,7 @@ for idx, t in enumerate(us_pool, 1):
         if mom > -900:
             is_fixed = t in us_fixed_tickers
             # 🎯 這裡的 sox_pass 就是原汁原味的 1M+3M 動能，完全沒動到
-            if t == 'SOXL': status = "⭐️ 買進標的 (釘住)" if tw_pass else "❌ 跌破TWII濾網"
+            if t == 'SOXL': status = "⭐️ 買進標的" if tw_pass else "❌ 跌破TWII濾網"
             elif t == 'USD': status = "⭐️ 買進標的"
             else: status = "⭐️ 買進標的" if sox_pass else "❌ SOX動能轉弱"
             us_results.append({'ticker': t, 'name': us_names_map.get(t, t), 'price': float(s.iloc[-1]), 'momentum': mom, 'status': status, 'is_fixed': is_fixed})
