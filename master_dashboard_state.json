@@ -3,107 +3,107 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 45.35% (多頭)",
-    "BTC": "120MA: 60270.64 跌破 71243.00 (連29日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4027.50 跌破 4698.07 (連31日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 59530.24 跌破 71236.83 (連29日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 3991.10 跌破 4693.93 (連32日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 44571.76 跌破 45943.06 (連1日)",
+    "TWII": "10MA: 46125.91 突破 46099.04 (連1日)",
     "SOX_10MA": "10MA: 13709.66 跌破 13764.22 (連2日) | ✅多頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 36.279998779296875,
-      "momentum": 42.680755121737946,
+      "price": 38.41999816894531,
+      "momentum": 47.370505154514234,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 318.6000061035156,
-      "momentum": 39.20690206454244,
+      "price": 338.3999938964844,
+      "momentum": 45.476364434516285,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 30.59000015258789,
-      "momentum": 237.04043818683695,
+      "price": 30.8799991607666,
+      "momentum": 233.5496300072302,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2327.TW",
       "name": "國巨*",
-      "price": 1040.0,
-      "momentum": 170.4810797046668,
+      "price": 1140.0,
+      "momentum": 198.59375660995912,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3090.TW",
       "name": "日電貿",
-      "price": 304.0,
-      "momentum": 137.22600298139866,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3481.TW",
-      "name": "群創",
-      "price": 67.0,
-      "momentum": 110.96035388647665,
+      "price": 322.5,
+      "momentum": 137.86032472124967,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2493.TW",
       "name": "揚博",
-      "price": 266.0,
-      "momentum": 105.89415744510062,
+      "price": 292.5,
+      "momentum": 120.26087555066078,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "2303.TW",
-      "name": "聯電",
-      "price": 164.0,
-      "momentum": 98.63994781665548,
+      "ticker": "3481.TW",
+      "name": "群創",
+      "price": 68.69999694824219,
+      "momentum": 110.61528952374692,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "4958.TW",
       "name": "臻鼎-KY",
-      "price": 573.0,
-      "momentum": 91.37113332077887,
+      "price": 630.0,
+      "momentum": 99.47582942496183,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2303.TW",
+      "name": "聯電",
+      "price": 164.5,
+      "momentum": 99.22145516552037,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "1303.TW",
       "name": "南亞",
-      "price": 151.5,
-      "momentum": 84.97170680279265,
+      "price": 166.5,
+      "momentum": 97.05915675424986,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "2344.TW",
-      "name": "華邦電",
-      "price": 203.0,
-      "momentum": 76.76883362420013,
+      "ticker": "3189.TW",
+      "name": "景碩",
+      "price": 891.0,
+      "momentum": 87.67361111111111,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2409.TW",
       "name": "友達",
-      "price": 30.600000381469727,
-      "momentum": 75.54818795806084,
+      "price": 32.70000076293945,
+      "momentum": 84.62863050389227,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -122,7 +122,7 @@
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
       "price": 236.52000427246094,
       "momentum": 282.5766697315956,
-      "status": "❌ 跌破TWII濾網",
+      "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
@@ -145,7 +145,7 @@
       "ticker": "MU",
       "name": "Micron Technology",
       "price": 1145.280029296875,
-      "momentum": 181.52777681690847,
+      "momentum": 181.5277626177907,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-06-30 07:00:50",
-  "us_time": "2026-06-30 07:00:50"
+  "tw_time": "2026-06-30 14:00:55",
+  "us_time": "2026-06-30 14:00:55"
 }
