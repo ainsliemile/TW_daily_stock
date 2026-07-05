@@ -1,10 +1,10 @@
 {
-  "date": "2026-07-03",
+  "date": "2026-07-06",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 26.91% (多頭)",
-    "BTC": "120MA: 61613.25 跌破 70995.20 (連32日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4183.10 跌破 4685.65 (連35日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 63691.07 跌破 70853.08 (連35日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4197.20 跌破 4685.77 (連35日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 46780.62 突破 46338.24 (連4日)",
@@ -113,7 +113,7 @@
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
       "price": 87.51000213623047,
-      "momentum": 39.016828767873704,
+      "momentum": 39.01683268339624,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -161,7 +161,7 @@
       "ticker": "DELL",
       "name": "Dell Technologies",
       "price": 394.32000732421875,
-      "momentum": 111.55591319032546,
+      "momentum": 111.55590696996178,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -193,7 +193,7 @@
       "ticker": "WDC",
       "name": "Western Digital",
       "price": 539.0,
-      "momentum": 94.4002620102814,
+      "momentum": 94.40027086772153,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-07-03 14:01:02",
-  "us_time": "2026-07-03 14:01:02"
+  "tw_time": "2026-07-06 07:01:10",
+  "us_time": "2026-07-06 07:01:10"
 }
