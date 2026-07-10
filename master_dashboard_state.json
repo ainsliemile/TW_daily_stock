@@ -3,35 +3,35 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 26.34% (多頭)",
-    "BTC": "120MA: 63168.75 跌破 70670.34 (連39日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4131.20 跌破 4673.15 (連38日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 64055.46 跌破 70677.73 (連39日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4121.30 跌破 4669.02 (連39日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 45734.41 跌破 46026.65 (連2日)",
+    "TWII": "10MA: 45354.61 跌破 45936.59 (連3日)",
     "SOX_10MA": "10MA: 12960.00 跌破 13181.62 (連6日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 37.13999938964844,
-      "momentum": 35.92643470418323,
+      "price": 36.779998779296875,
+      "momentum": 32.51305266405209,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 322.5,
-      "momentum": 35.445365763570756,
+      "price": 321.0,
+      "momentum": 32.106502701345974,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 29.81999969482422,
-      "momentum": 243.2165211046505,
+      "price": 30.209999084472656,
+      "momentum": 241.79592974341858,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -113,7 +113,7 @@
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
       "price": 94.05000305175781,
-      "momentum": 44.404719439844904,
+      "momentum": 44.40472330516105,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -160,8 +160,8 @@
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 63.13999938964844,
-      "momentum": 102.34839970978025,
+      "price": 62.939998626708984,
+      "momentum": 101.70744572319902,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-07-10 07:01:05",
-  "us_time": "2026-07-10 07:01:05"
+  "tw_time": "2026-07-10 14:01:05",
+  "us_time": "2026-07-10 14:01:05"
 }
