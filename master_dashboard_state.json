@@ -1,29 +1,29 @@
 {
-  "date": "2026-07-23",
+  "date": "2026-07-24",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: 6.72% (多頭)",
-    "BTC": "120MA: 65681.14 跌破 69956.10 (連52日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4127.00 跌破 4598.97 (連48日) (⚠️ 熊市警訊)",
+    "SOX": "動能: 8.06% (多頭)",
+    "BTC": "120MA: 65149.99 跌破 69908.27 (連53日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4052.80 跌破 4598.35 (連48日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 44850.81 突破 44576.01 (連2日)",
-    "SOX_10MA": "10MA: 12410.67 突破 12338.78 (連2日) | ⚠️空頭確認"
+    "TWII": "10MA: 44825.78 突破 44664.37 (連1日)",
+    "SOX_10MA": "10MA: 12343.84 突破 12277.17 (連3日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 35.06999969482422,
-      "momentum": 11.968842615330876,
+      "price": 34.79999923706055,
+      "momentum": 7.561377935306446,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 304.0,
-      "momentum": 11.238520895223536,
+      "price": 301.75,
+      "momentum": 7.020484880340083,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 92.55000305175781,
-      "momentum": 29.66517023751369,
+      "price": 90.94000244140625,
+      "momentum": 26.233748386385614,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 160.99000549316406,
-      "momentum": 65.1690560583546,
+      "price": 157.5,
+      "momentum": 55.0863245196629,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 238.00999450683594,
-      "momentum": 263.5927923136377,
+      "price": 247.74000549316406,
+      "momentum": 266.2668591325885,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "DELL",
       "name": "Dell Technologies",
-      "price": 441.79998779296875,
-      "momentum": 137.91095979733444,
+      "price": 439.3399963378906,
+      "momentum": 132.5449273911854,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 61.95000076293945,
-      "momentum": 100.85378082570926,
+      "price": 61.7599983215332,
+      "momentum": 97.94084009396796,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "SNDK",
       "name": "Sandisk",
-      "price": 1599.27001953125,
-      "momentum": 100.09778688494333,
+      "price": 1610.3299560546875,
+      "momentum": 89.24057447587305,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "MU",
       "name": "Micron Technology",
-      "price": 959.47998046875,
-      "momentum": 85.26153290205379,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices",
-      "price": 552.3300170898438,
-      "momentum": 77.47658029984609,
+      "price": 990.2100219726562,
+      "momentum": 83.98262493853522,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "STX",
       "name": "Seagate Technology",
-      "price": 908.0999755859375,
-      "momentum": 74.87349729055482,
+      "price": 913.3599853515625,
+      "momentum": 70.54002182052005,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "DDOG",
-      "name": "Datadog",
-      "price": 245.77000427246094,
-      "momentum": 70.39138727365855,
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices",
+      "price": 539.6900024414062,
+      "momentum": 65.90361638369465,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
-      "price": 48.130001068115234,
-      "momentum": 68.5154850904496,
+      "price": 47.63999938964844,
+      "momentum": 64.58055938248349,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "FTNT",
-      "name": "Fortinet",
-      "price": 155.0500030517578,
-      "momentum": 64.65760187366776,
+      "ticker": "DDOG",
+      "name": "Datadog",
+      "price": 244.38999938964844,
+      "momentum": 64.56594202890834,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "DVA",
+      "name": "DaVita",
+      "price": 234.27000427246094,
+      "momentum": 61.717097729770956,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-07-23 14:00:48",
-  "us_time": "2026-07-23 14:00:48"
+  "tw_time": "2026-07-24 07:00:47",
+  "us_time": "2026-07-24 07:00:47"
 }
