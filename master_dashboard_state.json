@@ -3,8 +3,8 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 8.06% (多頭)",
-    "BTC": "120MA: 65401.51 跌破 69843.74 (連56日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4088.80 跌破 4588.47 (連50日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 65114.38 跌破 69836.23 (連57日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4091.20 跌破 4588.49 (連50日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 43634.19 跌破 44403.97 (連1日)",
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-07-27 14:00:46",
-  "us_time": "2026-07-27 14:00:46"
+  "tw_time": "2026-07-27 16:12:16",
+  "us_time": "2026-07-27 16:12:16"
 }
