@@ -15,6 +15,7 @@ from urllib3.util.retry import Retry
 
 warnings.filterwarnings('ignore')
 
+
 # ==========================================
 # 📧 寄信通知功能設定
 # ==========================================
