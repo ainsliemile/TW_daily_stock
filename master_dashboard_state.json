@@ -2,108 +2,108 @@
   "date": "2026-07-29",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -7.94% (空頭)",
-    "BTC": "120MA: 63679.49 跌破 69799.55 (連58日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4015.80 跌破 4580.95 (連51日) (⚠️ 熊市警訊)",
+    "SOX": "動能: -5.19% (空頭)",
+    "BTC": "120MA: 63954.23 跌破 69801.84 (連58日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4032.00 跌破 4573.72 (連52日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 43634.19 跌破 44403.97 (連1日)",
-    "SOX_10MA": "10MA: 11035.68 跌破 12004.73 (連2日) | ⚠️空頭確認"
+    "TWII": "10MA: 40039.18 跌破 43358.70 (連4日)",
+    "SOX_10MA": "10MA: 11035.68 跌破 11920.42 (連3日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 33.540000915527344,
-      "momentum": 4.178129687271692,
+      "price": 28.530000686645508,
+      "momentum": -13.374019025459905,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 290.04998779296875,
-      "momentum": 3.330698474295546,
+      "price": 244.75,
+      "momentum": -14.994628485640488,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "2466.TW",
       "name": "冠西電",
-      "price": 94.5999984741211,
-      "momentum": 67.9245883733524,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "6446.TW",
-      "name": "藥華藥",
-      "price": 1115.0,
-      "momentum": 48.119931525337755,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "2059.TW",
-      "name": "川湖",
-      "price": 7450.0,
-      "momentum": 45.98396341765084,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "1303.TW",
-      "name": "南亞",
-      "price": 157.0,
-      "momentum": 40.1983024410171,
+      "price": 89.80000305175781,
+      "momentum": 45.02795593305087,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "6505.TW",
       "name": "台塑化",
-      "price": 74.5999984741211,
-      "momentum": 39.563174068490156,
+      "price": 74.80000305175781,
+      "momentum": 38.7099299175383,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "6446.TW",
+      "name": "藥華藥",
+      "price": 1080.0,
+      "momentum": 37.433413645177424,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2059.TW",
+      "name": "川湖",
+      "price": 7145.0,
+      "momentum": 34.41680602006689,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2395.TW",
       "name": "研華",
-      "price": 556.0,
-      "momentum": 37.47977813660135,
+      "price": 550.0,
+      "momentum": 33.8489584450284,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "4916.TW",
-      "name": "事欣科",
-      "price": 97.0999984741211,
-      "momentum": 28.77422665804683,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3481.TW",
-      "name": "群創",
-      "price": 45.0,
-      "momentum": 28.118559141840915,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "2408.TW",
-      "name": "南亞科",
-      "price": 392.5,
-      "momentum": 26.35868913727505,
+      "ticker": "2357.TW",
+      "name": "華碩",
+      "price": 761.0,
+      "momentum": 26.668117703063054,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2887.TW",
       "name": "台新新光金",
-      "price": 33.95000076293945,
-      "momentum": 25.834896426053955,
+      "price": 32.599998474121094,
+      "momentum": 21.455914270341957,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "1303.TW",
+      "name": "南亞",
+      "price": 141.5,
+      "momentum": 20.308542152386842,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2883.TW",
+      "name": "凱基金",
+      "price": 29.149999618530273,
+      "momentum": 20.294227141063146,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "3481.TW",
+      "name": "群創",
+      "price": 41.79999923706055,
+      "momentum": 19.70261897866972,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -129,7 +129,7 @@
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
       "price": 238.05999755859375,
-      "momentum": 267.820012682157,
+      "momentum": 268.8503649240337,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -144,8 +144,8 @@
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 60.0,
-      "momentum": 86.20151155728728,
+      "price": 60.11000061035156,
+      "momentum": 87.30157695787796,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -153,7 +153,7 @@
       "ticker": "DVA",
       "name": "DaVita",
       "price": 239.4600067138672,
-      "momentum": 63.80135961793173,
+      "momentum": 64.21649203489879,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -174,18 +174,18 @@
       "is_fixed": false
     },
     {
-      "ticker": "NTAP",
-      "name": "NetApp",
-      "price": 174.52999877929688,
-      "momentum": 51.63074687923851,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
       "ticker": "FTNT",
       "name": "Fortinet",
       "price": 149.97999572753906,
       "momentum": 51.56948194617813,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "NTAP",
+      "name": "NetApp",
+      "price": 174.52999877929688,
+      "momentum": 51.447334578601286,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-07-29 07:00:52",
-  "us_time": "2026-07-29 07:00:52"
+  "tw_time": "2026-07-29 14:00:47",
+  "us_time": "2026-07-29 14:00:47"
 }
