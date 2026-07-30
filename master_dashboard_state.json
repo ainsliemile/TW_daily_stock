@@ -1,29 +1,29 @@
 {
-  "date": "2026-07-30",
+  "date": "2026-07-31",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -9.85% (空頭)",
-    "BTC": "120MA: 63940.74 跌破 69765.38 (連59日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4090.40 跌破 4567.32 (連53日) (⚠️ 熊市警訊)",
+    "SOX": "動能: -5.31% (空頭)",
+    "BTC": "120MA: 64766.78 跌破 69737.51 (連60日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4169.00 跌破 4567.97 (連53日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 39933.30 跌破 42789.53 (連5日)",
-    "SOX_10MA": "10MA: 10447.49 跌破 11725.28 (連4日) | ⚠️空頭確認"
+    "TWII": "10MA: 40039.18 跌破 43358.70 (連4日)",
+    "SOX_10MA": "10MA: 11302.99 跌破 11668.83 (連5日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 28.3799991607666,
-      "momentum": -14.459711288338994,
+      "price": 28.530000686645508,
+      "momentum": -13.374019025459905,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 242.25,
-      "momentum": -16.171155772974306,
+      "price": 244.75,
+      "momentum": -14.994628485640488,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 68.77999877929688,
-      "momentum": -7.689077840893783,
+      "price": 77.56999969482422,
+      "momentum": 0.47405379639133827,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 91.98999786376953,
-      "momentum": -11.844513071023172,
+      "price": 114.72000122070312,
+      "momentum": 1.3111198314556352,
       "status": "❌ 跌破TWII濾網",
       "is_fixed": true
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 257.0,
-      "momentum": 275.15490643031075,
+      "price": 263.9010009765625,
+      "momentum": 287.9131531385938,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "DELL",
       "name": "Dell Technologies",
-      "price": 369.6400146484375,
-      "momentum": 97.66886266820215,
+      "price": 404.80999755859375,
+      "momentum": 112.60849548905476,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 57.95000076293945,
-      "momentum": 83.53859273327974,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "DVA",
-      "name": "DaVita",
-      "price": 240.9600067138672,
-      "momentum": 66.13404001146755,
+      "price": 57.16999816894531,
+      "momentum": 78.6030899012335,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "DDOG",
       "name": "Datadog",
-      "price": 264.20001220703125,
-      "momentum": 66.09417975013656,
+      "price": 268.55999755859375,
+      "momentum": 64.88721285039193,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
-      "price": 44.439998626708984,
-      "momentum": 55.73470313506542,
+      "price": 47.13999938964844,
+      "momentum": 63.57810942623496,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "DVA",
+      "name": "DaVita",
+      "price": 238.86000061035156,
+      "momentum": 63.37085074921106,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "FTNT",
       "name": "Fortinet",
-      "price": 153.22000122070312,
-      "momentum": 54.9486877793135,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "NTAP",
-      "name": "NetApp",
-      "price": 173.22999572753906,
-      "momentum": 49.121696096892364,
+      "price": 154.25,
+      "momentum": 55.822619155447484,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "PANW",
       "name": "Palo Alto Networks",
-      "price": 314.1499938964844,
-      "momentum": 46.465171946590125,
+      "price": 325.67999267578125,
+      "momentum": 50.716888877236165,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
-      "ticker": "MPC",
-      "name": "Marathon Petroleum",
-      "price": 308.7200012207031,
-      "momentum": 44.54380740085357,
+      "ticker": "NTAP",
+      "name": "NetApp",
+      "price": 173.97999572753906,
+      "momentum": 49.98708208733464,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "price": 874.6599731445312,
+      "momentum": 48.5243340156569,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-07-30 14:00:44",
-  "us_time": "2026-07-30 14:00:44"
+  "tw_time": "2026-07-31 07:00:42",
+  "us_time": "2026-07-31 07:00:42"
 }
