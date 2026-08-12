@@ -1,29 +1,29 @@
 {
-  "date": "2026-08-12",
+  "date": "2026-08-13",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -0.94% (空頭)",
-    "BTC": "120MA: 63732.99 跌破 69092.61 (連72日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4445.80 跌破 4511.80 (連62日) (⚠️ 熊市警訊)",
+    "SOX": "動能: 1.87% (多頭)",
+    "BTC": "120MA: 63363.00 跌破 69000.94 (連73日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 4459.40 跌破 4511.92 (連62日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 45518.07 突破 43860.19 (連9日)",
-    "SOX_10MA": "10MA: 12098.47 突破 11717.79 (連6日) | ✅多頭確認"
+    "TWII": "10MA: 45120.72 突破 43312.30 (連8日)",
+    "SOX_10MA": "10MA: 12399.38 突破 11912.97 (連7日) | ✅多頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 35.45000076293945,
-      "momentum": 3.7388497047768032,
+      "price": 34.869998931884766,
+      "momentum": 2.0415656008176297,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 308.3500061035156,
-      "momentum": 4.075143594057229,
+      "price": 302.8500061035156,
+      "momentum": 2.218768441026908,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 89.29000091552734,
-      "momentum": 14.749760997027414,
+      "price": 93.83000183105469,
+      "momentum": 20.432988364324803,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 133.0,
-      "momentum": 19.328819010152998,
+      "price": 142.16000366210938,
+      "momentum": 29.104179973370687,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 312.2200012207031,
-      "momentum": 271.9925402117033,
-      "status": "❌ SOX動能轉弱",
+      "price": 341.14300537109375,
+      "momentum": 300.1486936858095,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "DELL",
       "name": "Dell Technologies",
-      "price": 457.8800048828125,
-      "momentum": 120.52747470762537,
-      "status": "❌ SOX動能轉弱",
+      "price": 484.5,
+      "momentum": 131.83109937002885,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 72.47000122070312,
-      "momentum": 115.67815760278808,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "PANW",
-      "name": "Palo Alto Networks",
-      "price": 385.0400085449219,
-      "momentum": 81.68080410952663,
-      "status": "❌ SOX動能轉弱",
+      "price": 73.7699966430664,
+      "momentum": 120.59968776585761,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
-      "price": 54.68000030517578,
-      "momentum": 73.78320406251123,
-      "status": "❌ SOX動能轉弱",
+      "price": 58.790000915527344,
+      "momentum": 87.12210078741572,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "CRWD",
-      "name": "CrowdStrike",
-      "price": 225.16000366210938,
-      "momentum": 72.88753366943142,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "NTAP",
-      "name": "NetApp",
-      "price": 198.47000122070312,
-      "momentum": 61.0510252416233,
-      "status": "❌ SOX動能轉弱",
+      "ticker": "PANW",
+      "name": "Palo Alto Networks",
+      "price": 387.010009765625,
+      "momentum": 74.33374295810263,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "AXTI",
       "name": "AXT, Inc.",
-      "price": 73.77999877929688,
-      "momentum": 56.84706442759997,
-      "status": "❌ SOX動能轉弱",
+      "price": 78.47000122070312,
+      "momentum": 74.13700590518685,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "NTAP",
+      "name": "NetApp",
+      "price": 202.0500030517578,
+      "momentum": 60.9818283605228,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "CRWD",
+      "name": "CrowdStrike",
+      "price": 221.77999877929688,
+      "momentum": 60.75423377490567,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "price": 911.2899780273438,
+      "momentum": 51.95981843578489,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "ZBRA",
       "name": "Zebra Technologies",
-      "price": 383.05999755859375,
-      "momentum": 56.2586199421648,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "DDOG",
-      "name": "Datadog",
-      "price": 260.7799987792969,
-      "momentum": 55.00978523158988,
-      "status": "❌ SOX動能轉弱",
+      "price": 378.3699951171875,
+      "momentum": 49.808280480625825,
+      "status": "⭐️ 買進標的",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-08-12 14:00:46",
-  "us_time": "2026-08-12 14:00:46"
+  "tw_time": "2026-08-13 07:00:39",
+  "us_time": "2026-08-13 07:00:39"
 }
