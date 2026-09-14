@@ -3,107 +3,107 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: -7.44% (空頭)",
-    "BTC": "120MA: 76676.77 突破 68169.08 (連26日) (✅ 安全)",
-    "GOLD": "120MA: 4376.40 跌破 4405.02 (連3日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 77574.01 突破 68176.56 (連26日) (✅ 安全)",
+    "GOLD": "120MA: 4367.80 跌破 4404.95 (連3日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 46184.85 跌破 46639.14 (連1日)",
+    "TWII": "10MA: 45862.52 跌破 46612.55 (連2日)",
     "SOX_10MA": "10MA: 11824.00 突破 11597.73 (連5日) | ✅多頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 35.97999954223633,
-      "momentum": -1.8973085364718145,
+      "price": 35.400001525878906,
+      "momentum": -2.965907409659213,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 313.70001220703125,
-      "momentum": -2.2282759121285247,
+      "price": 309.70001220703125,
+      "momentum": -3.2858030556033313,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "2466.TW",
       "name": "冠西電",
-      "price": 106.0,
-      "momentum": 67.7672243132152,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "1303.TW",
-      "name": "南亞",
-      "price": 234.5,
-      "momentum": 62.73453937310735,
+      "price": 103.0,
+      "momentum": 65.04161045703331,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "00715L.TW",
       "name": "期街口布蘭特正2",
-      "price": 70.6500015258789,
-      "momentum": 56.577672243597334,
+      "price": 70.5,
+      "momentum": 60.467788167757,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "3008.TW",
-      "name": "大立光",
-      "price": 6660.0,
-      "momentum": 47.48673490993052,
+      "ticker": "1303.TW",
+      "name": "南亞",
+      "price": 234.0,
+      "momentum": 58.61586822473441,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "6505.TW",
       "name": "台塑化",
-      "price": 83.5999984741211,
-      "momentum": 40.0917617791792,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3653.TW",
-      "name": "健策",
-      "price": 5765.0,
-      "momentum": 37.819513823908515,
+      "price": 82.80000305175781,
+      "momentum": 38.73538670635923,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2059.TW",
       "name": "川湖",
-      "price": 12080.0,
-      "momentum": 36.6284080057897,
+      "price": 11990.0,
+      "momentum": 38.597522183085786,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "3653.TW",
+      "name": "健策",
+      "price": 5820.0,
+      "momentum": 37.297999835674545,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2615.TW",
       "name": "萬海",
-      "price": 112.0,
-      "momentum": 33.58713959422721,
+      "price": 113.0,
+      "momentum": 34.293391875400125,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "2884.TW",
       "name": "玉山金",
-      "price": 46.29999923706055,
-      "momentum": 31.705420609042623,
+      "price": 46.349998474121094,
+      "momentum": 30.18075333248966,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "3324.TWO",
-      "name": "雙鴻",
-      "price": 1360.0,
-      "momentum": 30.894528817126442,
+      "ticker": "2883.TW",
+      "name": "凱基金",
+      "price": 38.79999923706055,
+      "momentum": 28.89520528367614,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2887.TW",
+      "name": "台新新光金",
+      "price": 43.54999923706055,
+      "momentum": 27.785475530489222,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-09-14 07:00:56",
-  "us_time": "2026-09-14 07:00:56"
+  "tw_time": "2026-09-14 14:00:58",
+  "us_time": "2026-09-14 14:00:58"
 }
