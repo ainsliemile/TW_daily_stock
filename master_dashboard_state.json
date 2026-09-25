@@ -3,11 +3,11 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 1.09% (多頭)",
-    "BTC": "120MA: 84275.59 突破 68573.07 (連37日) (✅ 安全)",
-    "GOLD": "120MA: 4307.10 跌破 4416.04 (連11日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 84166.69 突破 68572.16 (連37日) (✅ 安全)",
+    "GOLD": "120MA: 4305.60 跌破 4412.80 (連12日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 48157.29 突破 46687.65 (連3日)",
+    "TWII": "10MA: 48024.60 突破 46771.77 (連4日)",
     "SOX_10MA": "10MA: 12492.54 突破 11797.23 (連5日) | ✅多頭確認"
   },
   "tw_data": [
@@ -144,8 +144,8 @@
     {
       "ticker": "LNVGY",
       "name": "Lenovo Group Limited",
-      "price": 91.83999633789062,
-      "momentum": 125.26621174482362,
+      "price": 92.0,
+      "momentum": 125.65867058918234,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -161,7 +161,7 @@
       "ticker": "DELL",
       "name": "Dell Technologies",
       "price": 536.02001953125,
-      "momentum": 80.84397422748746,
+      "momentum": 80.84398235606459,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -193,7 +193,7 @@
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
       "price": 63.52000045776367,
-      "momentum": 67.73471208557119,
+      "momentum": 67.73471822863662,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-09-25 07:00:52",
-  "us_time": "2026-09-25 07:00:52"
+  "tw_time": "2026-09-25 14:01:29",
+  "us_time": "2026-09-25 14:01:29"
 }
