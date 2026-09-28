@@ -3,8 +3,8 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 2.53% (多頭)",
-    "BTC": "120MA: 84228.08 突破 68840.64 (連40日) (✅ 安全)",
-    "GOLD": "120MA: 4294.60 跌破 4409.68 (連13日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 83138.24 突破 68831.56 (連40日) (✅ 安全)",
+    "GOLD": "120MA: 4214.00 跌破 4409.01 (連13日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 48024.60 突破 46857.74 (連5日)",
@@ -193,7 +193,7 @@
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
       "price": 62.939998626708984,
-      "momentum": 70.34505896250467,
+      "momentum": 70.34506539913534,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-09-28 07:00:51",
-  "us_time": "2026-09-28 07:00:51"
+  "tw_time": "2026-09-28 14:00:46",
+  "us_time": "2026-09-28 14:00:46"
 }
