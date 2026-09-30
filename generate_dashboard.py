@@ -44,6 +44,7 @@ def send_email_notify(subject, html_body):
     except Exception as e:
         print(f"❌ Email 發送失敗: {e}")
 
+
 # ==========================================
 # 🌟 初始化設定 & 極速 Session
 # ==========================================
