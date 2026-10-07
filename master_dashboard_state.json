@@ -3,43 +3,43 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 8.87% (多頭)",
-    "BTC": "120MA: 85527.22 突破 70301.29 (連49日) (✅ 安全)",
-    "GOLD": "120MA: 4190.00 跌破 4377.41 (連19日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 84300.01 突破 70291.07 (連49日) (✅ 安全)",
+    "GOLD": "120MA: 4162.80 跌破 4372.01 (連20日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 49712.04 突破 48099.50 (連10日)",
+    "TWII": "10MA: 49806.37 突破 48572.43 (連12日)",
     "SOX_10MA": "10MA: 13217.82 突破 12777.50 (連14日) | ✅多頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 41.540000915527344,
-      "momentum": 11.406848610635855,
+      "price": 41.75,
+      "momentum": 15.082955986242396,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 364.45001220703125,
-      "momentum": 11.412138940553119,
+      "price": 366.25,
+      "momentum": 15.671253774204008,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "2466.TW",
       "name": "冠西電",
-      "price": 170.5,
-      "momentum": 82.08375873138513,
+      "price": 180.5,
+      "momentum": 85.98705058919262,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "3653.TW",
-      "name": "健策",
-      "price": 7080.0,
-      "momentum": 74.53147273775882,
+      "ticker": "3443.TW",
+      "name": "創意",
+      "price": 8460.0,
+      "momentum": 68.94187138163042,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -47,63 +47,63 @@
       "ticker": "00715L.TW",
       "name": "期街口布蘭特正2",
       "price": 69.9000015258789,
-      "momentum": 68.92047448063079,
+      "momentum": 68.00800132599372,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "3443.TW",
-      "name": "創意",
-      "price": 8375.0,
-      "momentum": 65.6692580049261,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "1303.TW",
-      "name": "南亞",
-      "price": 293.0,
-      "momentum": 54.70238859490906,
+      "ticker": "3653.TW",
+      "name": "健策",
+      "price": 6805.0,
+      "momentum": 64.90320650968782,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "6505.TW",
       "name": "台塑化",
-      "price": 101.5,
-      "momentum": 53.839869281045736,
+      "price": 107.0,
+      "momentum": 58.56925970662565,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "1303.TW",
+      "name": "南亞",
+      "price": 314.0,
+      "momentum": 55.88679613069858,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3037.TW",
       "name": "欣興",
-      "price": 1310.0,
-      "momentum": 48.94043749677552,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3189.TW",
-      "name": "景碩",
-      "price": 1070.0,
-      "momentum": 46.907076114006664,
+      "price": 1305.0,
+      "momentum": 47.94758910930519,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "1560.TW",
       "name": "中砂",
-      "price": 1030.0,
-      "momentum": 46.49792981138396,
+      "price": 1020.0,
+      "momentum": 46.93711161428239,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3701.TW",
       "name": "大眾控",
-      "price": 59.29999923706055,
-      "momentum": 42.90130906726436,
+      "price": 61.099998474121094,
+      "momentum": 45.04700999642345,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "6805.TW",
+      "name": "富世達",
+      "price": 2455.0,
+      "momentum": 44.40362057297541,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -130,14 +130,6 @@
       "name": "Breakwave Tanker Shipping ETF",
       "price": 949.5,
       "momentum": 343.6337193337215,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "ETHA",
-      "name": "iShares Ethereum Trust ETF",
-      "price": 60.88999938964844,
-      "momentum": 291.66326504641495,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -204,8 +196,16 @@
       "momentum": 68.05867438232049,
       "status": "⭐️ 買進標的",
       "is_fixed": false
+    },
+    {
+      "ticker": "NTAP",
+      "name": "NetApp",
+      "price": 228.4499969482422,
+      "momentum": 65.46253607864526,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-07 07:00:57",
-  "us_time": "2026-10-07 07:00:57"
+  "tw_time": "2026-10-07 14:00:51",
+  "us_time": "2026-10-07 14:00:51"
 }
