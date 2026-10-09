@@ -3,11 +3,11 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: 1.58% (多頭)",
-    "BTC": "120MA: 81833.20 突破 70651.68 (連51日) (✅ 安全)",
-    "GOLD": "120MA: 4165.00 跌破 4365.87 (連21日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 82321.25 突破 70655.75 (連51日) (✅ 安全)",
+    "GOLD": "120MA: 4225.30 跌破 4360.78 (連22日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 49806.37 突破 48572.43 (連12日)",
+    "TWII": "10MA: 49313.44 突破 48723.76 (連13日)",
     "SOX_10MA": "10MA: 12623.71 跌破 12843.80 (連1日) | ✅多頭確認"
   },
   "tw_data": [
@@ -142,18 +142,18 @@
       "is_fixed": false
     },
     {
-      "ticker": "DELL",
-      "name": "Dell Technologies",
-      "price": 574.5499877929688,
-      "momentum": 85.9269855259918,
+      "ticker": "LNVGY",
+      "name": "Lenovo Group Limited",
+      "price": 81.98999786376953,
+      "momentum": 86.54700614955365,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "LNVGY",
-      "name": "Lenovo Group Limited",
-      "price": 81.4000015258789,
-      "momentum": 85.20462228151683,
+      "ticker": "DELL",
+      "name": "Dell Technologies",
+      "price": 574.5499877929688,
+      "momentum": 85.9269855259918,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-09 07:00:50",
-  "us_time": "2026-10-09 07:00:50"
+  "tw_time": "2026-10-09 14:00:46",
+  "us_time": "2026-10-09 14:00:46"
 }
