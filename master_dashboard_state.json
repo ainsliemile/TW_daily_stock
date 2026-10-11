@@ -1,29 +1,29 @@
 {
-  "date": "2026-10-09",
+  "date": "2026-10-12",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: 1.58% (多頭)",
-    "BTC": "120MA: 82321.25 突破 70655.75 (連51日) (✅ 安全)",
-    "GOLD": "120MA: 4225.30 跌破 4360.78 (連22日) (⚠️ 熊市警訊)",
+    "SOX": "動能: 5.03% (多頭)",
+    "BTC": "120MA: 83580.93 突破 71129.65 (連54日) (✅ 安全)",
+    "GOLD": "120MA: 4212.00 跌破 4356.47 (連23日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 49313.44 突破 48723.76 (連13日)",
-    "SOX_10MA": "10MA: 12623.71 跌破 12843.80 (連1日) | ✅多頭確認"
+    "SOX_10MA": "10MA: 12572.42 跌破 12834.15 (連2日) | ✅多頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 41.75,
-      "momentum": 13.103936587275399,
+      "price": 40.900001525878906,
+      "momentum": 9.10527297855339,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 366.25,
-      "momentum": 13.460963748883614,
+      "price": 357.75,
+      "momentum": 9.221690283577654,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -44,14 +44,6 @@
       "is_fixed": false
     },
     {
-      "ticker": "00715L.TW",
-      "name": "期街口布蘭特正2",
-      "price": 69.9000015258789,
-      "momentum": 66.96874978549974,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
       "ticker": "3443.TW",
       "name": "創意",
       "price": 8360.0,
@@ -64,6 +56,14 @@
       "name": "台塑化",
       "price": 110.5,
       "momentum": 62.33592750059862,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00715L.TW",
+      "name": "期街口布蘭特正2",
+      "price": 71.4000015258789,
+      "momentum": 57.86937012107391,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 96.02999877929688,
-      "momentum": 23.261353233952487,
+      "price": 94.83999633789062,
+      "momentum": 23.99558795493506,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 142.52000427246094,
-      "momentum": 28.53627700489841,
+      "price": 139.75999450683594,
+      "momentum": 29.485491095512025,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 1012.75,
-      "momentum": 322.4902629760786,
+      "price": 998.2999877929688,
+      "momentum": 313.16058717203833,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "MRNA",
       "name": "Moderna",
-      "price": 197.0,
-      "momentum": 172.66501369705924,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "LNVGY",
-      "name": "Lenovo Group Limited",
-      "price": 81.98999786376953,
-      "momentum": 86.54700614955365,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "DELL",
-      "name": "Dell Technologies",
-      "price": 574.5499877929688,
-      "momentum": 85.9269855259918,
+      "price": 225.0,
+      "momentum": 213.99464287589728,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "HPE",
       "name": "Hewlett Packard Enterprise",
-      "price": 71.0,
-      "momentum": 84.99854618288306,
+      "price": 73.45999908447266,
+      "momentum": 95.3386311019281,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "DELL",
+      "name": "Dell Technologies",
+      "price": 586.0599975585938,
+      "momentum": 94.76871683719796,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "LNVGY",
+      "name": "Lenovo Group Limited",
+      "price": 84.38999938964844,
+      "momentum": 93.52334434026727,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "CRWD",
       "name": "CrowdStrike",
-      "price": 263.010009765625,
-      "momentum": 77.87861177758982,
+      "price": 275.0400085449219,
+      "momentum": 89.43954265677503,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "DDOG",
+      "name": "Datadog",
+      "price": 293.260009765625,
+      "momentum": 74.42291105275375,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "NTAP",
       "name": "NetApp",
-      "price": 231.0500030517578,
-      "momentum": 68.04322832200317,
+      "price": 237.14999389648438,
+      "momentum": 74.32380571982785,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices",
-      "price": 620.6799926757812,
-      "momentum": 64.21772962918416,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "MPC",
-      "name": "Marathon Petroleum",
-      "price": 463.3399963378906,
-      "momentum": 62.79840658554724,
+      "ticker": "PANW",
+      "name": "Palo Alto Networks",
+      "price": 418.7799987792969,
+      "momentum": 73.14065996886653,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "ILMN",
       "name": "Illumina, Inc.",
-      "price": 264.57000732421875,
-      "momentum": 60.697246908712955,
+      "price": 278.1700134277344,
+      "momentum": 71.53326078371913,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-09 14:00:46",
-  "us_time": "2026-10-09 14:00:46"
+  "tw_time": "2026-10-12 07:00:51",
+  "us_time": "2026-10-12 07:00:51"
 }
