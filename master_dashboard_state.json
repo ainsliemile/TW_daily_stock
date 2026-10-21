@@ -1,29 +1,29 @@
 {
-  "date": "2026-10-21",
+  "date": "2026-10-22",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -9.16% (空頭)",
-    "BTC": "120MA: 82583.31 突破 72447.25 (連63日) (✅ 安全)",
-    "GOLD": "120MA: 4140.10 跌破 4326.03 (連30日) (⚠️ 熊市警訊)",
+    "SOX": "動能: -8.06% (空頭)",
+    "BTC": "120MA: 84436.62 突破 72631.64 (連64日) (✅ 安全)",
+    "GOLD": "120MA: 4148.30 跌破 4326.09 (連30日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 46887.77 跌破 47947.28 (連7日)",
-    "SOX_10MA": "10MA: 11283.81 跌破 11971.09 (連9日) | ⚠️空頭確認"
+    "TWII": "10MA: 46292.93 跌破 48240.76 (連6日)",
+    "SOX_10MA": "10MA: 11505.56 跌破 11815.03 (連10日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 36.61000061035156,
-      "momentum": 8.572445198163658,
+      "price": 35.869998931884766,
+      "momentum": 6.377859283320264,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 320.04998779296875,
-      "momentum": 9.660141652524922,
+      "price": 313.0,
+      "momentum": 7.244573180372315,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -94,8 +94,8 @@
     {
       "ticker": "00715L.TW",
       "name": "期街口布蘭特正2",
-      "price": 82.3499984741211,
-      "momentum": 41.53759408808464,
+      "price": 82.55000305175781,
+      "momentum": 41.88134839591503,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 78.8499984741211,
-      "momentum": -6.386379689941091,
+      "price": 82.01000213623047,
+      "momentum": -4.854854351718622,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 97.55000305175781,
-      "momentum": -23.691871143578435,
+      "price": 103.23999786376953,
+      "momentum": -22.89073504256651,
       "status": "❌ 跌破TWII濾網",
       "is_fixed": true
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 801.2000122070312,
-      "momentum": 240.2140184488875,
+      "price": 799.9600219726562,
+      "momentum": 254.9740779220753,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "MRNA",
       "name": "Moderna",
-      "price": 242.0800018310547,
-      "momentum": 234.41678778169148,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "MPC",
-      "name": "Marathon Petroleum",
-      "price": 475.0400085449219,
-      "momentum": 61.961276566447374,
+      "price": 245.80999755859375,
+      "momentum": 235.94827120059728,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "VEEV",
       "name": "Veeva Systems",
-      "price": 318.6700134277344,
-      "momentum": 61.51565469411441,
+      "price": 320.54998779296875,
+      "momentum": 65.69271232775745,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "MPC",
+      "name": "Marathon Petroleum",
+      "price": 467.9800109863281,
+      "momentum": 60.8288410846237,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "ILMN",
       "name": "Illumina, Inc.",
-      "price": 267.92999267578125,
-      "momentum": 51.85671698068995,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "PTC",
-      "name": "PTC Inc.",
-      "price": 193.35000610351562,
-      "momentum": 50.35378978935222,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "VLO",
-      "name": "Valero Energy",
-      "price": 433.4200134277344,
-      "momentum": 45.818981646931285,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "PSX",
-      "name": "Phillips 66",
-      "price": 291.0299987792969,
-      "momentum": 44.827173126197536,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "CURE",
-      "name": "Direxion Daily Healthcare Bull 3X Shares",
-      "price": 154.99000549316406,
-      "momentum": 43.40537201843564,
+      "price": 282.8599853515625,
+      "momentum": 58.24738004314801,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "CRL",
       "name": "Charles River Laboratories",
-      "price": 315.45001220703125,
-      "momentum": 43.19402045417376,
+      "price": 344.8699951171875,
+      "momentum": 52.66202602028852,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "PTC",
+      "name": "PTC Inc.",
+      "price": 194.3800048828125,
+      "momentum": 49.6782773836945,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "VLO",
+      "name": "Valero Energy",
+      "price": 436.75,
+      "momentum": 49.13370670966518,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "NTAP",
+      "name": "NetApp",
+      "price": 217.2100067138672,
+      "momentum": 47.254915738956285,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "PSX",
+      "name": "Phillips 66",
+      "price": 290.07000732421875,
+      "momentum": 45.56287380462067,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-21 14:00:50",
-  "us_time": "2026-10-21 14:00:50"
+  "tw_time": "2026-10-22 07:00:56",
+  "us_time": "2026-10-22 07:00:56"
 }
