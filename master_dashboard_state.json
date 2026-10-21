@@ -3,107 +3,107 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: -9.16% (空頭)",
-    "BTC": "120MA: 82987.85 突破 72450.62 (連63日) (✅ 安全)",
-    "GOLD": "120MA: 4140.50 跌破 4330.09 (連29日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 82583.31 突破 72447.25 (連63日) (✅ 安全)",
+    "GOLD": "120MA: 4140.10 跌破 4326.03 (連30日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 46822.08 跌破 48582.67 (連5日)",
+    "TWII": "10MA: 46887.77 跌破 47947.28 (連7日)",
     "SOX_10MA": "10MA: 11283.81 跌破 11971.09 (連9日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 36.5099983215332,
-      "momentum": 8.768781467164954,
+      "price": 36.61000061035156,
+      "momentum": 8.572445198163658,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 319.1000061035156,
-      "momentum": 9.327127111389178,
+      "price": 320.04998779296875,
+      "momentum": 9.660141652524922,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "2466.TW",
       "name": "冠西電",
-      "price": 226.0,
-      "momentum": 103.61182934712345,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3653.TW",
-      "name": "健策",
-      "price": 6650.0,
-      "momentum": 68.00559902232467,
+      "price": 248.5,
+      "momentum": 126.51612236461347,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "3443.TW",
       "name": "創意",
-      "price": 7745.0,
-      "momentum": 66.16791053657711,
+      "price": 8000.0,
+      "momentum": 58.74380783250772,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "3653.TW",
+      "name": "健策",
+      "price": 6535.0,
+      "momentum": 54.42080298425442,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "6209.TW",
       "name": "今國光",
-      "price": 112.0,
-      "momentum": 56.239339677419274,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3701.TW",
-      "name": "大眾控",
-      "price": 58.400001525878906,
-      "momentum": 49.94334887943902,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00715L.TW",
-      "name": "期街口布蘭特正2",
-      "price": 80.19999694824219,
-      "momentum": 47.29882181712641,
+      "price": 110.0,
+      "momentum": 52.45569002276555,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "1303.TW",
       "name": "南亞",
-      "price": 296.0,
-      "momentum": 45.427996936039825,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "6805.TW",
-      "name": "富世達",
-      "price": 2290.0,
-      "momentum": 44.34324633296052,
+      "price": 320.5,
+      "momentum": 49.87185183579695,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "8996.TW",
       "name": "高力",
-      "price": 1545.0,
-      "momentum": 38.98023449259289,
+      "price": 1660.0,
+      "momentum": 48.28155567728304,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "6526.TW",
-      "name": "達發",
-      "price": 801.0,
-      "momentum": 36.75643763127662,
+      "ticker": "3701.TW",
+      "name": "大眾控",
+      "price": 59.0,
+      "momentum": 46.198695818948984,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "6805.TW",
+      "name": "富世達",
+      "price": 2395.0,
+      "momentum": 42.51743124043502,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00715L.TW",
+      "name": "期街口布蘭特正2",
+      "price": 82.3499984741211,
+      "momentum": 41.53759408808464,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2409.TW",
+      "name": "友達",
+      "price": 37.25,
+      "momentum": 36.08891448531578,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -177,7 +177,7 @@
       "ticker": "VLO",
       "name": "Valero Energy",
       "price": 433.4200134277344,
-      "momentum": 45.81898576421331,
+      "momentum": 45.818981646931285,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-21 07:00:54",
-  "us_time": "2026-10-21 07:00:54"
+  "tw_time": "2026-10-21 14:00:50",
+  "us_time": "2026-10-21 14:00:50"
 }
