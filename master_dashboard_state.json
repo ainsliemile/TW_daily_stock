@@ -3,11 +3,11 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: -11.79% (空頭)",
-    "BTC": "120MA: 81251.33 突破 72796.90 (連65日) (✅ 安全)",
-    "GOLD": "120MA: 4045.20 跌破 4321.11 (連31日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 81695.38 突破 72800.60 (連65日) (✅ 安全)",
+    "GOLD": "120MA: 4037.80 跌破 4317.11 (連32日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 46887.77 跌破 47947.28 (連7日)",
+    "TWII": "10MA: 46041.43 跌破 47570.79 (連8日)",
     "SOX_10MA": "10MA: 10731.98 跌破 11625.86 (連11日) | ⚠️空頭確認"
   },
   "tw_data": [
@@ -113,7 +113,7 @@
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
       "price": 72.91000366210938,
-      "momentum": -13.02348204467408,
+      "momentum": -13.023485448101113,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-23 07:00:53",
-  "us_time": "2026-10-23 07:00:53"
+  "tw_time": "2026-10-23 14:00:54",
+  "us_time": "2026-10-23 14:00:54"
 }
