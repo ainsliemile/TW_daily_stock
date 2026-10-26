@@ -3,8 +3,8 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: -10.21% (空頭)",
-    "BTC": "120MA: 80367.40 突破 73318.69 (連68日) (✅ 安全)",
-    "GOLD": "120MA: 4016.40 跌破 4312.26 (連33日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 80160.56 突破 73316.97 (連68日) (✅ 安全)",
+    "GOLD": "120MA: 4026.90 跌破 4312.35 (連33日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 46041.43 跌破 47570.79 (連8日)",
@@ -169,7 +169,7 @@
       "ticker": "MPC",
       "name": "Marathon Petroleum",
       "price": 457.2200012207031,
-      "momentum": 56.35342364719169,
+      "momentum": 56.353428337150724,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-10-26 07:00:55",
-  "us_time": "2026-10-26 07:00:55"
+  "tw_time": "2026-10-26 14:00:56",
+  "us_time": "2026-10-26 14:00:56"
 }
