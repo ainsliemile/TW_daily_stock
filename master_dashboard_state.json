@@ -1,29 +1,29 @@
 {
-  "date": "2026-11-11",
+  "date": "2026-11-12",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -18.83% (空頭)",
-    "BTC": "120MA: 73822.55 跌破 75338.01 (連3日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 4069.50 跌破 4252.36 (連45日) (⚠️ 熊市警訊)",
+    "SOX": "動能: -14.33% (空頭)",
+    "BTC": "120MA: 73824.89 跌破 75411.07 (連4日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 3994.30 跌破 4251.73 (連45日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 44257.15 突破 43266.39 (連1日)",
-    "SOX_10MA": "10MA: 9998.33 跌破 10352.20 (連8日) | ⚠️空頭確認"
+    "TWII": "10MA: 42711.92 跌破 43544.23 (連9日)",
+    "SOX_10MA": "10MA: 10564.11 突破 10240.21 (連1日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 32.529998779296875,
-      "momentum": -11.939523719941525,
+      "price": 30.25,
+      "momentum": -18.111604444107304,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 278.6000061035156,
-      "momentum": -13.35671291952209,
+      "price": 260.29998779296875,
+      "momentum": -19.047932249465628,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -78,8 +78,8 @@
     {
       "ticker": "00897.TW",
       "name": "富邦基因免疫生技",
-      "price": 14.760000228881836,
-      "momentum": 19.521480528457325,
+      "price": 14.9399995803833,
+      "momentum": 20.979054285368235,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -92,18 +92,18 @@
       "is_fixed": false
     },
     {
-      "ticker": "00653L.TW",
-      "name": "富邦印度正2",
-      "price": 50.900001525878906,
-      "momentum": 15.96971873589933,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
       "ticker": "2892.TW",
       "name": "第一金",
       "price": 42.150001525878906,
       "momentum": 15.715657505088199,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "2610.TW",
+      "name": "華航",
+      "price": 23.5,
+      "momentum": 15.055250863089142,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -112,40 +112,40 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 54.65999984741211,
-      "momentum": -41.52685462383511,
+      "price": 59.9900016784668,
+      "momentum": -36.95962127905312,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 56.060001373291016,
-      "momentum": -61.454391649986306,
-      "status": "⭐️ 買進標的",
+      "price": 66.02999877929688,
+      "momentum": -55.64087587340064,
+      "status": "❌ 跌破TWII濾網",
       "is_fixed": true
     },
     {
       "ticker": "MRNA",
       "name": "Moderna",
-      "price": 250.8300018310547,
-      "momentum": 227.39048962791642,
+      "price": 248.69000244140625,
+      "momentum": 232.98427734329175,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 535.9199829101562,
-      "momentum": 72.48932629253416,
+      "price": 543.3300170898438,
+      "momentum": 68.23395308251087,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "EPAM",
       "name": "EPAM Systems",
-      "price": 164.13999938964844,
-      "momentum": 60.46510153268979,
+      "price": 162.82000732421875,
+      "momentum": 60.478356958947266,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -153,59 +153,59 @@
       "ticker": "CURE",
       "name": "Direxion Daily Healthcare Bull 3X Shares",
       "price": 177.61000061035156,
-      "momentum": 55.89737766345305,
+      "momentum": 56.55270906777412,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "CRL",
       "name": "Charles River Laboratories",
-      "price": 345.79998779296875,
-      "momentum": 47.04998280002914,
+      "price": 342.69000244140625,
+      "momentum": 48.957987224124764,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "BBY",
       "name": "Best Buy",
-      "price": 104.0999984741211,
-      "momentum": 44.252190750628245,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "VEEV",
-      "name": "Veeva Systems",
-      "price": 305.54998779296875,
-      "momentum": 40.48623509483558,
+      "price": 105.16000366210938,
+      "momentum": 46.000393641044674,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "ACN",
       "name": "Accenture",
-      "price": 258.510009765625,
-      "momentum": 40.42308249070183,
+      "price": 253.66000366210938,
+      "momentum": 41.37566827512422,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "VEEV",
+      "name": "Veeva Systems",
+      "price": 304.7699890136719,
+      "momentum": 39.12640220255927,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "CDW",
       "name": "CDW Corporation",
-      "price": 169.36000061035156,
-      "momentum": 38.234364613384315,
+      "price": 173.0800018310547,
+      "momentum": 36.852798609326584,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "RVTY",
       "name": "Revvity",
-      "price": 159.10000610351562,
-      "momentum": 32.56983322422366,
+      "price": 158.25,
+      "momentum": 34.523444248633425,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-11-11 14:00:56",
-  "us_time": "2026-11-11 14:00:56"
+  "tw_time": "2026-11-12 07:00:58",
+  "us_time": "2026-11-12 07:00:58"
 }
