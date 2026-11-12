@@ -1,29 +1,29 @@
 {
-  "date": "2026-11-12",
+  "date": "2026-11-13",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -14.33% (空頭)",
-    "BTC": "120MA: 73524.40 跌破 75408.56 (連4日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 3982.70 跌破 4247.28 (連46日) (⚠️ 熊市警訊)",
+    "SOX": "動能: -12.73% (空頭)",
+    "BTC": "120MA: 71226.41 跌破 75466.51 (連5日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 3881.70 跌破 4246.44 (連46日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 43091.87 突破 42938.74 (連2日)",
-    "SOX_10MA": "10MA: 10564.11 突破 10240.21 (連1日) | ⚠️空頭確認"
+    "TWII": "10MA: 44257.15 突破 43266.39 (連1日)",
+    "SOX_10MA": "10MA: 10506.67 突破 10139.06 (連2日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 30.989999771118164,
-      "momentum": -17.451471654495222,
+      "price": 32.529998779296875,
+      "momentum": -13.349353141504256,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 265.79998779296875,
-      "momentum": -18.913757920983592,
+      "price": 278.6000061035156,
+      "momentum": -15.008921837419626,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -86,8 +86,16 @@
     {
       "ticker": "00653L.TW",
       "name": "富邦印度正2",
-      "price": 50.75,
-      "momentum": 15.632041785597284,
+      "price": 50.900001525878906,
+      "momentum": 15.973814843889556,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00897.TW",
+      "name": "富邦基因免疫生技",
+      "price": 14.760000228881836,
+      "momentum": 15.309707745718804,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -98,114 +106,106 @@
       "momentum": 14.8018236670599,
       "status": "⭐️ 買進標的",
       "is_fixed": false
-    },
-    {
-      "ticker": "2884.TW",
-      "name": "玉山金",
-      "price": 47.20000076293945,
-      "momentum": 14.70932694787923,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
     }
   ],
   "us_data": [
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 59.9900016784668,
-      "momentum": -36.95962127905312,
+      "price": 58.900001525878906,
+      "momentum": -37.05690302552409,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 66.02999877929688,
-      "momentum": -55.64087587340064,
+      "price": 65.52999877929688,
+      "momentum": -53.42055194336355,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "MRNA",
       "name": "Moderna",
-      "price": 248.69000244140625,
-      "momentum": 232.98427734329175,
+      "price": 231.35000610351562,
+      "momentum": 210.00684221215545,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 543.3300170898438,
-      "momentum": 68.23395308251087,
+      "price": 582.0599975585938,
+      "momentum": 79.0028656094171,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "EPAM",
       "name": "EPAM Systems",
-      "price": 162.82000732421875,
-      "momentum": 60.478356958947266,
+      "price": 163.8300018310547,
+      "momentum": 62.86604495146402,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "CURE",
       "name": "Direxion Daily Healthcare Bull 3X Shares",
-      "price": 177.61000061035156,
-      "momentum": 56.55270906777412,
+      "price": 174.00999450683594,
+      "momentum": 51.20220641688727,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "CRL",
       "name": "Charles River Laboratories",
-      "price": 342.69000244140625,
-      "momentum": 48.957987224124764,
+      "price": 340.80999755859375,
+      "momentum": 49.577130393635045,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "BBY",
       "name": "Best Buy",
-      "price": 105.16000366210938,
-      "momentum": 46.000393641044674,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "ACN",
-      "name": "Accenture",
-      "price": 253.66000366210938,
-      "momentum": 41.37566827512422,
+      "price": 103.41000366210938,
+      "momentum": 41.26302064694685,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "VEEV",
       "name": "Veeva Systems",
-      "price": 304.7699890136719,
-      "momentum": 39.12640220255927,
+      "price": 302.4200134277344,
+      "momentum": 39.77454049865219,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "ACN",
+      "name": "Accenture",
+      "price": 249.9499969482422,
+      "momentum": 38.06715034088975,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "CDW",
       "name": "CDW Corporation",
-      "price": 173.0800018310547,
-      "momentum": 36.852798609326584,
+      "price": 172.7899932861328,
+      "momentum": 36.86526223067021,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "RVTY",
       "name": "Revvity",
-      "price": 158.25,
-      "momentum": 34.523444248633425,
+      "price": 157.02000427246094,
+      "momentum": 33.60271632090443,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-11-12 14:00:53",
-  "us_time": "2026-11-12 14:00:53"
+  "tw_time": "2026-11-13 07:00:51",
+  "us_time": "2026-11-13 07:00:51"
 }
