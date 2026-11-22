@@ -1,21 +1,21 @@
 {
-  "date": "2026-11-20",
+  "date": "2026-11-23",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
-    "SOX": "動能: -18.95% (空頭)",
-    "BTC": "120MA: 61813.17 跌破 75444.32 (連12日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 3551.20 跌破 4209.08 (連52日) (⚠️ 熊市警訊)",
+    "SOX": "動能: -24.02% (空頭)",
+    "BTC": "120MA: 61094.38 跌破 75332.83 (連15日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 3515.40 跌破 4208.78 (連52日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
     "TWII": "10MA: 36033.29 跌破 41118.50 (連5日)",
-    "SOX_10MA": "10MA: 9419.72 跌破 9896.57 (連4日) | ⚠️空頭確認"
+    "SOX_10MA": "10MA: 8408.59 跌破 9798.40 (連5日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
       "price": 21.239999771118164,
-      "momentum": -39.88461253791588,
+      "momentum": -39.71944785269086,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -23,7 +23,7 @@
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
       "price": 178.89999389648438,
-      "momentum": -41.93919531557063,
+      "momentum": -41.73948481619208,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -39,7 +39,7 @@
       "ticker": "00632R.TW",
       "name": "元大台灣50反1",
       "price": 12.520000457763672,
-      "momentum": 25.28549353945889,
+      "momentum": 25.416938860413474,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -47,7 +47,7 @@
       "ticker": "00686R.TW",
       "name": "群益臺灣加權反1",
       "price": 1.2400000095367432,
-      "momentum": 25.2653058545384,
+      "momentum": 25.367650603202428,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -55,7 +55,7 @@
       "ticker": "00676R.TW",
       "name": "富邦臺灣加權反1",
       "price": 6.909999847412109,
-      "momentum": 25.207455600984453,
+      "momentum": 25.046793354732365,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -63,7 +63,7 @@
       "ticker": "00664R.TW",
       "name": "國泰臺灣加權反1",
       "price": 2.009999990463257,
-      "momentum": 24.488033591659185,
+      "momentum": 24.149762512033224,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -71,7 +71,7 @@
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
       "price": 34.77000045776367,
-      "momentum": 20.726478690503058,
+      "momentum": 19.89833236082226,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -79,7 +79,7 @@
       "ticker": "00653L.TW",
       "name": "富邦印度正2",
       "price": 51.5,
-      "momentum": 16.539051697690432,
+      "momentum": 16.97440312784888,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -92,18 +92,18 @@
       "is_fixed": false
     },
     {
-      "ticker": "00656R.TW",
-      "name": "國泰中國A50反1",
-      "price": 6.869999885559082,
-      "momentum": 12.973921257889831,
+      "ticker": "00652.TW",
+      "name": "富邦印度",
+      "price": 36.900001525878906,
+      "momentum": 12.955959961522057,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "00652.TW",
-      "name": "富邦印度",
-      "price": 36.900001525878906,
-      "momentum": 12.883154870443503,
+      "ticker": "2412.TW",
+      "name": "中華電",
+      "price": 162.5,
+      "momentum": 12.502387318563791,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -112,100 +112,100 @@
     {
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
-      "price": 46.5099983215332,
-      "momentum": -46.377542269142864,
+      "price": 35.0099983215332,
+      "momentum": -56.98503859007986,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
     {
       "ticker": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3X Shares",
-      "price": 45.29999923706055,
-      "momentum": -64.37479776837756,
+      "price": 30.8799991607666,
+      "momentum": -72.79280999717685,
       "status": "❌ 跌破TWII濾網",
       "is_fixed": true
     },
     {
-      "ticker": "MRNA",
-      "name": "Moderna",
-      "price": 196.7899932861328,
-      "momentum": 112.6184409020456,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
       "ticker": "BWET",
       "name": "Breakwave Tanker Shipping ETF",
-      "price": 721.2000122070312,
-      "momentum": 111.283393174359,
+      "price": 745.77001953125,
+      "momentum": 124.22049563633178,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
-      "ticker": "CRL",
-      "name": "Charles River Laboratories",
-      "price": 327.92999267578125,
-      "momentum": 37.53539963274966,
+      "ticker": "MRNA",
+      "name": "Moderna",
+      "price": 195.0,
+      "momentum": 117.52967104742413,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "EPAM",
       "name": "EPAM Systems",
-      "price": 154.16000366210938,
-      "momentum": 36.723541669182055,
+      "price": 153.24000549316406,
+      "momentum": 32.48807788402875,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
-      "ticker": "CDW",
-      "name": "CDW Corporation",
-      "price": 169.00999450683594,
-      "momentum": 32.349339688236675,
+      "ticker": "CRL",
+      "name": "Charles River Laboratories",
+      "price": 314.32000732421875,
+      "momentum": 31.297857400840773,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "BBY",
       "name": "Best Buy",
-      "price": 99.2699966430664,
-      "momentum": 29.495808168922032,
-      "status": "❌ SOX動能轉弱",
-      "is_fixed": false
-    },
-    {
-      "ticker": "ALLE",
-      "name": "Allegion",
-      "price": 187.82000732421875,
-      "momentum": 27.530626806191293,
+      "price": 97.94999694824219,
+      "momentum": 24.665758746950537,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
       "ticker": "MTD",
       "name": "Mettler Toledo",
-      "price": 1705.6600341796875,
-      "momentum": 26.772554106167235,
+      "price": 1666.8800048828125,
+      "momentum": 23.071055972634902,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
-      "ticker": "RVTY",
-      "name": "Revvity",
-      "price": 151.58999633789062,
-      "momentum": 25.83663646411285,
+      "ticker": "REGN",
+      "name": "Regeneron Pharmaceuticals",
+      "price": 920.6900024414062,
+      "momentum": 22.72814907695563,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
     {
-      "ticker": "CRWD",
-      "name": "CrowdStrike",
-      "price": 237.02999877929688,
-      "momentum": 24.87277039261334,
+      "ticker": "MCK",
+      "name": "McKesson Corporation",
+      "price": 1069.4300537109375,
+      "momentum": 22.6866391265275,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "CDW",
+      "name": "CDW Corporation",
+      "price": 161.77999877929688,
+      "momentum": 22.542936344342344,
+      "status": "❌ SOX動能轉弱",
+      "is_fixed": false
+    },
+    {
+      "ticker": "BDX",
+      "name": "Becton Dickinson",
+      "price": 212.77999877929688,
+      "momentum": 21.46085333270713,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-11-20 14:00:52",
-  "us_time": "2026-11-20 14:00:52"
+  "tw_time": "2026-11-23 07:01:02",
+  "us_time": "2026-11-23 07:01:02"
 }
