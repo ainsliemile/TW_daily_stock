@@ -3,107 +3,107 @@
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: -22.12% (空頭)",
-    "BTC": "120MA: 59859.87 跌破 75266.77 (連17日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 3555.10 跌破 4194.07 (連54日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 58984.94 跌破 75259.48 (連17日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 3526.10 跌破 4187.13 (連55日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 36811.89 跌破 40633.52 (連6日)",
+    "TWII": "10MA: 38195.43 跌破 39768.39 (連8日)",
     "SOX_10MA": "10MA: 8832.50 跌破 9637.23 (連7日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 22.5,
-      "momentum": -35.58020565326438,
+      "price": 23.780000686645508,
+      "momentum": -32.4830617155489,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 188.89999389648438,
-      "momentum": -37.98868604549693,
+      "price": 198.6999969482422,
+      "momentum": -35.10275624514174,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "2466.TW",
       "name": "冠西電",
-      "price": 383.0,
-      "momentum": 157.50626289419392,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00632R.TW",
-      "name": "元大台灣50反1",
-      "price": 12.15999984741211,
-      "momentum": 21.029651490313515,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00676R.TW",
-      "name": "富邦臺灣加權反1",
-      "price": 6.699999809265137,
-      "momentum": 20.542588242624404,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00664R.TW",
-      "name": "國泰臺灣加權反1",
-      "price": 1.9500000476837158,
-      "momentum": 20.41166631888367,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00686R.TW",
-      "name": "群益臺灣加權反1",
-      "price": 1.190000057220459,
-      "momentum": 20.251101803901182,
+      "price": 345.0,
+      "momentum": 130.89660882464554,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 33.83000183105469,
-      "momentum": 18.087713250172587,
+      "price": 34.599998474121094,
+      "momentum": 21.549151041762826,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "00653L.TW",
       "name": "富邦印度正2",
-      "price": 51.20000076293945,
-      "momentum": 16.741646397419995,
+      "price": 52.79999923706055,
+      "momentum": 20.25938505894255,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00686R.TW",
+      "name": "群益臺灣加權反1",
+      "price": 1.1699999570846558,
+      "momentum": 18.2300648611499,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00632R.TW",
+      "name": "元大台灣50反1",
+      "price": 11.710000038146973,
+      "momentum": 16.945864529797106,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00664R.TW",
+      "name": "國泰臺灣加權反1",
+      "price": 1.8899999856948853,
+      "momentum": 16.70668823342506,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00676R.TW",
+      "name": "富邦臺灣加權反1",
+      "price": 6.460000038146973,
+      "momentum": 16.630820211793683,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "1476.TW",
       "name": "儒鴻",
-      "price": 370.5,
-      "momentum": 15.34254440794255,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "2618.TW",
-      "name": "長榮航",
-      "price": 48.599998474121094,
-      "momentum": 14.625189313034104,
+      "price": 368.5,
+      "momentum": 15.535407145314274,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
       "ticker": "00652.TW",
       "name": "富邦印度",
-      "price": 36.97999954223633,
-      "momentum": 13.29401724608511,
+      "price": 37.599998474121094,
+      "momentum": 15.074339521300061,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00671R.TW",
+      "name": "富邦NASDAQ反1",
+      "price": 2.75,
+      "momentum": 12.704915389743032,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -169,7 +169,7 @@
       "ticker": "REGN",
       "name": "Regeneron Pharmaceuticals",
       "price": 987.0900268554688,
-      "momentum": 33.732727242734526,
+      "momentum": 33.73273236137233,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -177,7 +177,7 @@
       "ticker": "CURE",
       "name": "Direxion Daily Healthcare Bull 3X Shares",
       "price": 164.05999755859375,
-      "momentum": 32.83760252319519,
+      "momentum": 32.837597714678154,
       "status": "❌ SOX動能轉弱",
       "is_fixed": false
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-11-25 07:01:00",
-  "us_time": "2026-11-25 07:01:00"
+  "tw_time": "2026-11-25 14:00:50",
+  "us_time": "2026-11-25 14:00:50"
 }
