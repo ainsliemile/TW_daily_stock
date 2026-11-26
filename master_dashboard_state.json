@@ -1,29 +1,29 @@
 {
-  "date": "2026-11-26",
+  "date": "2026-11-27",
   "filters": {
     "IXIC": "20MA: 25672.37 跌破 26335.57 (連2日)",
     "SOX": "動能: -24.87% (空頭)",
-    "BTC": "120MA: 60585.77 跌破 75238.46 (連18日) (⚠️ 熊市警訊)",
-    "GOLD": "120MA: 3606.30 跌破 4180.90 (連56日) (⚠️ 熊市警訊)",
+    "BTC": "120MA: 60386.27 跌破 75207.38 (連19日) (⚠️ 熊市警訊)",
+    "GOLD": "120MA: 3593.40 跌破 4180.80 (連56日) (⚠️ 熊市警訊)",
     "STLFSI4": "<a href=\"https://fred.stlouisfed.org/series/STLFSI4\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: >0 | 🚨熊市: >0.5)",
     "CDS": "<a href=\"https://hk.investing.com/rates-bonds/united-states-cds-5-years-usd\" target=\"_blank\" style=\"color:#79c0ff; text-decoration:underline;\">🔗 點擊查詢</a> (⚠️警戒: 月漲>20% | 🚨熊市: >40%)",
-    "TWII": "10MA: 39151.81 跌破 39374.39 (連9日)",
+    "TWII": "10MA: 38195.43 跌破 39768.39 (連8日)",
     "SOX_10MA": "10MA: 8774.86 跌破 9458.30 (連8日) | ⚠️空頭確認"
   },
   "tw_data": [
     {
       "ticker": "00631L.TW",
       "name": "元大台灣50正2",
-      "price": 25.5,
-      "momentum": -26.806324670120958,
+      "price": 23.780000686645508,
+      "momentum": -31.743307858720314,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
     {
       "ticker": "00675L.TW",
       "name": "富邦臺灣加權正2",
-      "price": 214.4499969482422,
-      "momentum": -29.230084627920622,
+      "price": 198.6999969482422,
+      "momentum": -34.4276886520385,
       "status": "❌ 跌破SOX 10MA(連4日)",
       "is_fixed": true
     },
@@ -36,26 +36,50 @@
       "is_fixed": false
     },
     {
-      "ticker": "00653L.TW",
-      "name": "富邦印度正2",
-      "price": 53.0,
-      "momentum": 20.564395591765983,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
       "ticker": "00674R.TW",
       "name": "期元大S&P黃金反1",
-      "price": 34.029998779296875,
-      "momentum": 19.929481096005354,
+      "price": 34.599998474121094,
+      "momentum": 21.93829009034297,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
     {
-      "ticker": "00652.TW",
-      "name": "富邦印度",
-      "price": 37.83000183105469,
-      "momentum": 16.127641397493832,
+      "ticker": "00653L.TW",
+      "name": "富邦印度正2",
+      "price": 52.79999923706055,
+      "momentum": 20.109433872866234,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00686R.TW",
+      "name": "群益臺灣加權反1",
+      "price": 1.1699999570846558,
+      "momentum": 18.2300648611499,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00632R.TW",
+      "name": "元大台灣50反1",
+      "price": 11.710000038146973,
+      "momentum": 16.55480549564331,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00676R.TW",
+      "name": "富邦臺灣加權反1",
+      "price": 6.460000038146973,
+      "momentum": 16.11650244450057,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
+      "ticker": "00664R.TW",
+      "name": "國泰臺灣加權反1",
+      "price": 1.8899999856948853,
+      "momentum": 15.990210230041036,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     },
@@ -68,42 +92,18 @@
       "is_fixed": false
     },
     {
+      "ticker": "00652.TW",
+      "name": "富邦印度",
+      "price": 37.599998474121094,
+      "momentum": 15.421594713343845,
+      "status": "⭐️ 買進標的",
+      "is_fixed": false
+    },
+    {
       "ticker": "2412.TW",
       "name": "中華電",
       "price": 166.5,
       "momentum": 14.183899167924729,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "1477.TW",
-      "name": "聚陽",
-      "price": 233.0,
-      "momentum": 13.969814389590507,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00686R.TW",
-      "name": "群益臺灣加權反1",
-      "price": 1.1200000047683716,
-      "momentum": 13.177502619918169,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "00632R.TW",
-      "name": "元大台灣50反1",
-      "price": 11.1899995803833,
-      "momentum": 11.379011130583583,
-      "status": "⭐️ 買進標的",
-      "is_fixed": false
-    },
-    {
-      "ticker": "3701.TW",
-      "name": "大眾控",
-      "price": 52.900001525878906,
-      "momentum": 10.907978659217976,
       "status": "⭐️ 買進標的",
       "is_fixed": false
     }
@@ -113,7 +113,7 @@
       "ticker": "USD",
       "name": "ProShares Ultra Semiconductors",
       "price": 39.369998931884766,
-      "momentum": -55.9776157620976,
+      "momentum": -55.97761478453101,
       "status": "⭐️ 買進標的",
       "is_fixed": true
     },
@@ -206,6 +206,6 @@
       "is_fixed": false
     }
   ],
-  "tw_time": "2026-11-26 14:00:58",
-  "us_time": "2026-11-26 14:00:58"
+  "tw_time": "2026-11-27 07:00:56",
+  "us_time": "2026-11-27 07:00:56"
 }
